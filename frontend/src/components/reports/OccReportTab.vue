@@ -223,6 +223,16 @@ function handleDownloadPdf() {
   }
 }
 
+function handlePrint() {
+  if (activeReport.value === '01' && occ01ViewRef.value) {
+    occ01ViewRef.value.printReport()
+  } else if (activeReport.value === '02' && occ02ViewRef.value) {
+    occ02ViewRef.value.printReport()
+  } else {
+    window.print()
+  }
+}
+
 function exportReportCSV() {
   if (activeReport.value === '01') {
     const headers = [
@@ -390,13 +400,25 @@ defineExpose({
 
         <button 
           type="button"
+          @click="handlePrint"
+          class="px-3.5 py-2 text-xs sm:text-sm border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl font-bold transition flex items-center space-x-1.5 shadow-xs cursor-pointer"
+          title="พิมพ์ผ่านเบราว์เซอร์ (สามารถเลือกบันทึกเป็น PDF คมชัดสูงได้)"
+        >
+          <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+          </svg>
+          <span>พิมพ์เอกสาร</span>
+        </button>
+
+        <button 
+          type="button"
           @click="handleDownloadPdf"
           class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs sm:text-sm font-bold transition flex items-center space-x-1.5 shadow-xs cursor-pointer"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
           </svg>
-          <span>พิมพ์ / บันทึก PDF</span>
+          <span>ดาวน์โหลด PDF (A4)</span>
         </button>
       </div>
     </div>
