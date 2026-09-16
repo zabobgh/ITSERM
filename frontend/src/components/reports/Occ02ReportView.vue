@@ -105,10 +105,10 @@ defineExpose({
           <!-- Official Header -->
           <div class="text-center space-y-2 border-b-2 border-slate-900 pb-4 mb-5">
             <div class="flex justify-between items-start">
-              <div class="text-left text-xs font-semibold text-slate-700 w-28">
+              <div class="text-left text-xs font-semibold text-slate-700 w-44 shrink-0">
                 <!-- Header left spacing -->
               </div>
-              <div class="h-16 flex items-center justify-center min-w-[80px]">
+              <div class="h-16 flex items-center justify-center min-w-[80px] flex-1">
                 <img 
                   v-if="reportLogo" 
                   :src="reportLogo" 
@@ -116,8 +116,8 @@ defineExpose({
                   class="max-h-16 max-w-[140px] object-contain mx-auto" 
                 />
               </div>
-              <div class="text-right text-xs font-mono font-bold text-slate-900 w-28">
-                <span class="px-2.5 py-1 border border-slate-800 rounded-md">แบบรายงาน OCC-นบ 02</span>
+              <div class="text-right text-xs font-mono font-bold text-slate-900 w-44 shrink-0">
+                <span class="inline-block whitespace-nowrap px-2.5 py-1 border border-slate-800 rounded-md">แบบรายงาน OCC-นบ 02</span>
               </div>
             </div>
 
