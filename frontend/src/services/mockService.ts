@@ -247,7 +247,7 @@ export function resetDemoData() {
 }
 
 // Symptom catalog for risk calculation
-const symptomsCatalog = {
+export const symptomsCatalog = {
   g1: [
     'ไอ', 'แสบจมูก', 'เจ็บคอ คอแห้ง', 'หายใจติดขัด',
     'ตาแดง/แสบตา/คันตา', 'น้ำมูกไหล', 'น้ำตาไหล',
@@ -264,7 +264,7 @@ const symptomsCatalog = {
   ]
 }
 
-function calculateRisk(scoreA: number, scoreB: number, symptoms: string[]) {
+export function calculateRisk(scoreA: number, scoreB: number, symptoms: string[]) {
   const tot = scoreA + scoreB
   let highest = 0
   for (const s of symptoms || []) {
@@ -295,6 +295,16 @@ function calculateRisk(scoreA: number, scoreB: number, symptoms: string[]) {
   return { scoreA, scoreB, tot, highest, level, requireBlood }
 }
 
+function validateScoredAnswers(submission: AssessmentSubmission) {
+  if (Object.keys(submission.answers_a || {}).length !== 9 || Object.keys(submission.answers_b || {}).length !== 6) {
+    throw new Error('กรุณาตอบคำถามพฤติกรรมให้ครบ 15 ข้อ')
+  }
+  for (let q = 9; q <= 23; q++) {
+    const value = (q <= 17 ? submission.answers_a : submission.answers_b)['q' + q]
+    if (!Number.isInteger(value) || value < 1 || value > 3) throw new Error('คะแนนต้องอยู่ระหว่าง 1 ถึง 3')
+  }
+}
+
 // LocalStorage implementations
 export const localApi = {
   fetchFarmer(citizenId: string): Promise<Farmer | null> {
@@ -304,6 +314,7 @@ export const localApi = {
   },
 
   createAssessment(submission: AssessmentSubmission): Promise<AssessmentRecord> {
+    validateScoredAnswers(submission)
     const records = getStoredRecords()
     const farmers = getStoredFarmers()
 
@@ -330,7 +341,7 @@ export const localApi = {
       symptoms: submission.symptoms || [],
       risk_level: level,
       require_blood_test: requireBlood,
-      cholinesterase_result: submission.cholinesterase_result || 'ปลอดภัย',
+      cholinesterase_result: submission.cholinesterase_result || '',
       chemical_names: submission.chemical_names || [],
       answers_a: submission.answers_a,
       answers_b: submission.answers_b,
@@ -387,6 +398,7 @@ export const localApi = {
   },
 
   updateAssessment(id: string, submission: AssessmentSubmission): Promise<AssessmentRecord> {
+    validateScoredAnswers(submission)
     const records = getStoredRecords()
     const idx = records.findIndex(r => r.id === id)
     if (idx === -1) return Promise.reject(new Error('ไม่พบข้อมูลแบบประเมินที่ต้องการแก้ไข'))
@@ -414,7 +426,7 @@ export const localApi = {
       symptoms: submission.symptoms || [],
       risk_level: level,
       require_blood_test: requireBlood,
-      cholinesterase_result: submission.cholinesterase_result || records[idx].cholinesterase_result,
+      cholinesterase_result: submission.cholinesterase_result ?? records[idx].cholinesterase_result,
       chemical_names: submission.chemical_names || [],
       answers_a: submission.answers_a,
       answers_b: submission.answers_b
@@ -481,7 +493,7 @@ export const localApi = {
         highRiskCount++
       }
 
-      if (r.cholinesterase_result) {
+      if (['ปกติ', 'ปลอดภัย', 'มีความเสี่ยง', 'ไม่ปลอดภัย'].includes(r.cholinesterase_result)) {
         testedBloodCount++
         if (bloodDist[r.cholinesterase_result] !== undefined) {
           bloodDist[r.cholinesterase_result]++
@@ -516,7 +528,7 @@ export const localApi = {
       r.risk_level === 'มีความเสี่ยงสูง' || 
       r.risk_level === 'มีความเสี่ยงสูงมาก'
     ).length
-    const tested = records.filter(r => Boolean(r.cholinesterase_result)).length
+    const tested = records.filter(r => ['ปกติ', 'ปลอดภัย', 'มีความเสี่ยง', 'ไม่ปลอดภัย'].includes(r.cholinesterase_result)).length
     const unsafe = records.filter(r => r.cholinesterase_result === 'มีความเสี่ยง' || r.cholinesterase_result === 'ไม่ปลอดภัย').length
 
     return Promise.resolve({
@@ -538,7 +550,7 @@ export const localApi = {
       r.risk_level === 'มีความเสี่ยงสูงมาก'
     ).length
     const target = Math.max(highRisk, 1)
-    const tested = records.filter(r => Boolean(r.cholinesterase_result)).length
+    const tested = records.filter(r => ['ปกติ', 'ปลอดภัย', 'มีความเสี่ยง', 'ไม่ปลอดภัย'].includes(r.cholinesterase_result)).length
 
     return Promise.resolve({
       province,
@@ -550,16 +562,21 @@ export const localApi = {
   },
 
   fetchFollowUps(citizenId?: string): Promise<FollowUpRecord[]> {
-    const list = getStoredFollowUps()
+    const list = getStoredFollowUps().sort((a, b) =>
+      b.follow_up_date.localeCompare(a.follow_up_date) || b.created_at.localeCompare(a.created_at))
     if (!citizenId) return Promise.resolve(list)
     return Promise.resolve(list.filter(f => f.citizen_id === citizenId))
   },
 
   createFollowUp(data: Omit<FollowUpRecord, 'id' | 'created_at'>): Promise<FollowUpRecord> {
+    const assessment = getStoredRecords().find(r => r.id === data.assessment_id)
+    if (!assessment || assessment.citizen_id !== data.citizen_id) {
+      return Promise.reject(new Error('แบบประเมินไม่ตรงกับเกษตรกรที่ระบุ'))
+    }
     const list = getStoredFollowUps()
     const newRecord: FollowUpRecord = {
       ...data,
-      id: `fu-${Date.now()}`,
+      id: `fu-${crypto.randomUUID()}`,
       created_at: new Date().toISOString()
     }
     list.unshift(newRecord)

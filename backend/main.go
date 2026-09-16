@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"nbk-occ-system/backend/database"
 	"nbk-occ-system/backend/handlers"
@@ -72,6 +73,10 @@ func main() {
 		r.Static("/assets", filepath.Join(distPath, "assets"))
 		r.StaticFile("/favicon.ico", filepath.Join(distPath, "favicon.ico"))
 		r.NoRoute(func(c *gin.Context) {
+			if strings.HasPrefix(c.Request.URL.Path, "/api/") {
+				c.JSON(http.StatusNotFound, gin.H{"error": "API endpoint not available"})
+				return
+			}
 			c.File(filepath.Join(distPath, "index.html"))
 		})
 	} else {

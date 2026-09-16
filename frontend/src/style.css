@@ -81,3 +81,15 @@ body {
     page-break-after: always;
   }
 }
+/* QA fixes: visible keyboard focus and scrollable dialogs on short screens. */
+:where(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid #047857;
+  outline-offset: 3px;
+}
+[role="dialog"] > div:first-child {
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+}
+@media (max-width: 640px) {
+  button { min-height: 44px; }
+}

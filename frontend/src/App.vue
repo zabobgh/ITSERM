@@ -175,7 +175,7 @@ function handleGlobalFollowUpSaved() {
 
 function startNewAssessment() {
   if (wizardRef.value) {
-    wizardRef.value.resetForm()
+    wizardRef.value.discardDraft()
   }
   isMobileMenuOpen.value = false
   switchTab('wizard')

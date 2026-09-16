@@ -101,6 +101,7 @@ async function handleSubmit() {
   <div 
     v-if="isOpen && record" 
     class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs overflow-y-auto"
+    v-modal-focus="() => emit('close')"
     @click.self="emit('close')"
   >
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-200/90 space-y-5 my-8">
@@ -116,7 +117,8 @@ async function handleSubmit() {
           </div>
         </div>
         <button 
-          @click="emit('close')" 
+          @click="emit('close')"
+          aria-label="ปิดหน้าต่างติดตามผล"
           class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 text-sm font-bold"
         >
           ✕
@@ -127,10 +129,10 @@ async function handleSubmit() {
         <!-- Date & Responsible Person -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block font-semibold text-slate-800 mb-1">
+            <label for="AddFollowUpModal-form-follow_up_date" class="block font-semibold text-slate-800 mb-1">
               วันที่นัดติดตามผล <span class="text-rose-500">*</span>
             </label>
-            <input 
+            <input id="AddFollowUpModal-form-follow_up_date" 
               type="date" 
               v-model="form.follow_up_date"
               class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-amber-500"
@@ -139,10 +141,10 @@ async function handleSubmit() {
           </div>
 
           <div>
-            <label class="block font-semibold text-slate-800 mb-1">
+            <label for="AddFollowUpModal-form-responsible_person" class="block font-semibold text-slate-800 mb-1">
               เจ้าหน้าที่ผู้รับผิดชอบ <span class="text-rose-500">*</span>
             </label>
-            <input 
+            <input id="AddFollowUpModal-form-responsible_person" 
               type="text" 
               v-model="form.responsible_person"
               placeholder="ชื่อ - สกุล เจ้าหน้าที่"
@@ -154,10 +156,10 @@ async function handleSubmit() {
 
         <!-- Follow-up Type -->
         <div>
-          <label class="block font-semibold text-slate-800 mb-1">
+          <label for="AddFollowUpModal-form-follow_up_type" class="block font-semibold text-slate-800 mb-1">
             ประเภทการติดตามผล <span class="text-rose-500">*</span>
           </label>
-          <select 
+          <select id="AddFollowUpModal-form-follow_up_type" 
             v-model="form.follow_up_type"
             class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-amber-500"
           >
@@ -171,10 +173,10 @@ async function handleSubmit() {
 
         <!-- Status / Result -->
         <div>
-          <label class="block font-semibold text-slate-800 mb-1">
+          <label for="AddFollowUpModal-form-result" class="block font-semibold text-slate-800 mb-1">
             สถานะ / ผลการติดตาม <span class="text-rose-500">*</span>
           </label>
-          <select 
+          <select id="AddFollowUpModal-form-result" 
             v-model="form.result"
             class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-amber-500"
           >
@@ -187,8 +189,8 @@ async function handleSubmit() {
 
         <!-- Notes -->
         <div>
-          <label class="block font-semibold text-slate-800 mb-1">บันทึกเพิ่มเติม / แผนการดูแล</label>
-          <textarea 
+          <label for="AddFollowUpModal-form-notes" class="block font-semibold text-slate-800 mb-1">บันทึกเพิ่มเติม / แผนการดูแล</label>
+          <textarea id="AddFollowUpModal-form-notes" 
             v-model="form.notes"
             rows="3"
             placeholder="รายละเอียดการให้คำแนะนำ ผลการตรวจเยี่ยม หรือข้อสังเกตเพิ่มเติม..."

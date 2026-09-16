@@ -49,6 +49,10 @@ func CreateAssessment(c *gin.Context) {
 		return
 	}
 
+	if err := models.ValidateScoredAnswers(sub.AnswersA, sub.AnswersB); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	if sub.EvalDate == "" {
 		sub.EvalDate = time.Now().Format("2006-01-02")
 	}
@@ -64,15 +68,8 @@ func CreateAssessment(c *gin.Context) {
 		sub.AnswersA, sub.AnswersB, sub.Symptoms,
 	)
 
-	// If no blood result specified but required, default or keep what was entered
+	// An absent test result is not a normal or safe result.
 	bloodResult := sub.CholinesteraseResult
-	if bloodResult == "" {
-		if requireBlood {
-			bloodResult = "รอรับการตรวจ"
-		} else {
-			bloodResult = "ปกติ"
-		}
-	}
 
 	// 1. Upsert farmer record
 	_, err := database.DB.Exec(`
@@ -94,7 +91,7 @@ func CreateAssessment(c *gin.Context) {
 	}
 
 	// 2. Insert assessment record
-	assessmentID := fmt.Sprintf("eval-%s-%d", sub.CitizenID, time.Now().Unix())
+	assessmentID := fmt.Sprintf("eval-%s-%d", sub.CitizenID, time.Now().UnixNano())
 	symptomsJSON, _ := json.Marshal(sub.Symptoms)
 	chemJSON, _ := json.Marshal(sub.ChemicalNames)
 	answersAJSON, _ := json.Marshal(sub.AnswersA)
@@ -144,6 +141,8 @@ func CreateAssessment(c *gin.Context) {
 		RequireBloodTest:     requireBlood,
 		CholinesteraseResult: bloodResult,
 		ChemicalNames:        sub.ChemicalNames,
+		AnswersA:             sub.AnswersA,
+		AnswersB:             sub.AnswersB,
 		CreatedAt:            time.Now().Format("2006-01-02 15:04:05"),
 	}
 
@@ -160,7 +159,7 @@ func GetAssessments(c *gin.Context) {
 		       a.eval_date, a.interviewer_name, a.health_center,
 		       a.score_a, a.score_b, a.total_score, a.highest_symptom_group,
 		       a.symptoms, a.risk_level, a.require_blood_test, a.cholinesterase_result,
-		       a.chemical_names, a.created_at
+		       a.chemical_names, a.created_at, a.answers_a, a.answers_b
 		FROM assessments a
 		JOIN farmers f ON a.citizen_id = f.citizen_id
 		WHERE 1=1
@@ -190,7 +189,7 @@ func GetAssessments(c *gin.Context) {
 	records := []models.AssessmentRecord{}
 	for rows.Next() {
 		var rec models.AssessmentRecord
-		var symptomsStr, chemStr sql.NullString
+		var symptomsStr, chemStr, answersAStr, answersBStr sql.NullString
 		var requireBloodInt int
 
 		err := rows.Scan(
@@ -198,12 +197,14 @@ func GetAssessments(c *gin.Context) {
 			&rec.EvalDate, &rec.InterviewerName, &rec.HealthCenter,
 			&rec.ScoreA, &rec.ScoreB, &rec.TotalScore, &rec.HighestSymptomGroup,
 			&symptomsStr, &rec.RiskLevel, &requireBloodInt, &rec.CholinesteraseResult,
-			&chemStr, &rec.CreatedAt,
+			&chemStr, &rec.CreatedAt, &answersAStr, &answersBStr,
 		)
 		if err != nil {
 			continue
 		}
 
+		_ = json.Unmarshal([]byte(answersAStr.String), &rec.AnswersA)
+		_ = json.Unmarshal([]byte(answersBStr.String), &rec.AnswersB)
 		rec.RequireBloodTest = (requireBloodInt == 1)
 		if symptomsStr.Valid && symptomsStr.String != "" {
 			_ = json.Unmarshal([]byte(symptomsStr.String), &rec.Symptoms)
@@ -227,13 +228,13 @@ func GetAssessmentByID(c *gin.Context) {
 		       a.eval_date, a.interviewer_name, a.health_center,
 		       a.score_a, a.score_b, a.total_score, a.highest_symptom_group,
 		       a.symptoms, a.risk_level, a.require_blood_test, a.cholinesterase_result,
-		       a.chemical_names, a.created_at
+		       a.chemical_names, a.created_at, a.answers_a, a.answers_b
 		FROM assessments a
 		JOIN farmers f ON a.citizen_id = f.citizen_id
 		WHERE a.id = ?
 	`
 	var rec models.AssessmentRecord
-	var symptomsStr, chemStr sql.NullString
+	var symptomsStr, chemStr, answersAStr, answersBStr sql.NullString
 	var requireBloodInt int
 
 	err := database.DB.QueryRow(query, id).Scan(
@@ -241,7 +242,7 @@ func GetAssessmentByID(c *gin.Context) {
 		&rec.EvalDate, &rec.InterviewerName, &rec.HealthCenter,
 		&rec.ScoreA, &rec.ScoreB, &rec.TotalScore, &rec.HighestSymptomGroup,
 		&symptomsStr, &rec.RiskLevel, &requireBloodInt, &rec.CholinesteraseResult,
-		&chemStr, &rec.CreatedAt,
+		&chemStr, &rec.CreatedAt, &answersAStr, &answersBStr,
 	)
 
 	if err == sql.ErrNoRows {
@@ -252,6 +253,8 @@ func GetAssessmentByID(c *gin.Context) {
 		return
 	}
 
+	_ = json.Unmarshal([]byte(answersAStr.String), &rec.AnswersA)
+	_ = json.Unmarshal([]byte(answersBStr.String), &rec.AnswersB)
 	rec.RequireBloodTest = (requireBloodInt == 1)
 	if symptomsStr.Valid && symptomsStr.String != "" {
 		_ = json.Unmarshal([]byte(symptomsStr.String), &rec.Symptoms)
@@ -292,6 +295,10 @@ func UpdateAssessment(c *gin.Context) {
 		return
 	}
 
+	if err := models.ValidateScoredAnswers(sub.AnswersA, sub.AnswersB); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	scoreA, scoreB, tot, highest, level, requireBlood := models.CalculateRiskMatrix(
 		sub.AnswersA, sub.AnswersB, sub.Symptoms,
 	)

@@ -3,6 +3,7 @@ import { ref, watch, computed } from 'vue'
 import type { AssessmentRecord, AssessmentSubmission } from '../../types'
 import { HEALTH_CENTERS } from '../../constants/healthCenters'
 import { updateAssessment } from '../../services/api'
+import { calculateRisk, symptomsCatalog } from '../../services/mockService'
 
 const props = defineProps<{
   record: AssessmentRecord | null
@@ -36,26 +37,14 @@ const form = ref<AssessmentSubmission>({
     q18: 1, q19: 1, q20: 1, q21: 1, q22: 1, q23: 1
   },
   symptoms: [],
-  cholinesterase_result: 'ปลอดภัย',
+  cholinesterase_result: '',
   chemical_names: []
 })
 
 const symptomGroups = [
-  {
-    group: 1,
-    title: 'กลุ่มที่ 1: อาการระคายเคืองเฉพาะที่ (ตา จมูก ผิวหนัง)',
-    items: ['ตาแดง/แสบตา/คันตา', 'น้ำมูกไหล', 'แสบจมูก', 'ผื่นคัน/ตุ่มพุพอง', 'แสบร้อนผิวหนัง']
-  },
-  {
-    group: 2,
-    title: 'กลุ่มที่ 2: อาการทางระบบทางเดินอาหารและทั่วไป',
-    items: ['เวียนศีรษะ', 'ปวดศีรษะ', 'คลื่นไส้ อาเจียน', 'แน่นหน้าอก/หายใจติดขัด', 'อ่อนเพลีย ไม่มีแรง']
-  },
-  {
-    group: 3,
-    title: 'กลุ่มที่ 3: อาการรุนแรงทางระบบประสาทและกล้ามเนื้อ',
-    items: ['มือสั่น', 'กล้ามเนื้อเกร็ง', 'เหงื่อออกมากผิดปกติ', 'น้ำลายไหล', 'ชัก/หมดสติ', 'ตามัว/รูม่านตาหรี่']
-  }
+  { group: 1, title: 'กลุ่มอาการที่ 1', items: symptomsCatalog.g1 },
+  { group: 2, title: 'กลุ่มอาการที่ 2', items: symptomsCatalog.g2 },
+  { group: 3, title: 'กลุ่มอาการที่ 3', items: symptomsCatalog.g3 }
 ]
 
 // Real-time calculated score
@@ -74,38 +63,8 @@ const liveScores = computed(() => {
 
   const totalScore = scoreA + scoreB
 
-  let highestGroup = 0
-  const symSet = new Set(form.value.symptoms || [])
-  for (const sg of symptomGroups) {
-    for (const item of sg.items) {
-      if (symSet.has(item) && sg.group > highestGroup) {
-        highestGroup = sg.group
-      }
-    }
-  }
-
-  let riskLevel = 'มีความเสี่ยงต่ำ'
-  let requireBlood = false
-
-  if (totalScore <= 19) {
-    riskLevel = highestGroup >= 2 ? 'มีความเสี่ยงปานกลาง' : 'มีความเสี่ยงต่ำ'
-  } else if (totalScore <= 25) {
-    if (highestGroup === 0) riskLevel = 'มีความเสี่ยงต่ำ'
-    else if (highestGroup === 1) riskLevel = 'มีความเสี่ยงปานกลาง'
-    else riskLevel = 'มีความเสี่ยงค่อนข้างสูง'
-  } else if (totalScore <= 32) {
-    if (highestGroup === 0) riskLevel = 'มีความเสี่ยงปานกลาง'
-    else if (highestGroup === 1) riskLevel = 'มีความเสี่ยงค่อนข้างสูง'
-    else riskLevel = 'มีความเสี่ยงสูง'
-  } else {
-    if (highestGroup === 0) riskLevel = 'มีความเสี่ยงค่อนข้างสูง'
-    else if (highestGroup === 1) riskLevel = 'มีความเสี่ยงสูง'
-    else riskLevel = 'มีความเสี่ยงสูงมาก'
-  }
-
-  if (riskLevel === 'มีความเสี่ยงค่อนข้างสูง' || riskLevel === 'มีความเสี่ยงสูง' || riskLevel === 'มีความเสี่ยงสูงมาก') {
-    requireBlood = true
-  }
+  const { highest: highestGroup, level: riskLevel, requireBlood } =
+    calculateRisk(scoreA, scoreB, form.value.symptoms)
 
   return { scoreA, scoreB, totalScore, highestGroup, riskLevel, requireBlood }
 })
@@ -126,7 +85,7 @@ watch(() => props.record, (rec) => {
       answers_a: rec.answers_a ? { ...rec.answers_a } : { q9: 1, q10: 1, q11: 1, q12: 1, q13: 1, q14: 1, q15: 1, q16: 1, q17: 1 },
       answers_b: rec.answers_b ? { ...rec.answers_b } : { q18: 1, q19: 1, q20: 1, q21: 1, q22: 1, q23: 1 },
       symptoms: rec.symptoms ? [...rec.symptoms] : [],
-      cholinesterase_result: rec.cholinesterase_result || 'ปลอดภัย',
+      cholinesterase_result: rec.cholinesterase_result || '',
       chemical_names: rec.chemical_names ? [...rec.chemical_names] : []
     }
   }
@@ -144,6 +103,10 @@ function toggleSymptom(item: string) {
 
 async function handleSave() {
   if (!props.record) return
+  if (!props.record.answers_a || !props.record.answers_b) {
+    errorMessage.value = 'ไม่พบคำตอบเดิมครบถ้วน ไม่สามารถคำนวณและบันทึกทับผลเดิมได้'
+    return
+  }
   if (!form.value.fullname.trim()) {
     errorMessage.value = 'กรุณาระบุชื่อ-นามสกุลของเกษตรกร'
     return
@@ -167,6 +130,7 @@ async function handleSave() {
   <div 
     v-if="isOpen && record" 
     class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 sm:p-6 backdrop-blur-xs overflow-y-auto"
+    v-modal-focus="() => emit('close')"
     @click.self="emit('close')"
     role="dialog"
     aria-modal="true"
@@ -214,24 +178,24 @@ async function handleSave() {
           </h4>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label class="block text-xs font-medium text-slate-600 mb-1">ชื่อ-นามสกุล *</label>
-              <input 
+              <label for="EditFarmerModal-form-fullname" class="block text-xs font-medium text-slate-600 mb-1">ชื่อ-นามสกุล *</label>
+              <input id="EditFarmerModal-form-fullname" 
                 v-model="form.fullname" 
                 type="text" 
                 class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               />
             </div>
             <div>
-              <label class="block text-xs font-medium text-slate-600 mb-1">อายุ (ปี)</label>
-              <input 
+              <label for="EditFarmerModal-form-age" class="block text-xs font-medium text-slate-600 mb-1">อายุ (ปี)</label>
+              <input id="EditFarmerModal-form-age" 
                 v-model.number="form.age" 
                 type="number" 
                 class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               />
             </div>
             <div>
-              <label class="block text-xs font-medium text-slate-600 mb-1">เพศ</label>
-              <select 
+              <label for="EditFarmerModal-form-gender" class="block text-xs font-medium text-slate-600 mb-1">เพศ</label>
+              <select id="EditFarmerModal-form-gender" 
                 v-model="form.gender" 
                 class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               >
@@ -240,40 +204,40 @@ async function handleSave() {
               </select>
             </div>
             <div class="sm:col-span-2">
-              <label class="block text-xs font-medium text-slate-600 mb-1">ที่อยู่ปัจจุบัน</label>
-              <input 
+              <label for="EditFarmerModal-form-address" class="block text-xs font-medium text-slate-600 mb-1">ที่อยู่ปัจจุบัน</label>
+              <input id="EditFarmerModal-form-address" 
                 v-model="form.address" 
                 type="text" 
                 class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               />
             </div>
             <div>
-              <label class="block text-xs font-medium text-slate-600 mb-1">วันที่ประเมิน</label>
-              <input 
+              <label for="EditFarmerModal-form-eval_date" class="block text-xs font-medium text-slate-600 mb-1">วันที่ประเมิน</label>
+              <input id="EditFarmerModal-form-eval_date" 
                 v-model="form.eval_date" 
                 type="date" 
                 class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               />
             </div>
             <div>
-              <label class="block text-xs font-medium text-slate-600 mb-1">ลักษณะงานเกษตร</label>
-              <input 
+              <label for="EditFarmerModal-form-occupation" class="block text-xs font-medium text-slate-600 mb-1">ลักษณะงานเกษตร</label>
+              <input id="EditFarmerModal-form-occupation" 
                 v-model="form.occupation" 
                 type="text" 
                 class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               />
             </div>
             <div>
-              <label class="block text-xs font-medium text-slate-600 mb-1">ชนิดพืชที่ปลูก</label>
-              <input 
+              <label for="EditFarmerModal-form-plant_type" class="block text-xs font-medium text-slate-600 mb-1">ชนิดพืชที่ปลูก</label>
+              <input id="EditFarmerModal-form-plant_type" 
                 v-model="form.plant_type" 
                 type="text" 
                 class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               />
             </div>
             <div>
-              <label class="block text-xs font-medium text-slate-600 mb-1">หน่วยบริการ</label>
-              <select 
+              <label for="EditFarmerModal-form-health_center" class="block text-xs font-medium text-slate-600 mb-1">หน่วยบริการ</label>
+              <select id="EditFarmerModal-form-health_center" 
                 v-model="form.health_center" 
                 class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               >

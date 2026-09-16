@@ -26,9 +26,8 @@ export async function fetchFarmer(citizenId: string): Promise<Farmer | null> {
       throw new Error(data.error || 'เกิดข้อผิดพลาดในการดึงข้อมูล')
     }
     return res.json()
-  } catch {
-    // Graceful fallback to localApi if backend is unreachable
-    return localApi.fetchFarmer(citizenId)
+  } catch (error) {
+    throw error // Never report a local demo write as a successful backend operation.
   }
 }
 
@@ -48,8 +47,8 @@ export async function createAssessment(submission: AssessmentSubmission): Promis
       throw new Error(data.error || 'ไม่สามารถบันทึกแบบประเมินได้')
     }
     return res.json()
-  } catch {
-    return localApi.createAssessment(submission)
+  } catch (error) {
+    throw error // Never report a local demo write as a successful backend operation.
   }
 }
 
@@ -68,8 +67,8 @@ export async function fetchAssessments(search?: string, riskLevel?: string): Pro
       throw new Error('ไม่สามารถโหลดข้อมูลทะเบียนเกษตรกรได้')
     }
     return res.json()
-  } catch {
-    return localApi.fetchAssessments(search, riskLevel)
+  } catch (error) {
+    throw error // Never report a local demo write as a successful backend operation.
   }
 }
 
@@ -84,8 +83,8 @@ export async function fetchAssessmentById(id: string): Promise<AssessmentRecord>
       throw new Error('ไม่สามารถโหลดข้อมูลแบบประเมินได้')
     }
     return res.json()
-  } catch {
-    return localApi.fetchAssessmentById(id)
+  } catch (error) {
+    throw error // Never report a local demo write as a successful backend operation.
   }
 }
 
@@ -105,8 +104,8 @@ export async function updateAssessment(id: string, submission: AssessmentSubmiss
       throw new Error(data.error || 'ไม่สามารถอัปเดตแบบประเมินได้')
     }
     return res.json()
-  } catch {
-    return localApi.updateAssessment(id, submission)
+  } catch (error) {
+    throw error // Never report a local demo write as a successful backend operation.
   }
 }
 
@@ -123,8 +122,8 @@ export async function deleteAssessment(id: string): Promise<void> {
       const data = await res.json().catch(() => ({}))
       throw new Error(data.error || 'ไม่สามารถลบข้อมูลได้')
     }
-  } catch {
-    return localApi.deleteAssessment(id)
+  } catch (error) {
+    throw error // Never report a local demo write as a successful backend operation.
   }
 }
 
@@ -139,8 +138,8 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
       throw new Error('ไม่สามารถโหลดข้อมูลสถิติแดชบอร์ดได้')
     }
     return res.json()
-  } catch {
-    return localApi.fetchDashboardStats()
+  } catch (error) {
+    throw error // Never report a local demo write as a successful backend operation.
   }
 }
 
@@ -159,8 +158,8 @@ export async function fetchReportOCC01(healthCenter?: string, fiscalYear?: strin
       throw new Error('ไม่สามารถโหลดรายงาน OCC-นบ01 ได้')
     }
     return res.json()
-  } catch {
-    return localApi.fetchReportOCC01(healthCenter, fiscalYear)
+  } catch (error) {
+    throw error // Never report a local demo write as a successful backend operation.
   }
 }
 
@@ -179,8 +178,8 @@ export async function fetchReportOCC02(province?: string, fiscalYear?: string): 
       throw new Error('ไม่สามารถโหลดรายงาน OCC-นบ02 ได้')
     }
     return res.json()
-  } catch {
-    return localApi.fetchReportOCC02(province, fiscalYear)
+  } catch (error) {
+    throw error // Never report a local demo write as a successful backend operation.
   }
 }
 
@@ -196,8 +195,8 @@ export async function fetchFollowUps(citizenId?: string): Promise<FollowUpRecord
       throw new Error('ไม่สามารถโหลดข้อมูลการติดตามผลได้')
     }
     return res.json()
-  } catch {
-    return localApi.fetchFollowUps(citizenId)
+  } catch (error) {
+    throw error // Never report a local demo write as a successful backend operation.
   }
 }
 
@@ -216,8 +215,8 @@ export async function createFollowUp(data: Omit<FollowUpRecord, 'id' | 'created_
       throw new Error('ไม่สามารถบันทึกการติดตามผลได้')
     }
     return res.json()
-  } catch {
-    return localApi.createFollowUp(data)
+  } catch (error) {
+    throw error // Never report a local demo write as a successful backend operation.
   }
 }
 
@@ -231,7 +230,7 @@ export async function deleteFollowUp(id: string): Promise<void> {
     if (!res.ok) {
       throw new Error('ไม่สามารถลบข้อมูลการติดตามผลได้')
     }
-  } catch {
-    return localApi.deleteFollowUp(id)
+  } catch (error) {
+    throw error // Never report a local demo write as a successful backend operation.
   }
 }

@@ -22,6 +22,8 @@ const lastSavedTime = ref('')
 
 // Predefined Answer Set Modal State
 const isPredefinedModalOpen = ref(false)
+const presetNeedsReview = ref(false)
+let restoringDraft = false
 
 function discardDraft() {
   if (confirm('คุณต้องการลบแบบร่างที่บันทึกไว้ในเครื่องและเริ่มต้นใหม่ใช่หรือไม่?')) {
@@ -91,48 +93,74 @@ const form = reactive<AssessmentSubmission>({
     q18: 1, q19: 1, q20: 1, q21: 1, q22: 1, q23: 1
   },
   symptoms: [],
-  cholinesterase_result: 'ปลอดภัย',
+  cholinesterase_result: '',
   chemical_names: []
 })
 
-// Autosave Draft watcher
+// Persist form and UI-only state together; suppress watchers during restore/reset.
 let saveTimer: ReturnType<typeof setTimeout> | null = null
-watch(form, () => {
-  saveStatus.value = 'saving'
+function cancelDraftSave() {
   if (saveTimer) clearTimeout(saveTimer)
-  saveTimer = setTimeout(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY_WIZARD_DRAFT, JSON.stringify(form))
-      saveStatus.value = 'saved'
-      const now = new Date()
-      lastSavedTime.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
-    } catch {
-      saveStatus.value = 'error'
-    }
-  }, 600)
-}, { deep: true })
+  saveTimer = null
+}
+function persistDraft() {
+  cancelDraftSave()
+  if (restoringDraft || (!form.citizen_id && !form.fullname)) return
+  try {
+    localStorage.setItem(STORAGE_KEY_WIZARD_DRAFT, JSON.stringify({
+      form, currentStep: currentStep.value, hasSymptomsChoice: hasSymptomsChoice.value,
+      chemicalInputText: chemicalInputText.value, cachedChemicalAnswers,
+      forceShowAllChemicalQuestions: forceShowAllChemicalQuestions.value,
+      presetNeedsReview: presetNeedsReview.value
+    }))
+    saveStatus.value = 'saved'
+    lastSavedTime.value = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+  } catch { saveStatus.value = 'error' }
+}
+function scheduleDraftSave() {
+  if (restoringDraft) return
+  cancelDraftSave()
+  saveStatus.value = 'saving'
+  saveTimer = setTimeout(persistDraft, 600)
+}
+watch(form, scheduleDraftSave, { deep: true, flush: 'sync' })
 
 onMounted(() => {
   window.addEventListener('click', closeHealthCenterDropdown)
-  const draft = localStorage.getItem(STORAGE_KEY_WIZARD_DRAFT)
-  if (draft) {
-    try {
-      const parsed = JSON.parse(draft)
-      Object.assign(form, parsed)
-      if (form.citizen_id) rawCitizenId.value = form.citizen_id
-      saveStatus.value = 'recovered'
-    } catch (e) {
-      console.error('Error loading draft:', e)
-    }
-  }
+  window.addEventListener('pagehide', flushPendingDraft)
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_WIZARD_DRAFT)
+    if (!raw) return
+    const parsed = JSON.parse(raw)
+    const draft = parsed.form || parsed
+    if (!draft || typeof draft.citizen_id !== 'string' || !draft.answers_a || !draft.answers_b || !Array.isArray(draft.symptoms)) return
+    restoringDraft = true
+    Object.assign(form, draft)
+    rawCitizenId.value = form.citizen_id
+    hasSymptomsChoice.value = form.symptoms.length ? 'yes' : (parsed.hasSymptomsChoice || 'no')
+    currentStep.value = Math.min(5, Math.max(1, parsed.currentStep || 1))
+    chemicalInputText.value = parsed.chemicalInputText || ''
+    forceShowAllChemicalQuestions.value = !!parsed.forceShowAllChemicalQuestions
+    cachedChemicalAnswers = parsed.cachedChemicalAnswers || null
+    presetNeedsReview.value = !!parsed.presetNeedsReview
+    healthCenterSearch.value = form.health_center
+    saveStatus.value = 'recovered'
+  } catch { saveStatus.value = 'error' }
+  finally { restoringDraft = false }
 })
-
+function flushPendingDraft() {
+  if (saveTimer) persistDraft()
+}
 onUnmounted(() => {
+  flushPendingDraft()
+  cancelDraftSave()
   window.removeEventListener('click', closeHealthCenterDropdown)
+  window.removeEventListener('pagehide', flushPendingDraft)
 })
 
 const hasSymptomsChoice = ref<'no' | 'yes'>('no')
 const chemicalInputText = ref('')
+watch([currentStep, hasSymptomsChoice, chemicalInputText, forceShowAllChemicalQuestions, presetNeedsReview], scheduleDraftSave, { flush: 'sync' })
 
 // Thai Citizen ID Validation (Modulo 11)
 function validateThaiCitizenID(id: string): boolean {
@@ -159,6 +187,7 @@ const formattedCitizenId = computed({
   },
   set(val: string) {
     const clean = val.replace(/\D/g, '').slice(0, 13)
+    if (form.citizen_id && form.citizen_id !== clean) resetForm()
     rawCitizenId.value = clean
     form.citizen_id = clean
   }
@@ -279,6 +308,7 @@ const visibleQuestionsA = computed(() => {
 // Non-destructive progressive disclosure: cache previous chemical answers so accidental toggles do not erase data
 let cachedChemicalAnswers: Record<string, number> | null = null
 watch(isUsingChemicals, (using, oldUsing) => {
+  if (restoringDraft) return
   if (!using && oldUsing) {
     cachedChemicalAnswers = {
       q11: form.answers_a.q11,
@@ -296,16 +326,21 @@ watch(isUsingChemicals, (using, oldUsing) => {
     form.answers_a.q13 = cachedChemicalAnswers.q13
     form.answers_a.q14 = cachedChemicalAnswers.q14
   }
-})
+}, { flush: 'sync' })
 
 // Apply predefined answer set after explicit user confirmation
 function confirmApplyPredefinedPreset() {
+  restoringDraft = true
+  cachedChemicalAnswers = null
   questionsA.forEach(q => {
     form.answers_a[q.id] = 1
   })
   questionsB.forEach(q => {
     form.answers_b[q.id] = 1
   })
+  restoringDraft = false
+  presetNeedsReview.value = true
+  scheduleDraftSave()
   isPredefinedModalOpen.value = false
   emit('showToast', 'กรอกคำตอบเริ่มต้นแล้ว', 'กรุณาตรวจสอบความถูกต้องของคำตอบแต่ละข้อร่วมกับเกษตรกรก่อนบันทึก', true)
 }
@@ -320,6 +355,7 @@ async function lookupCitizen() {
 
   try {
     const existing = await fetchFarmer(cid)
+    if (cid !== form.citizen_id || restoringDraft) return
     if (existing) {
       form.fullname = existing.fullname
       form.gender = existing.gender
@@ -341,12 +377,13 @@ async function lookupCitizen() {
 
 // Watch citizen_id length to auto-lookup
 watch(() => form.citizen_id, (val) => {
+  if (restoringDraft) return
   if (val && val.length === 13) {
     lookupCitizen()
   } else {
     citizenFeedback.value = ''
   }
-})
+}, { flush: 'sync' })
 
 function addChemicalTag(name: string) {
   if (!form.chemical_names.includes(name)) {
@@ -451,6 +488,7 @@ function prevStep() {
 }
 
 async function submitForm() {
+  if (isSubmitting.value || currentStep.value !== 5 || !validateStep1()) return
   isSubmitting.value = true
   try {
     if (chemicalInputText.value.trim()) {
@@ -459,7 +497,12 @@ async function submitForm() {
       chemicalInputText.value = ''
     }
 
-    const res = await createAssessment(form)
+    const payload: AssessmentSubmission = JSON.parse(JSON.stringify(form))
+    if (!isUsingChemicals.value) {
+      for (const key of ['q11', 'q12', 'q13', 'q14']) payload.answers_a[key] = 1
+    }
+    const res = await createAssessment(payload)
+    cancelDraftSave()
     try {
       localStorage.removeItem(STORAGE_KEY_WIZARD_DRAFT)
     } catch {
@@ -476,6 +519,14 @@ async function submitForm() {
 }
 
 function resetForm() {
+  restoringDraft = true
+  cancelDraftSave()
+  cachedChemicalAnswers = null
+  presetNeedsReview.value = false
+  isPredefinedModalOpen.value = false
+  questionsA.forEach(q => { form.answers_a[q.id] = 1 })
+  questionsB.forEach(q => { form.answers_b[q.id] = 1 })
+  Object.keys(fieldErrors).forEach(key => { fieldErrors[key as keyof typeof fieldErrors] = '' })
   try {
     localStorage.removeItem(STORAGE_KEY_WIZARD_DRAFT)
   } catch {
@@ -494,14 +545,20 @@ function resetForm() {
   hasSymptomsChoice.value = 'no'
   chemicalInputText.value = ''
   form.chemical_names = []
-  form.cholinesterase_result = 'ปลอดภัย'
+  form.cholinesterase_result = ''
   citizenFeedback.value = ''
   forceShowAllChemicalQuestions.value = false
   currentStep.value = 1
+  form.interviewer_name = 'เจ้าหน้าที่สาธารณสุข'
+  form.health_center = 'รพ.สต.หลักสาม'
+  healthCenterSearch.value = form.health_center
+  saveStatus.value = 'idle'
+  restoringDraft = false
 }
 
 defineExpose({
-  resetForm
+  resetForm,
+  discardDraft
 })
 </script>
 
@@ -564,6 +621,10 @@ defineExpose({
       </div>
     </div>
 
+    <p v-if="presetNeedsReview" role="status" class="text-sm text-amber-950 bg-amber-50 p-3 rounded-xl">
+      คำตอบพฤติกรรมถูกเติมจากชุดเริ่มต้น ยังไม่ได้ยืนยันกับเกษตรกร กรุณาทบทวนทุกข้อก่อนบันทึก
+      <button type="button" class="underline font-bold" @click="presetNeedsReview = false">ทบทวนทุกข้อแล้ว</button>
+    </p>
     <!-- Form Container -->
     <form @submit.prevent="submitForm">
       <!-- ================================================================= -->
@@ -584,7 +645,7 @@ defineExpose({
           <!-- Citizen ID & Lookup Button -->
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="block text-xs font-semibold text-slate-800">
+              <label for="WizardTab-formattedCitizenId" class="block text-xs font-semibold text-slate-800">
                 เลขประจำตัวประชาชน (13 หลัก) <span class="text-rose-500">*</span>
               </label>
               <!-- Checksum badge -->
@@ -606,7 +667,7 @@ defineExpose({
 
             <div class="flex gap-2">
               <div class="relative flex-1">
-                <input 
+                <input id="WizardTab-formattedCitizenId" :aria-invalid="!!fieldErrors.citizen_id" aria-describedby="error-citizen_id" 
                   type="text" 
                   v-model="formattedCitizenId" 
                   maxlength="17"
@@ -625,7 +686,7 @@ defineExpose({
                 ค้นหาประวัติ
               </button>
             </div>
-            <p v-if="fieldErrors.citizen_id" class="text-xs text-rose-600 font-medium mt-1">
+            <p id="error-citizen_id" v-if="fieldErrors.citizen_id" class="text-xs text-rose-600 font-medium mt-1">
               ⚠️ {{ fieldErrors.citizen_id }}
             </p>
             <p v-else-if="citizenFeedback" :class="['text-[11px] mt-1.5', citizenFeedbackClass]">
@@ -636,10 +697,10 @@ defineExpose({
           <!-- Name & Gender -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div class="sm:col-span-2">
-              <label class="block text-xs font-semibold text-slate-800 mb-1">
+              <label for="WizardTab-form-fullname" class="block text-xs font-semibold text-slate-800 mb-1">
                 ชื่อ - นามสกุล <span class="text-rose-500">*</span>
               </label>
-              <input 
+              <input id="WizardTab-form-fullname" :aria-invalid="!!fieldErrors.fullname" aria-describedby="error-fullname" 
                 type="text" 
                 v-model="form.fullname" 
                 placeholder="เช่น นายสมศักดิ์ ขยันงาน" 
@@ -648,13 +709,13 @@ defineExpose({
                   fieldErrors.fullname ? 'border-rose-400 focus:ring-rose-500 focus:border-rose-500 bg-rose-50/30' : 'border-slate-300 focus:ring-emerald-500 focus:border-emerald-500'
                 ]"
               >
-              <p v-if="fieldErrors.fullname" class="text-xs text-rose-600 font-medium mt-1">
+              <p id="error-fullname" v-if="fieldErrors.fullname" class="text-xs text-rose-600 font-medium mt-1">
                 ⚠️ {{ fieldErrors.fullname }}
               </p>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-800 mb-1">เพศ</label>
-              <select v-model="form.gender" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-emerald-500">
+              <label for="WizardTab-form-gender" class="block text-xs font-semibold text-slate-800 mb-1">เพศ</label>
+              <select id="WizardTab-form-gender" v-model="form.gender" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-emerald-500">
                 <option value="ชาย">ชาย</option>
                 <option value="หญิง">หญิง</option>
               </select>
@@ -664,10 +725,10 @@ defineExpose({
           <!-- Age & Address -->
           <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-slate-800 mb-1">
+              <label for="WizardTab-form-age" class="block text-xs font-semibold text-slate-800 mb-1">
                 อายุ (ปี) <span class="text-rose-500">*</span>
               </label>
-              <input 
+              <input id="WizardTab-form-age" :aria-invalid="!!fieldErrors.age" aria-describedby="error-age" 
                 type="number" 
                 v-model.number="form.age" 
                 min="1" 
@@ -677,13 +738,13 @@ defineExpose({
                   fieldErrors.age ? 'border-rose-400 focus:ring-rose-500 bg-rose-50/30' : 'border-slate-300 focus:ring-emerald-500'
                 ]"
               >
-              <p v-if="fieldErrors.age" class="text-xs text-rose-600 font-medium mt-1">
+              <p id="error-age" v-if="fieldErrors.age" class="text-xs text-rose-600 font-medium mt-1">
                 ⚠️ {{ fieldErrors.age }}
               </p>
             </div>
             <div class="sm:col-span-3">
-              <label class="block text-xs font-semibold text-slate-800 mb-1">ที่อยู่ / หมู่บ้าน / ตำบล</label>
-              <input 
+              <label for="WizardTab-form-address" class="block text-xs font-semibold text-slate-800 mb-1">ที่อยู่ / หมู่บ้าน / ตำบล</label>
+              <input id="WizardTab-form-address" 
                 type="text" 
                 v-model="form.address" 
                 placeholder="เช่น 12 หมู่ 3 ต.บ้านแพ้ว อ.บ้านแพ้ว" 
@@ -695,8 +756,8 @@ defineExpose({
           <!-- Occupation & Crops -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-slate-800 mb-1">ลักษณะงานเกษตรกรรม</label>
-              <select v-model="form.occupation" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-emerald-500">
+              <label for="WizardTab-form-occupation" class="block text-xs font-semibold text-slate-800 mb-1">ลักษณะงานเกษตรกรรม</label>
+              <select id="WizardTab-form-occupation" v-model="form.occupation" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-emerald-500">
                 <option value="1. เพาะปลูก (ทำเอง)">1. เพาะปลูก (ทำเอง)</option>
                 <option value="2. เพาะปลูก (รับจ้าง)">2. เพาะปลูก (รับจ้าง)</option>
                 <option value="3. รับจ้างฉีดพ่น">3. รับจ้างฉีดพ่นสารเคมี</option>
@@ -705,8 +766,8 @@ defineExpose({
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-800 mb-1">ชนิดพืชหลักที่ปลูก</label>
-              <select v-model="form.plant_type" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-emerald-500">
+              <label for="WizardTab-form-plant_type" class="block text-xs font-semibold text-slate-800 mb-1">ชนิดพืชหลักที่ปลูก</label>
+              <select id="WizardTab-form-plant_type" v-model="form.plant_type" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-emerald-500">
                 <option value="ทำนา (ข้าว)">ทำนา (ข้าว)</option>
                 <option value="ทำสวน (ผลไม้/ทุเรียน/ส้ม/มะนาว)">ทำสวน (ผลไม้/ทุเรียน/ส้ม/มะนาว)</option>
                 <option value="ทำสวน (พืชผัก/พริก/มะเขือ/ผักกาด)">ทำสวน (พืชผัก/พริก/มะเขือ/ผักกาด)</option>
@@ -734,12 +795,12 @@ defineExpose({
           <!-- Evaluation Context & Interviewer -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-100">
             <div>
-              <label class="block text-xs font-semibold text-slate-800 mb-1">วันที่ประเมิน</label>
-              <input type="date" v-model="form.eval_date" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs bg-white">
+              <label for="WizardTab-form-eval_date" class="block text-xs font-semibold text-slate-800 mb-1">วันที่ประเมิน</label>
+              <input id="WizardTab-form-eval_date" type="date" v-model="form.eval_date" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs bg-white">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-800 mb-1">เจ้าหน้าที่ผู้ซักประวัติ (รพ.สต./รพ.) <span class="text-rose-500">*</span></label>
-              <input 
+              <label for="WizardTab-form-interviewer_name" class="block text-xs font-semibold text-slate-800 mb-1">เจ้าหน้าที่ผู้ซักประวัติ (รพ.สต./รพ.) <span class="text-rose-500">*</span></label>
+              <input id="WizardTab-form-interviewer_name" :aria-invalid="!!fieldErrors.interviewer_name" aria-describedby="error-interviewer_name" 
                 type="text" 
                 v-model="form.interviewer_name" 
                 placeholder="ชื่อ-สกุล เจ้าหน้าที่" 
@@ -748,7 +809,7 @@ defineExpose({
                   fieldErrors.interviewer_name ? 'border-rose-400 focus:ring-rose-500 bg-rose-50/30' : 'border-slate-300'
                 ]"
               >
-              <p v-if="fieldErrors.interviewer_name" class="text-xs text-rose-600 font-medium mt-1">
+              <p id="error-interviewer_name" v-if="fieldErrors.interviewer_name" class="text-xs text-rose-600 font-medium mt-1">
                 ⚠️ {{ fieldErrors.interviewer_name }}
               </p>
             </div>
@@ -761,6 +822,12 @@ defineExpose({
               <div class="relative">
                 <input 
                   type="text" 
+                  id="WizardTab-health-center"
+                  aria-label="หน่วยบริการ (รพ.สต. / โรงพยาบาล)"
+                  :aria-expanded="isHealthCenterOpen"
+                  :aria-invalid="!!fieldErrors.health_center"
+                  aria-describedby="error-health_center"
+                  @keydown.esc.stop="isHealthCenterOpen = false"
                   :value="form.health_center"
                   @focus="isHealthCenterOpen = true"
                   @input="handleHealthCenterInput(($event.target as HTMLInputElement).value)"
@@ -782,7 +849,7 @@ defineExpose({
                   </svg>
                 </button>
               </div>
-              <p v-if="fieldErrors.health_center" class="text-xs text-rose-600 font-medium mt-1">
+              <p id="error-health_center" v-if="fieldErrors.health_center" class="text-xs text-rose-600 font-medium mt-1">
                 ⚠️ {{ fieldErrors.health_center }}
               </p>
 
@@ -904,6 +971,8 @@ defineExpose({
                       ? opt.activeClass 
                       : 'border-slate-200 bg-slate-50/70 text-slate-600 hover:bg-slate-100'
                   ]"
+                  :aria-pressed="form.answers_a[q.id] === opt.val"
+                  :aria-label="q.text + ': ' + opt.label"
                   @click="form.answers_a[q.id] = opt.val"
                 >
                   {{ opt.label }}
@@ -957,6 +1026,8 @@ defineExpose({
                       ? opt.activeClass 
                       : 'border-slate-200 bg-slate-50/70 text-slate-600 hover:bg-slate-100'
                   ]"
+                  :aria-pressed="form.answers_b[q.id] === opt.val"
+                  :aria-label="q.text + ': ' + opt.label"
                   @click="form.answers_b[q.id] = opt.val"
                 >
                   <span>{{ opt.label }}</span>
@@ -1494,6 +1565,7 @@ defineExpose({
     <div 
       v-if="isPredefinedModalOpen"
       class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs animate-fadeIn"
+      v-modal-focus="() => { isPredefinedModalOpen = false }"
       @click.self="isPredefinedModalOpen = false"
     >
       <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">

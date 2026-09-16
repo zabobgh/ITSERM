@@ -2,7 +2,7 @@
 import { ref, onMounted, nextTick, watch } from 'vue'
 import { Chart, registerables } from 'chart.js'
 import type { DashboardStats, AssessmentRecord } from '../../types'
-import { fetchDashboardStats, fetchFollowUps } from '../../services/api'
+import { fetchDashboardStats, fetchFollowUps, fetchAssessments } from '../../services/api'
 
 Chart.register(...registerables)
 
@@ -18,6 +18,7 @@ const emit = defineEmits<{
 }>()
 
 const followUpCount = ref(0)
+const followUpAvailable = ref(true)
 const stats = ref<DashboardStats>({
   total_farmers: 0,
   high_risk_farmers: 0,
@@ -48,12 +49,15 @@ let bloodChartInstance: Chart | null = null
 async function loadStats() {
   loading.value = true
   try {
-    const [s, fuList] = await Promise.all([
+    const [s, fuList, assessments] = await Promise.all([
       fetchDashboardStats(),
-      fetchFollowUps().catch(() => [])
+      fetchFollowUps().catch(() => null),
+      fetchAssessments()
     ])
     stats.value = s
-    followUpCount.value = fuList.length
+    followUpAvailable.value = fuList !== null
+    const followedIds = new Set((fuList || []).map(f => f.assessment_id))
+    followUpCount.value = assessments.filter(r => followedIds.has(r.id)).length
     await nextTick()
     renderCharts()
   } catch (err) {
@@ -313,7 +317,7 @@ defineExpose({
         </div>
         <button 
           type="button"
-          @click="emit('filterRegistry', { riskLevel: 'มีความเสี่ยงสูง' })" 
+          @click="emit('filterRegistry', { riskLevel: 'HIGH_RISK' })" 
           class="w-full mt-3 pt-2.5 border-t border-rose-100 flex items-center justify-between text-xs font-bold text-rose-700 hover:text-rose-900 transition"
         >
           <span>ดูรายชื่อกลุ่มเสี่ยงสูง</span>
@@ -389,7 +393,7 @@ defineExpose({
           ></div>
         </div>
         <div class="flex items-center justify-between text-[11px] text-slate-500">
-          <span>ตรวจเลือดแล้ว {{ stats.tested_blood }} จากเกษตรกรที่ประเมินทั้งหมด {{ stats.total_farmers }} ราย</span>
+          <span>ตรวจเลือดแล้ว {{ stats.tested_blood }} จากแบบประเมินทั้งหมด {{ stats.total_farmers }} รายการ</span>
           <span class="text-slate-400">กลุ่มเสี่ยงสูงในระบบ: {{ stats.high_risk_farmers }} ราย</span>
         </div>
       </div>
@@ -401,7 +405,7 @@ defineExpose({
             <span>เคสติดตามผล / ตรวจซ้ำ</span>
           </span>
           <span class="px-2 py-0.5 rounded-full text-xs font-black bg-amber-200 text-amber-900">
-            {{ followUpCount }}
+            {{ followUpAvailable ? followUpCount : 'ไม่พร้อมใช้งาน' }}
           </span>
         </div>
         <p class="text-[11px] text-amber-900 leading-tight">
@@ -409,6 +413,7 @@ defineExpose({
         </p>
         <button 
           type="button"
+          :disabled="!followUpAvailable"
           @click="emit('filterRegistry', { followUpOnly: true })"
           class="w-full py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center space-x-1"
         >
@@ -490,7 +495,7 @@ defineExpose({
         </div>
         <button 
           type="button"
-          @click="emit('filterRegistry', { riskLevel: 'มีความเสี่ยงสูง' })"
+          @click="emit('filterRegistry', { riskLevel: 'HIGH_RISK' })"
           class="text-xs text-emerald-800 hover:text-emerald-900 font-bold self-start sm:self-auto"
         >
           ดูทั้งหมดในทะเบียน &rarr;

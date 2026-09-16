@@ -18,19 +18,25 @@ const emit = defineEmits<{
 const activeSection = ref<'assessment' | 'followup'>('assessment')
 const followUps = ref<FollowUpRecord[]>([])
 const loadingFollowUps = ref(false)
+const followUpError = ref('')
 const isAddFollowUpOpen = ref(false)
 
 async function loadFollowUps() {
-  if (!props.record) return
+  const citizenId = props.record?.citizen_id
+  followUps.value = []
+  followUpError.value = ''
+  if (!citizenId) return
   loadingFollowUps.value = true
   try {
-    const list = await fetchFollowUps(props.record.citizen_id)
+    const list = await fetchFollowUps(citizenId)
+    if (props.record?.citizen_id !== citizenId) return
     followUps.value = list.slice().sort((a, b) => {
       const timeA = new Date(a.follow_up_date || a.created_at).getTime()
       const timeB = new Date(b.follow_up_date || b.created_at).getTime()
-      return timeB - timeA
+      return timeB - timeA || new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     })
   } catch (err) {
+    if (props.record?.citizen_id === citizenId) followUpError.value = 'ไม่สามารถโหลดประวัติติดตามผลได้ กรุณาตรวจการเชื่อมต่อและบริการติดตามผล'
     console.error('Error loading follow-ups:', err)
   } finally {
     loadingFollowUps.value = false
@@ -66,7 +72,7 @@ function getRiskBadgeStyle(level: string) {
       return {
         badge: 'bg-emerald-100 text-emerald-900 border-emerald-300 ring-emerald-500/20',
         bar: 'bg-emerald-500',
-        desc: 'พฤติกรรมปลอดภัย โอกาสสัมผัสสารเคมีระดับต่ำ แนะนำตรวจติดตามประจำปี'
+        desc: 'ผลจัดอยู่ในระดับความเสี่ยงต่ำตามคำตอบที่บันทึกในการประเมินครั้งนี้'
       }
     case 'มีความเสี่ยงปานกลาง':
       return {
@@ -85,7 +91,7 @@ function getRiskBadgeStyle(level: string) {
       return {
         badge: 'bg-rose-100 text-rose-900 border-rose-300 ring-rose-500/20',
         bar: 'bg-rose-600',
-        desc: 'มีความเสี่ยงระดับอันตราย สัมผัสสารเคมีเข้มข้น ต้องเจาะเลือดคัดกรองทันทีและส่งต่อแพทย์'
+        desc: 'ผลจัดอยู่ในกลุ่มความเสี่ยงสูงหรือสูงมากตามคำตอบที่บันทึก ควรให้เจ้าหน้าที่ประเมินการดูแลต่อเนื่อง'
       }
     default:
       return {
@@ -110,7 +116,7 @@ function getBloodSwatch(res: string) {
         color: '#84cc16',
         name: 'แถบสีเหลืองอมเขียว (ปลอดภัย)',
         badge: 'bg-lime-100 text-lime-900 border-lime-300',
-        advice: 'ระดับเอนไซม์ปลอดภัย ตรวจติดตามปีละ 1 ครั้ง'
+        advice: 'ผลคัดกรองอยู่ในกลุ่มปลอดภัย ตรวจติดตามปีละ 1 ครั้ง'
       }
     case 'มีความเสี่ยง':
       return {
@@ -124,7 +130,7 @@ function getBloodSwatch(res: string) {
         color: '#065f46',
         name: 'แถบสีเขียวเข้ม (ไม่ปลอดภัย)',
         badge: 'bg-rose-100 text-rose-900 border-rose-400 font-bold',
-        advice: 'ระดับเอนไซม์ลดลงอย่างมีนัยสำคัญ หยุดสัมผัสสารเคมีทันที ส่งต่อพบแพทย์ รพ. เพื่อตรวจยืนยันทางห้องปฏิบัติการ'
+        advice: 'ผลคัดกรองอยู่ในกลุ่มไม่ปลอดภัย หยุดสัมผัสสารเคมีทันที ส่งต่อพบแพทย์ รพ. เพื่อตรวจยืนยันทางห้องปฏิบัติการ'
       }
     default:
       return {
@@ -141,7 +147,7 @@ function printDetail() {
 }
 
 function handleKeydown(e: KeyboardEvent) {
-  if (e.key === 'Escape' && props.isOpen) {
+  if (e.key === 'Escape' && props.isOpen && !isAddFollowUpOpen.value) {
     emit('close')
   }
 }
@@ -159,6 +165,7 @@ onUnmounted(() => {
   <div 
     v-if="isOpen && record" 
     class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-3 sm:p-6 backdrop-blur-xs overflow-y-auto"
+    v-modal-focus="() => emit('close')"
     @click.self="emit('close')"
     role="dialog"
     aria-modal="true"
@@ -166,6 +173,7 @@ onUnmounted(() => {
   >
     <div class="bg-white rounded-3xl max-w-5xl w-full max-h-[92vh] overflow-y-auto p-5 sm:p-8 shadow-2xl border border-slate-200 space-y-6 animate-in fade-in zoom-in-95 duration-200">
       
+      <p v-if="followUpError" role="alert" class="text-sm text-rose-800">{{ followUpError }}</p>
       <!-- Top Header & Actions -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-slate-200 gap-4">
         <div class="space-y-1">
@@ -527,6 +535,7 @@ onUnmounted(() => {
           กำลังโหลดประวัติการติดตามผล...
         </div>
 
+        <div v-else-if="followUpError" role="alert" class="p-8 text-rose-800">{{ followUpError }}</div>
         <div v-else-if="followUps.length === 0" class="p-8 text-center bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
           <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto text-lg">
             📅

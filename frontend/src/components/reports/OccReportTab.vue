@@ -58,7 +58,7 @@ const occ01Stats = computed<OCC01DetailedStats>(() => {
   const totalHighGroup = highRisk + veryHighRisk
 
   // Blood Test Breakdown
-  const bloodTested = list.filter(r => Boolean(r.cholinesterase_result)).length
+  const bloodTested = list.filter(r => ['ปกติ', 'ปลอดภัย', 'มีความเสี่ยง', 'ไม่ปลอดภัย'].includes(r.cholinesterase_result)).length
   const normal = list.filter(r => r.cholinesterase_result === 'ปกติ').length
   const safe = list.filter(r => r.cholinesterase_result === 'ปลอดภัย').length
   const atRisk = list.filter(r => r.cholinesterase_result === 'มีความเสี่ยง').length
@@ -117,7 +117,7 @@ const centerBreakdowns = computed<CenterBreakdownItem[]>(() => {
       r.risk_level === 'มีความเสี่ยงสูง' || 
       r.risk_level === 'มีความเสี่ยงสูงมาก'
     ).length
-    const bloodTested = centerRecs.filter(r => Boolean(r.cholinesterase_result)).length
+    const bloodTested = centerRecs.filter(r => ['ปกติ', 'ปลอดภัย', 'มีความเสี่ยง', 'ไม่ปลอดภัย'].includes(r.cholinesterase_result)).length
     const unsafe = centerRecs.filter(r => r.cholinesterase_result === 'ไม่ปลอดภัย' || r.cholinesterase_result === 'มีความเสี่ยง').length
     const coverage = highRisk > 0 ? Math.min(100, Math.round((bloodTested / highRisk) * 100)) : (bloodTested > 0 ? 100 : 0)
 

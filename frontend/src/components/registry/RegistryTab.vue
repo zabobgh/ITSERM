@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import type { AssessmentRecord } from '../../types'
-import { fetchAssessments, deleteAssessment } from '../../services/api'
+import { fetchAssessments, deleteAssessment, fetchFollowUps } from '../../services/api'
 import { HEALTH_CENTERS } from '../../constants/healthCenters'
 import EditFarmerModal from '../common/EditFarmerModal.vue'
 import AddFollowUpModal from '../common/AddFollowUpModal.vue'
@@ -22,6 +22,7 @@ const riskFilter = ref('ALL')
 const bloodFilter = ref('ALL')
 const healthCenterFilter = ref('ALL')
 const followUpOnly = ref(false)
+const followedAssessmentIds = ref(new Set<string>())
 
 // Follow-up modal state
 const isAddFollowUpOpen = ref(false)
@@ -33,6 +34,7 @@ function openFollowUpModal(rec: AssessmentRecord) {
 }
 
 function handleFollowUpSaved() {
+  loadRecords()
   emit('showToast', 'บันทึกสำเร็จ', 'บันทึกข้อมูลการติดตามผลเรียบร้อยแล้ว', true)
 }
 
@@ -58,7 +60,9 @@ const isDeleting = ref(false)
 async function loadRecords() {
   loading.value = true
   try {
-    records.value = await fetchAssessments()
+    const [assessments, followups] = await Promise.all([fetchAssessments(), fetchFollowUps().catch(() => [])])
+    records.value = assessments
+    followedAssessmentIds.value = new Set(followups.flatMap(f => f.assessment_id ? [f.assessment_id] : []))
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการโหลดข้อมูล'
     emit('showToast', 'ข้อผิดพลาด', errorMsg, false)
@@ -97,7 +101,7 @@ const filteredRecords = computed(() => {
 
   // 3. Blood filter
   if (bloodFilter.value === 'TESTED') {
-    list = list.filter(r => Boolean(r.cholinesterase_result))
+    list = list.filter(r => ['ปกติ', 'ปลอดภัย', 'มีความเสี่ยง', 'ไม่ปลอดภัย'].includes(r.cholinesterase_result))
   } else if (bloodFilter.value === 'UNSAFE') {
     list = list.filter(r => r.cholinesterase_result === 'มีความเสี่ยง' || r.cholinesterase_result === 'ไม่ปลอดภัย')
   } else if (bloodFilter.value === 'NORMAL') {
@@ -105,7 +109,7 @@ const filteredRecords = computed(() => {
   } else if (bloodFilter.value === 'SAFE') {
     list = list.filter(r => r.cholinesterase_result === 'ปลอดภัย')
   } else if (bloodFilter.value === 'UNTESTED') {
-    list = list.filter(r => !r.cholinesterase_result)
+    list = list.filter(r => !['ปกติ', 'ปลอดภัย', 'มีความเสี่ยง', 'ไม่ปลอดภัย'].includes(r.cholinesterase_result))
   }
 
   // 4. Health Center / Subdistrict filter
@@ -115,12 +119,7 @@ const filteredRecords = computed(() => {
 
   // 5. Follow-up only filter
   if (followUpOnly.value) {
-    list = list.filter(r => 
-      r.risk_level === 'มีความเสี่ยงสูงมาก' || 
-      r.risk_level === 'มีความเสี่ยงสูง' || 
-      r.cholinesterase_result === 'มีความเสี่ยง' || 
-      r.cholinesterase_result === 'ไม่ปลอดภัย'
-    )
+    list = list.filter(r => followedAssessmentIds.value.has(r.id))
   }
 
   return list
@@ -319,6 +318,7 @@ defineExpose({
         <div class="relative w-full">
           <input 
             type="text" 
+            aria-label="ค้นหาทะเบียนเกษตรกร"
             v-model="searchQuery" 
             placeholder="ค้นหาชื่อ, นามสกุล, เลขบัตรประชาชน 13 หลัก, ที่อยู่, พืชที่ปลูก, หรือหน่วยบริการ..." 
             class="w-full pl-9 pr-8 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none bg-slate-50/50"
@@ -342,6 +342,7 @@ defineExpose({
           <!-- Health Center Dropdown -->
           <div>
             <select 
+              aria-label="กรองหน่วยบริการ"
               v-model="healthCenterFilter"
               class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-700 focus:ring-2 focus:ring-emerald-500"
             >
@@ -353,6 +354,7 @@ defineExpose({
           <!-- Blood Status Dropdown -->
           <div>
             <select 
+              aria-label="กรองผลตรวจเลือด"
               v-model="bloodFilter"
               class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-700 focus:ring-2 focus:ring-emerald-500"
             >
@@ -534,6 +536,8 @@ defineExpose({
             <tr 
               v-for="item in filteredRecords" 
               :key="item.id" 
+              tabindex="0"
+              @keydown.enter.self="emit('viewDetail', item)"
               @click="emit('viewDetail', item)"
               class="hover:bg-emerald-50/50 cursor-pointer transition-colors group"
               title="คลิกเพื่อดูรายละเอียดฉบับเต็ม"
@@ -602,7 +606,7 @@ defineExpose({
                     type="button"
                     @click="openFollowUpModal(item)"
                     class="p-1.5 text-amber-700 hover:bg-amber-100 rounded-lg transition"
-                    title="บันทึกติดตามผล"
+                    aria-label="บันทึกติดตามผล" title="บันทึกติดตามผล"
                   >
                     📅
                   </button>
@@ -610,7 +614,7 @@ defineExpose({
                     type="button"
                     @click="openEditModal(item)"
                     class="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg transition"
-                    title="แก้ไขข้อมูล"
+                    aria-label="แก้ไขข้อมูล" title="แก้ไขข้อมูล"
                   >
                     ✏️
                   </button>
@@ -618,7 +622,7 @@ defineExpose({
                     type="button"
                     @click="openDeleteModal(item)"
                     class="p-1.5 text-rose-600 hover:bg-rose-100 rounded-lg transition"
-                    title="ลบข้อมูล"
+                    aria-label="ลบข้อมูล" title="ลบข้อมูล"
                   >
                     🗑️
                   </button>
@@ -719,6 +723,7 @@ defineExpose({
     <div 
       v-if="isDeleteModalOpen && pendingDeleteRecord" 
       class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
+      v-modal-focus="closeDeleteModal"
       @click.self="closeDeleteModal"
     >
       <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 space-y-4">

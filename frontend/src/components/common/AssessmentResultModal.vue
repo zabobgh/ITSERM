@@ -24,12 +24,12 @@ const riskInfo = computed(() => {
   switch (r) {
     case 'มีความเสี่ยงต่ำ':
       return {
-        label: 'มีความเสี่ยงต่ำ (ปลอดภัย)',
+        label: 'มีความเสี่ยงต่ำ',
         color: 'text-emerald-800',
         bg: 'bg-emerald-50',
         border: 'border-emerald-300',
         icon: '🟢',
-        desc: 'พฤติกรรมมีความปลอดภัย สัมผัสสารเคมีระดับต่ำ ไม่มีอาการเตือนอันตราย',
+        desc: 'ระดับความเสี่ยงคำนวณจากคะแนนพฤติกรรมและกลุ่มอาการที่บันทึก ไม่ใช่ผลวินิจฉัยโรค',
         advice: 'ตรวจคัดกรองติดตามสุขภาพประจำปี แนะนำรักษาพฤติกรรมความปลอดภัยต่อเนื่อง'
       }
     case 'มีความเสี่ยงปานกลาง':
@@ -39,7 +39,7 @@ const riskInfo = computed(() => {
         bg: 'bg-amber-50',
         border: 'border-amber-300',
         icon: '🟡',
-        desc: 'เริ่มมีพฤติกรรมเสี่ยงหรือมีอาการระคายเคืองเบื้องต้น (กลุ่ม 1)',
+        desc: 'ระดับความเสี่ยงคำนวณจากคะแนนพฤติกรรมและกลุ่มอาการที่บันทึก ไม่ใช่ผลวินิจฉัยโรค',
         advice: 'ให้สุขศึกษาการใช้อุปกรณ์ป้องกันอันตรายส่วนบุคคล (PPE) และสังเกตอาการ'
       }
     case 'มีความเสี่ยงค่อนข้างสูง':
@@ -49,7 +49,7 @@ const riskInfo = computed(() => {
         bg: 'bg-orange-50',
         border: 'border-orange-300',
         icon: '🟠',
-        desc: 'มีพฤติกรรมเสี่ยงสูง หรือมีอาการของระบบทางเดินอาหาร/ประสาท (กลุ่ม 2)',
+        desc: 'ระดับความเสี่ยงคำนวณจากคะแนนพฤติกรรมและกลุ่มอาการที่บันทึก ไม่ใช่ผลวินิจฉัยโรค',
         advice: 'จำเป็นต้องตรวจคัดกรองระดับเอนไซม์ในเลือด (Reactive Paper) และปรับลดการสัมผัส'
       }
     case 'มีความเสี่ยงสูง':
@@ -59,17 +59,17 @@ const riskInfo = computed(() => {
         bg: 'bg-rose-50',
         border: 'border-rose-300',
         icon: '🔴',
-        desc: 'มีความเสี่ยงอันตราย สัมผัสสารเคมีอย่างต่อเนื่อง หรือมีอาการกลุ่ม 3 (กล้ามเนื้อเกร็ง/มือสั่น)',
+        desc: 'ระดับความเสี่ยงคำนวณจากคะแนนพฤติกรรมและกลุ่มอาการที่บันทึก ไม่ใช่ผลวินิจฉัยโรค',
         advice: 'ต้องตรวจเลือดทันที พักงานพ่นสารเคมี และนัดตรวจติดตามประเมินซ้ำ'
       }
     case 'มีความเสี่ยงสูงมาก':
       return {
-        label: 'มีความเสี่ยงสูงมาก (อันตรายวิกฤต)',
+        label: 'มีความเสี่ยงสูงมาก',
         color: 'text-red-900',
         bg: 'bg-red-50',
         border: 'border-red-400',
         icon: '⛔',
-        desc: 'พฤติกรรมเสี่ยงขั้นวิกฤต ร่วมกับมีอาการพิษทางระบบประสาทรุนแรง',
+        desc: 'ระดับความเสี่ยงคำนวณจากคะแนนพฤติกรรมและกลุ่มอาการที่บันทึก ไม่ใช่ผลวินิจฉัยโรค',
         advice: 'หยุดสัมผัสสารเคมีโดยเด็ดขาด ส่งต่อแพทย์ รพ. ตรวจวินิจฉัยและเจาะเลือดทางห้องปฏิบัติการทันที'
       }
     default:
@@ -96,20 +96,24 @@ const detectedRiskFactors = computed(() => {
   }
 
   if (rec.answers_a) {
-    if (rec.answers_a.q9 === 3) factors.push('ใช้สารเคมีกำจัดแมลงทุกครั้งที่ทำงาน')
-    if (rec.answers_a.q10 === 3) factors.push('ใช้สารเคมีกำจัดวัชพืชทุกครั้งที่ฉีดพ่น')
+    if (rec.answers_a.q9 >= 2) factors.push('รายงานการใช้สารเคมีกำจัดแมลงในการทำงาน')
+    if (rec.answers_a.q10 >= 2) factors.push('รายงานการใช้สารเคมีกำจัดวัชพืชในการฉีดพ่น')
     if (rec.answers_a.q11 >= 2) factors.push('อุปกรณ์/ถังบรรจุสารเคมีมีรอยรั่วซึม')
     if (rec.answers_a.q12 >= 2) factors.push('ได้รับสัมผัสสารเคมีกำจัดศัตรูพืชขณะทำงาน')
     if (rec.answers_a.q13 >= 2) factors.push('เสื้อผ้าเปียกชุ่มสารเคมีระหว่างปฏิบัติงาน')
+    if (rec.answers_a.q14 >= 2) factors.push('รายงานอาการผิดปกติหลังใช้สารเคมี')
     if (rec.answers_a.q15 >= 2) factors.push('สูบบุหรี่หรือยาเส้นขณะทำงานกับสารเคมี')
     if (rec.answers_a.q16 >= 2) factors.push('รับประทานอาหารหรือดื่มน้ำในบริเวณฉีดพ่น')
     if (rec.answers_a.q17 >= 2) factors.push('ดื่มเครื่องดื่มแอลกอฮอล์ในบริเวณทำงาน')
   }
 
   if (rec.answers_b) {
+    if (rec.answers_b.q18 >= 2) factors.push('ไม่ได้อ่านฉลากก่อนใช้สารเคมีทุกครั้ง')
+    if (rec.answers_b.q22 >= 2) factors.push('ไม่ได้เปลี่ยนเสื้อผ้าที่เปื้อนสารเคมีทันทีทุกครั้ง')
+    if (rec.answers_b.q23 >= 2) factors.push('ไม่ได้อาบน้ำทันทีหลังเลิกงานทุกครั้ง')
     if (rec.answers_b.q19 >= 2) factors.push('ไม่สวมถุงมือยางป้องกันสารเคมีอย่างสม่ำเสมอ')
-    if (rec.answers_b.q20 >= 2) factors.push('ไม่สวมรองเท้าบู๊ทป้องกันสารเคมี')
-    if (rec.answers_b.q21 >= 2) factors.push('ไม่ล้างมือก่อนพักรับประทานอาหาร/ดื่มน้ำ')
+    if (rec.answers_b.q20 >= 2) factors.push('ไม่ได้สวมรองเท้าบู๊ทหรือรองเท้าปิดมิดชิดทุกครั้ง')
+    if (rec.answers_b.q21 >= 2) factors.push('ไม่ได้ล้างมือก่อนพักรับประทานอาหาร/ดื่มน้ำทุกครั้ง')
   }
 
   if (rec.symptoms && rec.symptoms.length > 0) {
@@ -117,7 +121,7 @@ const detectedRiskFactors = computed(() => {
   }
 
   if (rec.cholinesterase_result === 'มีความเสี่ยง' || rec.cholinesterase_result === 'ไม่ปลอดภัย') {
-    factors.push(`ผลตรวจเลือดเอนไซม์ตกค้าง: ${rec.cholinesterase_result}`)
+    factors.push(`ผลคัดกรองโคลีนเอสเตอเรส: ${rec.cholinesterase_result}`)
   }
 
   return factors
@@ -132,6 +136,7 @@ function printReport() {
   <div 
     v-if="isOpen && record" 
     class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs overflow-y-auto animate-fadeIn"
+    v-modal-focus="() => emit('close')"
     @click.self="emit('close')"
   >
     <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-slate-200/90 space-y-5 my-8">
@@ -169,7 +174,7 @@ function printReport() {
 
       <!-- Prominent Risk Level Badge & Recommendation -->
       <div :class="['p-4 rounded-2xl border space-y-2', riskInfo.bg, riskInfo.border]">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-wrap gap-2 items-center justify-between">
           <div class="flex items-center space-x-2">
             <span class="text-lg">{{ riskInfo.icon }}</span>
             <span :class="['font-black text-sm sm:text-base', riskInfo.color]">
@@ -224,7 +229,7 @@ function printReport() {
       </div>
       <div v-else class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-900 flex items-center space-x-2">
         <span class="text-base">✓</span>
-        <span>ไม่พบพฤติกรรมเสี่ยงหรืออาการผิดปกติที่มีนัยสำคัญทางคลินิก</span>
+        <span>{{ record.answers_a && record.answers_b ? 'ไม่พบปัจจัยเสี่ยงจากคำตอบในแบบประเมินครั้งนี้' : 'ไม่มีรายละเอียดคำตอบเพียงพอสำหรับสรุปปัจจัยเสี่ยง' }}</span>
       </div>
 
       <!-- Next Actions -->

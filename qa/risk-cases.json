@@ -1,0 +1,734 @@
+[
+  {
+    "id": "score-15-group-0",
+    "answers_a": {
+      "q9": 1,
+      "q10": 1,
+      "q11": 1,
+      "q12": 1,
+      "q13": 1,
+      "q14": 1,
+      "q15": 1,
+      "q16": 1,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [],
+    "score_a": 9,
+    "score_b": 6,
+    "total_score": 15,
+    "highest_symptom_group": 0,
+    "risk_level": "มีความเสี่ยงต่ำ",
+    "require_blood_test": false
+  },
+  {
+    "id": "score-15-group-1",
+    "answers_a": {
+      "q9": 1,
+      "q10": 1,
+      "q11": 1,
+      "q12": 1,
+      "q13": 1,
+      "q14": 1,
+      "q15": 1,
+      "q16": 1,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [
+      "ไอ"
+    ],
+    "score_a": 9,
+    "score_b": 6,
+    "total_score": 15,
+    "highest_symptom_group": 1,
+    "risk_level": "มีความเสี่ยงปานกลาง",
+    "require_blood_test": false
+  },
+  {
+    "id": "score-15-group-2",
+    "answers_a": {
+      "q9": 1,
+      "q10": 1,
+      "q11": 1,
+      "q12": 1,
+      "q13": 1,
+      "q14": 1,
+      "q15": 1,
+      "q16": 1,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [
+      "อ่อนเพลีย"
+    ],
+    "score_a": 9,
+    "score_b": 6,
+    "total_score": 15,
+    "highest_symptom_group": 2,
+    "risk_level": "มีความเสี่ยงค่อนข้างสูง",
+    "require_blood_test": true
+  },
+  {
+    "id": "score-15-group-3",
+    "answers_a": {
+      "q9": 1,
+      "q10": 1,
+      "q11": 1,
+      "q12": 1,
+      "q13": 1,
+      "q14": 1,
+      "q15": 1,
+      "q16": 1,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [
+      "มือสั่น"
+    ],
+    "score_a": 9,
+    "score_b": 6,
+    "total_score": 15,
+    "highest_symptom_group": 3,
+    "risk_level": "มีความเสี่ยงสูง",
+    "require_blood_test": true
+  },
+  {
+    "id": "score-24-group-0",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 2,
+      "q14": 1,
+      "q15": 1,
+      "q16": 1,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [],
+    "score_a": 18,
+    "score_b": 6,
+    "total_score": 24,
+    "highest_symptom_group": 0,
+    "risk_level": "มีความเสี่ยงต่ำ",
+    "require_blood_test": false
+  },
+  {
+    "id": "score-24-group-1",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 2,
+      "q14": 1,
+      "q15": 1,
+      "q16": 1,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [
+      "ไอ"
+    ],
+    "score_a": 18,
+    "score_b": 6,
+    "total_score": 24,
+    "highest_symptom_group": 1,
+    "risk_level": "มีความเสี่ยงปานกลาง",
+    "require_blood_test": false
+  },
+  {
+    "id": "score-24-group-2",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 2,
+      "q14": 1,
+      "q15": 1,
+      "q16": 1,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [
+      "อ่อนเพลีย"
+    ],
+    "score_a": 18,
+    "score_b": 6,
+    "total_score": 24,
+    "highest_symptom_group": 2,
+    "risk_level": "มีความเสี่ยงค่อนข้างสูง",
+    "require_blood_test": true
+  },
+  {
+    "id": "score-24-group-3",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 2,
+      "q14": 1,
+      "q15": 1,
+      "q16": 1,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [
+      "มือสั่น"
+    ],
+    "score_a": 18,
+    "score_b": 6,
+    "total_score": 24,
+    "highest_symptom_group": 3,
+    "risk_level": "มีความเสี่ยงสูง",
+    "require_blood_test": true
+  },
+  {
+    "id": "score-25-group-0",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 3,
+      "q14": 1,
+      "q15": 1,
+      "q16": 1,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [],
+    "score_a": 19,
+    "score_b": 6,
+    "total_score": 25,
+    "highest_symptom_group": 0,
+    "risk_level": "มีความเสี่ยงปานกลาง",
+    "require_blood_test": false
+  },
+  {
+    "id": "score-25-group-1",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 3,
+      "q14": 1,
+      "q15": 1,
+      "q16": 1,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [
+      "ไอ"
+    ],
+    "score_a": 19,
+    "score_b": 6,
+    "total_score": 25,
+    "highest_symptom_group": 1,
+    "risk_level": "มีความเสี่ยงค่อนข้างสูง",
+    "require_blood_test": true
+  },
+  {
+    "id": "score-25-group-2",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 3,
+      "q14": 1,
+      "q15": 1,
+      "q16": 1,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [
+      "อ่อนเพลีย"
+    ],
+    "score_a": 19,
+    "score_b": 6,
+    "total_score": 25,
+    "highest_symptom_group": 2,
+    "risk_level": "มีความเสี่ยงสูง",
+    "require_blood_test": true
+  },
+  {
+    "id": "score-25-group-3",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 3,
+      "q14": 1,
+      "q15": 1,
+      "q16": 1,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [
+      "มือสั่น"
+    ],
+    "score_a": 19,
+    "score_b": 6,
+    "total_score": 25,
+    "highest_symptom_group": 3,
+    "risk_level": "มีความเสี่ยงสูง",
+    "require_blood_test": true
+  },
+  {
+    "id": "score-30-group-0",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 3,
+      "q14": 3,
+      "q15": 3,
+      "q16": 2,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [],
+    "score_a": 24,
+    "score_b": 6,
+    "total_score": 30,
+    "highest_symptom_group": 0,
+    "risk_level": "มีความเสี่ยงปานกลาง",
+    "require_blood_test": false
+  },
+  {
+    "id": "score-30-group-1",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 3,
+      "q14": 3,
+      "q15": 3,
+      "q16": 2,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [
+      "ไอ"
+    ],
+    "score_a": 24,
+    "score_b": 6,
+    "total_score": 30,
+    "highest_symptom_group": 1,
+    "risk_level": "มีความเสี่ยงค่อนข้างสูง",
+    "require_blood_test": true
+  },
+  {
+    "id": "score-30-group-2",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 3,
+      "q14": 3,
+      "q15": 3,
+      "q16": 2,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [
+      "อ่อนเพลีย"
+    ],
+    "score_a": 24,
+    "score_b": 6,
+    "total_score": 30,
+    "highest_symptom_group": 2,
+    "risk_level": "มีความเสี่ยงสูง",
+    "require_blood_test": true
+  },
+  {
+    "id": "score-30-group-3",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 3,
+      "q14": 3,
+      "q15": 3,
+      "q16": 2,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [
+      "มือสั่น"
+    ],
+    "score_a": 24,
+    "score_b": 6,
+    "total_score": 30,
+    "highest_symptom_group": 3,
+    "risk_level": "มีความเสี่ยงสูง",
+    "require_blood_test": true
+  },
+  {
+    "id": "score-31-group-0",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 3,
+      "q14": 3,
+      "q15": 3,
+      "q16": 3,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [],
+    "score_a": 25,
+    "score_b": 6,
+    "total_score": 31,
+    "highest_symptom_group": 0,
+    "risk_level": "มีความเสี่ยงค่อนข้างสูง",
+    "require_blood_test": true
+  },
+  {
+    "id": "score-31-group-1",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 3,
+      "q14": 3,
+      "q15": 3,
+      "q16": 3,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [
+      "ไอ"
+    ],
+    "score_a": 25,
+    "score_b": 6,
+    "total_score": 31,
+    "highest_symptom_group": 1,
+    "risk_level": "มีความเสี่ยงสูง",
+    "require_blood_test": true
+  },
+  {
+    "id": "score-31-group-2",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 3,
+      "q14": 3,
+      "q15": 3,
+      "q16": 3,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [
+      "อ่อนเพลีย"
+    ],
+    "score_a": 25,
+    "score_b": 6,
+    "total_score": 31,
+    "highest_symptom_group": 2,
+    "risk_level": "มีความเสี่ยงสูง",
+    "require_blood_test": true
+  },
+  {
+    "id": "score-31-group-3",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 3,
+      "q14": 3,
+      "q15": 3,
+      "q16": 3,
+      "q17": 1
+    },
+    "answers_b": {
+      "q18": 1,
+      "q19": 1,
+      "q20": 1,
+      "q21": 1,
+      "q22": 1,
+      "q23": 1
+    },
+    "symptoms": [
+      "มือสั่น"
+    ],
+    "score_a": 25,
+    "score_b": 6,
+    "total_score": 31,
+    "highest_symptom_group": 3,
+    "risk_level": "มีความเสี่ยงสูงมาก",
+    "require_blood_test": true
+  },
+  {
+    "id": "score-45-group-0",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 3,
+      "q14": 3,
+      "q15": 3,
+      "q16": 3,
+      "q17": 3
+    },
+    "answers_b": {
+      "q18": 3,
+      "q19": 3,
+      "q20": 3,
+      "q21": 3,
+      "q22": 3,
+      "q23": 3
+    },
+    "symptoms": [],
+    "score_a": 27,
+    "score_b": 18,
+    "total_score": 45,
+    "highest_symptom_group": 0,
+    "risk_level": "มีความเสี่ยงค่อนข้างสูง",
+    "require_blood_test": true
+  },
+  {
+    "id": "score-45-group-1",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 3,
+      "q14": 3,
+      "q15": 3,
+      "q16": 3,
+      "q17": 3
+    },
+    "answers_b": {
+      "q18": 3,
+      "q19": 3,
+      "q20": 3,
+      "q21": 3,
+      "q22": 3,
+      "q23": 3
+    },
+    "symptoms": [
+      "ไอ"
+    ],
+    "score_a": 27,
+    "score_b": 18,
+    "total_score": 45,
+    "highest_symptom_group": 1,
+    "risk_level": "มีความเสี่ยงสูง",
+    "require_blood_test": true
+  },
+  {
+    "id": "score-45-group-2",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 3,
+      "q14": 3,
+      "q15": 3,
+      "q16": 3,
+      "q17": 3
+    },
+    "answers_b": {
+      "q18": 3,
+      "q19": 3,
+      "q20": 3,
+      "q21": 3,
+      "q22": 3,
+      "q23": 3
+    },
+    "symptoms": [
+      "อ่อนเพลีย"
+    ],
+    "score_a": 27,
+    "score_b": 18,
+    "total_score": 45,
+    "highest_symptom_group": 2,
+    "risk_level": "มีความเสี่ยงสูง",
+    "require_blood_test": true
+  },
+  {
+    "id": "score-45-group-3",
+    "answers_a": {
+      "q9": 3,
+      "q10": 3,
+      "q11": 3,
+      "q12": 3,
+      "q13": 3,
+      "q14": 3,
+      "q15": 3,
+      "q16": 3,
+      "q17": 3
+    },
+    "answers_b": {
+      "q18": 3,
+      "q19": 3,
+      "q20": 3,
+      "q21": 3,
+      "q22": 3,
+      "q23": 3
+    },
+    "symptoms": [
+      "มือสั่น"
+    ],
+    "score_a": 27,
+    "score_b": 18,
+    "total_score": 45,
+    "highest_symptom_group": 3,
+    "risk_level": "มีความเสี่ยงสูงมาก",
+    "require_blood_test": true
+  }
+]
