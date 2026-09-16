@@ -29,11 +29,11 @@ async function downloadPdf() {
       scale: 2, 
       useCORS: true, 
       letterRendering: true,
-      windowWidth: 794,
+      windowWidth: 840,
       scrollY: 0
     },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
-    pagebreak: { mode: ['css', 'legacy'] }
+    pagebreak: { mode: 'css' }
   }
 
   try {
@@ -56,22 +56,22 @@ defineExpose({
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div class="space-y-5">
     <!-- Action Bar for OCC-01 -->
-    <div class="flex flex-wrap items-center justify-between gap-3 p-4 bg-slate-100/80 rounded-2xl border border-slate-200 no-print">
-      <div class="flex items-center space-x-2">
-        <span class="inline-block w-3 h-3 rounded-full bg-emerald-600 animate-pulse"></span>
-        <span class="text-xs sm:text-sm font-bold text-slate-800">
-          ตัวอย่างเอกสารราชการ A4 (มาตรฐาน 2 หน้าต่อเนื่อง)
+    <div class="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5 bg-slate-100/90 rounded-2xl border border-slate-200 no-print">
+      <div class="flex items-center space-x-2.5">
+        <span class="inline-block w-3.5 h-3.5 rounded-full bg-emerald-600 animate-pulse"></span>
+        <span class="text-sm sm:text-base font-bold text-slate-800">
+          ตัวอย่างเอกสารราชการ A4 (มาตรฐาน 2 หน้าต่อเนื่อง จบรายงานพอดี)
         </span>
       </div>
 
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center space-x-2.5">
         <button 
           type="button"
           @click="printReport"
-          class="px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-xl text-xs sm:text-sm font-bold transition flex items-center space-x-1.5 shadow-xs cursor-pointer"
-          title="พิมพ์ผ่านเบราว์เซอร์ (สามารถเลือกบันทึกเป็น PDF ที่คมชัดระดับเวกเตอร์ได้)"
+          class="px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-xl text-sm font-bold transition flex items-center space-x-2 shadow-xs cursor-pointer"
+          title="พิมพ์ผ่านเบราว์เซอร์ (สามารถเลือกบันทึกเป็น PDF คมชัดระดับเวกเตอร์ได้)"
         >
           <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
@@ -83,7 +83,7 @@ defineExpose({
           type="button"
           @click="downloadPdf"
           :disabled="isGeneratingPdf"
-          class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-xl text-xs sm:text-sm font-bold transition flex items-center space-x-2 shadow-xs cursor-pointer"
+          class="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-xl text-sm font-bold transition flex items-center space-x-2 shadow-xs cursor-pointer"
         >
           <svg v-if="!isGeneratingPdf" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
@@ -102,135 +102,135 @@ defineExpose({
       ref="pdfContainer" 
       :class="[
         'text-slate-900 font-sarabun mx-auto transition-all',
-        isGeneratingPdf ? 'pdf-export-mode' : 'space-y-6 max-w-[820px]'
+        isGeneratingPdf ? 'pdf-export-mode' : 'space-y-8 max-w-4xl'
       ]"
     >
       
       <!-- =================================================================== -->
       <!-- A4 SHEET 1 (หน้า 1): ข้อมูลทั่วไป และ ข้อ 5 การประเมินความเสี่ยง นบก. 1-56 -->
       <!-- =================================================================== -->
-      <div class="a4-sheet bg-white p-6 sm:p-10 rounded-xl shadow-lg border border-slate-300 flex flex-col justify-between relative overflow-hidden">
+      <div class="a4-sheet bg-white p-8 sm:p-12 rounded-2xl shadow-md border border-slate-300 flex flex-col justify-between relative overflow-hidden">
         <div>
           <!-- Header Official -->
-          <div class="text-center space-y-1.5 border-b-2 border-slate-900 pb-3 mb-4">
+          <div class="text-center space-y-2 border-b-2 border-slate-900 pb-4 mb-5">
             <div class="flex justify-between items-start">
               <div class="text-left text-xs font-semibold text-slate-700 w-36 shrink-0">
                 <!-- Header left spacing -->
               </div>
-              <div class="h-14 flex items-center justify-center min-w-[80px] flex-1">
+              <div class="h-16 flex items-center justify-center min-w-[80px] flex-1">
                 <img 
                   v-if="reportLogo" 
                   :src="reportLogo" 
                   alt="โลโก้รายงาน" 
-                  class="max-h-14 max-w-[140px] object-contain mx-auto" 
+                  class="max-h-16 max-w-[140px] object-contain mx-auto" 
                 />
               </div>
               <div class="text-right text-xs font-mono font-bold text-slate-900 w-36 shrink-0">
-                <span class="inline-block whitespace-nowrap px-2.5 py-1 border border-slate-800 rounded-md">แบบ OCC-นบ 01</span>
+                <span class="inline-block whitespace-nowrap px-3 py-1.5 border border-slate-800 rounded-md">แบบ OCC-นบ 01</span>
               </div>
             </div>
 
-            <h1 class="text-lg sm:text-xl font-bold tracking-tight text-slate-900">
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 leading-snug">
               แบบรายงานผลการดำเนินงานจัดบริการอาชีวอนามัยในหน่วยบริการปฐมภูมิ
             </h1>
-            <p class="text-xs sm:text-sm font-semibold text-slate-700">
+            <p class="text-sm sm:text-base font-semibold text-slate-700">
               (การเฝ้าระวังและคัดกรองความเสี่ยงสุขภาพเกษตรกรจากการใช้สารเคมีกำจัดศัตรูพืช)
             </p>
 
-            <div class="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs sm:text-sm font-medium text-slate-800 pt-1.5">
-              <p>หน่วยบริการ: <span class="font-bold border-b border-dotted border-slate-800 pb-0.5 px-1.5">{{ healthCenter }}</span></p>
-              <p>อำเภอ: <span class="font-bold border-b border-dotted border-slate-800 pb-0.5 px-1.5">บ้านแพ้ว</span></p>
-              <p>จังหวัด: <span class="font-bold border-b border-dotted border-slate-800 pb-0.5 px-1.5">{{ provinceName }}</span></p>
-              <p>ปีงบประมาณ: <span class="font-bold border-b border-dotted border-slate-800 pb-0.5 px-1.5">{{ fiscalYear }}</span></p>
-              <p>รอบระยะเวลา: <span class="font-bold border-b border-dotted border-slate-800 pb-0.5 px-1.5">{{ reportingPeriod === '6month' ? 'รอบ 6 เดือน (1 ต.ค. - 31 มี.ค.)' : 'รอบ 12 เดือน (1 ต.ค. - 30 ก.ย.)' }}</span></p>
+            <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 text-sm sm:text-base font-medium text-slate-800 pt-2">
+              <p>หน่วยบริการ: <span class="font-bold border-b border-dotted border-slate-800 pb-0.5 px-2">{{ healthCenter }}</span></p>
+              <p>อำเภอ: <span class="font-bold border-b border-dotted border-slate-800 pb-0.5 px-2">บ้านแพ้ว</span></p>
+              <p>จังหวัด: <span class="font-bold border-b border-dotted border-slate-800 pb-0.5 px-2">{{ provinceName }}</span></p>
+              <p>ปีงบประมาณ: <span class="font-bold border-b border-dotted border-slate-800 pb-0.5 px-2">{{ fiscalYear }}</span></p>
+              <p>รอบระยะเวลา: <span class="font-bold border-b border-dotted border-slate-800 pb-0.5 px-2">{{ reportingPeriod === '6month' ? 'รอบ 6 เดือน (1 ต.ค. - 31 มี.ค.)' : 'รอบ 12 เดือน (1 ต.ค. - 30 ก.ย.)' }}</span></p>
             </div>
           </div>
 
           <!-- Section 1 -->
-          <div class="space-y-2 mb-4">
-            <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center space-x-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-800"></span>
+          <div class="space-y-3 mb-6">
+            <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center space-x-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-800"></span>
               <span>ส่วนที่ 1: ข้อมูลพื้นฐานเกษตรกรในเขตพื้นที่รับผิดชอบ</span>
             </h3>
-            <div class="grid grid-cols-2 gap-3 text-xs sm:text-sm">
-              <div class="p-2.5 rounded-lg border border-slate-300 bg-slate-50 flex justify-between items-center">
+            <div class="grid grid-cols-2 gap-4 text-sm sm:text-base">
+              <div class="p-3.5 sm:p-4 rounded-xl border border-slate-300 bg-slate-50 flex justify-between items-center">
                 <span class="text-slate-700 font-medium">1. เกษตรกรที่ขึ้นทะเบียนทั้งหมด (เป้าหมาย):</span>
-                <span class="font-bold text-slate-900">350 คน</span>
+                <span class="text-lg font-bold text-slate-900">350 คน</span>
               </div>
-              <div class="p-2.5 rounded-lg border border-slate-300 bg-slate-50 flex justify-between items-center">
+              <div class="p-3.5 sm:p-4 rounded-xl border border-slate-300 bg-slate-50 flex justify-between items-center">
                 <span class="text-slate-700 font-medium">2. เกษตรกรที่ได้รับการคัดกรองสะสมจริง:</span>
-                <span class="font-bold text-emerald-900">{{ stats.total }} คน</span>
+                <span class="text-lg font-bold text-emerald-900">{{ stats.total }} คน</span>
               </div>
             </div>
           </div>
 
           <!-- Section 2 Part A: Item 5 Risk Screening -->
-          <div class="space-y-2">
-            <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center space-x-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-800"></span>
+          <div class="space-y-3">
+            <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center space-x-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-800"></span>
               <span>ส่วนที่ 2: ผลการประเมินความเสี่ยงสุขภาพเกษตรกร (นบก. 1-56)</span>
             </h3>
 
-            <table class="w-full text-left text-xs sm:text-sm border-2 border-slate-900 border-collapse">
+            <table class="w-full text-left text-sm sm:text-base border-2 border-slate-900 border-collapse">
               <thead class="bg-slate-100 text-slate-900 font-bold border-b-2 border-slate-900 text-center">
                 <tr>
-                  <th class="p-1.5 border-r border-slate-400 w-12">ข้อ</th>
-                  <th class="p-1.5 border-r border-slate-400 text-left">กิจกรรมและตัวชี้วัดการประเมิน</th>
-                  <th class="p-1.5 border-r border-slate-400 w-20">หน่วยนับ</th>
-                  <th class="p-1.5 border-r border-slate-400 w-24">ผลงานจริง</th>
-                  <th class="p-1.5 w-24">ร้อยละ (%)</th>
+                  <th class="p-2.5 border-r border-slate-400 w-14">ข้อ</th>
+                  <th class="p-2.5 border-r border-slate-400 text-left">กิจกรรมและตัวชี้วัดการประเมิน</th>
+                  <th class="p-2.5 border-r border-slate-400 w-24">หน่วยนับ</th>
+                  <th class="p-2.5 border-r border-slate-400 w-28">ผลงานจริง</th>
+                  <th class="p-2.5 w-28">ร้อยละ (%)</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-300 text-slate-800">
                 <tr class="bg-emerald-50/70 font-bold text-emerald-950">
-                  <td class="p-1.5 text-center border-r border-slate-300 font-mono">5</td>
-                  <td class="p-1.5 border-r border-slate-300" colspan="4">
+                  <td class="p-2.5 text-center border-r border-slate-300 font-mono">5</td>
+                  <td class="p-2.5 border-r border-slate-300" colspan="4">
                     การประเมินความเสี่ยงจากการสัมผัสสารเคมีกำจัดศัตรูพืช ด้วยแบบ นบก. 1-56
                   </td>
                 </tr>
                 <tr>
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-500">5.1</td>
-                  <td class="p-1.5 border-r border-slate-300 pl-3 font-semibold">จำนวนเกษตรกรที่ได้รับการประเมินความเสี่ยงทั้งหมด</td>
-                  <td class="p-1.5 text-center border-r border-slate-300">คน</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 font-bold text-emerald-900">{{ stats.total }}</td>
-                  <td class="p-1.5 text-center font-bold">100.0%</td>
+                  <td class="p-2.5 text-center border-r border-slate-300 text-slate-500">5.1</td>
+                  <td class="p-2.5 border-r border-slate-300 pl-4 font-semibold">จำนวนเกษตรกรที่ได้รับการประเมินความเสี่ยงทั้งหมด</td>
+                  <td class="p-2.5 text-center border-r border-slate-300">คน</td>
+                  <td class="p-2.5 text-center border-r border-slate-300 font-bold text-emerald-900">{{ stats.total }}</td>
+                  <td class="p-2.5 text-center font-bold">100.0%</td>
                 </tr>
                 <tr class="bg-slate-50/60">
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-400">-</td>
-                  <td class="p-1.5 border-r border-slate-300 pl-6 text-slate-700">1) ระดับมีความเสี่ยงต่ำ (คะแนนรวม ≤ 24 ไม่มีอาการ)</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-500">คน</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 font-medium">{{ stats.lowRisk }}</td>
-                  <td class="p-1.5 text-center font-medium">{{ stats.lowRiskPct }}</td>
+                  <td class="p-2 text-center border-r border-slate-300 text-slate-400">-</td>
+                  <td class="p-2 border-r border-slate-300 pl-8 text-slate-700">1) ระดับมีความเสี่ยงต่ำ (คะแนนรวม ≤ 24 ไม่มีอาการ)</td>
+                  <td class="p-2 text-center border-r border-slate-300 text-slate-500">คน</td>
+                  <td class="p-2 text-center border-r border-slate-300 font-medium">{{ stats.lowRisk }}</td>
+                  <td class="p-2 text-center font-medium">{{ stats.lowRiskPct }}</td>
                 </tr>
                 <tr>
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-400">-</td>
-                  <td class="p-1.5 border-r border-slate-300 pl-6 text-slate-700">2) ระดับมีความเสี่ยงปานกลาง (คะแนนรวม 25-30)</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-500">คน</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 font-medium">{{ stats.medRisk }}</td>
-                  <td class="p-1.5 text-center font-medium">{{ stats.medRiskPct }}</td>
+                  <td class="p-2 text-center border-r border-slate-300 text-slate-400">-</td>
+                  <td class="p-2 border-r border-slate-300 pl-8 text-slate-700">2) ระดับมีความเสี่ยงปานกลาง (คะแนนรวม 25-30)</td>
+                  <td class="p-2 text-center border-r border-slate-300 text-slate-500">คน</td>
+                  <td class="p-2 text-center border-r border-slate-300 font-medium">{{ stats.medRisk }}</td>
+                  <td class="p-2 text-center font-medium">{{ stats.medRiskPct }}</td>
                 </tr>
                 <tr class="bg-slate-50/60">
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-400">-</td>
-                  <td class="p-1.5 border-r border-slate-300 pl-6 text-slate-700">3) ระดับมีความเสี่ยงค่อนข้างสูง (มีอาการทางร่างกายระดับ 2)</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-500">คน</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 font-medium">{{ stats.highRisk }}</td>
-                  <td class="p-1.5 text-center font-medium">{{ stats.highRiskPct }}</td>
+                  <td class="p-2 text-center border-r border-slate-300 text-slate-400">-</td>
+                  <td class="p-2 border-r border-slate-300 pl-8 text-slate-700">3) ระดับมีความเสี่ยงค่อนข้างสูง (มีอาการทางร่างกายระดับ 2)</td>
+                  <td class="p-2 text-center border-r border-slate-300 text-slate-500">คน</td>
+                  <td class="p-2 text-center border-r border-slate-300 font-medium">{{ stats.highRisk }}</td>
+                  <td class="p-2 text-center font-medium">{{ stats.highRiskPct }}</td>
                 </tr>
                 <tr>
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-400">-</td>
-                  <td class="p-1.5 border-r border-slate-300 pl-6 text-slate-700">4) ระดับมีความเสี่ยงสูง และ มีความเสี่ยงสูงมาก (อาการระดับ 3)</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-500">คน</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 font-medium">{{ stats.veryHighRisk }}</td>
-                  <td class="p-1.5 text-center font-medium">{{ stats.veryHighRiskPct }}</td>
+                  <td class="p-2 text-center border-r border-slate-300 text-slate-400">-</td>
+                  <td class="p-2 border-r border-slate-300 pl-8 text-slate-700">4) ระดับมีความเสี่ยงสูง และ มีความเสี่ยงสูงมาก (อาการระดับ 3)</td>
+                  <td class="p-2 text-center border-r border-slate-300 text-slate-500">คน</td>
+                  <td class="p-2 text-center border-r border-slate-300 font-medium">{{ stats.veryHighRisk }}</td>
+                  <td class="p-2 text-center font-medium">{{ stats.veryHighRiskPct }}</td>
                 </tr>
                 <tr class="bg-amber-50 font-bold border-t-2 border-slate-800">
-                  <td class="p-2 text-center border-r border-slate-300 text-amber-900 font-mono">5.2</td>
-                  <td class="p-2 border-r border-slate-300 pl-3 text-amber-950">
+                  <td class="p-2.5 text-center border-r border-slate-300 text-amber-900 font-mono">5.2</td>
+                  <td class="p-2.5 border-r border-slate-300 pl-4 text-amber-950">
                     รวมเกษตรกรกลุ่มเสี่ยงสูง (ข้อ 3 + ข้อ 4) ที่ต้องส่งเจาะเลือดเอนไซม์
                   </td>
-                  <td class="p-2 text-center border-r border-slate-300 text-slate-700">คน</td>
-                  <td class="p-2 text-center border-r border-slate-300 font-black text-amber-900">{{ stats.totalHighGroup }}</td>
-                  <td class="p-2 text-center font-black text-amber-900">{{ stats.totalHighGroupPct }}</td>
+                  <td class="p-2.5 text-center border-r border-slate-300 text-slate-700">คน</td>
+                  <td class="p-2.5 text-center border-r border-slate-300 font-black text-amber-900">{{ stats.totalHighGroup }}</td>
+                  <td class="p-2.5 text-center font-black text-amber-900">{{ stats.totalHighGroupPct }}</td>
                 </tr>
               </tbody>
             </table>
@@ -238,169 +238,166 @@ defineExpose({
         </div>
 
         <!-- Sheet 1 Footer Note & Pagination -->
-        <div class="pt-3 border-t border-slate-300 flex justify-between items-center text-xs text-slate-500">
-          <span>แบบรายงาน OCC-นบ 01</span>
-          <span class="font-bold text-slate-700">(หน้า 1 จาก 2 — มีต่อหน้า 2)</span>
+        <div class="pt-4 border-t border-slate-300 flex justify-between items-center text-xs sm:text-sm text-slate-600">
+          <span class="font-medium">แบบรายงาน OCC-นบ 01</span>
+          <span class="font-bold text-slate-800">(หน้า 1 จาก 2 — มีต่อหน้า 2)</span>
         </div>
       </div>
-
-      <!-- Pagebreak delimiter for PDF generation -->
-      <div class="html2pdf__page-break" style="page-break-after: always; break-after: page;"></div>
 
       <!-- =================================================================== -->
       <!-- A4 SHEET 2 (หน้า 2): ข้อ 6 ตรวจเลือด, ข้อ 7-9 ส่งต่อ และกล่องลงนามรับรอง -->
       <!-- =================================================================== -->
-      <div class="a4-sheet bg-white p-6 sm:p-10 rounded-xl shadow-lg border border-slate-300 flex flex-col justify-between relative overflow-hidden">
+      <div class="a4-sheet bg-white p-8 sm:p-12 rounded-2xl shadow-md border border-slate-300 flex flex-col justify-between relative overflow-hidden">
         <div>
           <!-- Header Page 2 -->
-          <div class="text-center space-y-1 border-b-2 border-slate-900 pb-2 mb-3">
-            <div class="flex justify-between items-center text-xs text-slate-600">
+          <div class="text-center space-y-1.5 border-b-2 border-slate-900 pb-3 mb-5">
+            <div class="flex justify-between items-center text-xs sm:text-sm text-slate-600">
               <span class="inline-block whitespace-nowrap font-bold text-slate-800">แบบ OCC-นบ 01 (ต่อ)</span>
               <span>หน่วยบริการ: <strong>{{ healthCenter }}</strong> | ปีงบประมาณ <strong>{{ fiscalYear }}</strong></span>
             </div>
-            <h2 class="text-base sm:text-lg font-bold text-slate-900">
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900">
               การตรวจคัดกรองระดับเอนไซม์และการจัดการทางการแพทย์
             </h2>
           </div>
 
           <!-- Section 2 Part B: Item 6 Blood Screen -->
-          <div class="space-y-2.5 mb-3">
-            <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center space-x-2">
-              <span class="w-2 h-2 rounded-full bg-teal-800"></span>
+          <div class="space-y-3 mb-5">
+            <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center space-x-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-teal-800"></span>
               <span>ข้อ 6: การตรวจคัดกรองระดับเอนไซม์โคลีนเอสเตอเรส (Reactive Paper)</span>
             </h3>
 
-            <table class="w-full text-left text-xs sm:text-sm border-2 border-slate-900 border-collapse">
+            <table class="w-full text-left text-sm sm:text-base border-2 border-slate-900 border-collapse">
               <thead class="bg-slate-100 text-slate-900 font-bold border-b-2 border-slate-900 text-center">
                 <tr>
-                  <th class="p-1.5 border-r border-slate-400 w-12">ข้อ</th>
-                  <th class="p-1.5 border-r border-slate-400 text-left">กิจกรรมและผลตรวจทางห้องปฏิบัติการ</th>
-                  <th class="p-1.5 border-r border-slate-400 w-20">หน่วยนับ</th>
-                  <th class="p-1.5 border-r border-slate-400 w-24">ผลงานจริง</th>
-                  <th class="p-1.5 w-24">ร้อยละ (%)</th>
+                  <th class="p-2.5 border-r border-slate-400 w-14">ข้อ</th>
+                  <th class="p-2.5 border-r border-slate-400 text-left">กิจกรรมและผลตรวจทางห้องปฏิบัติการ</th>
+                  <th class="p-2.5 border-r border-slate-400 w-24">หน่วยนับ</th>
+                  <th class="p-2.5 border-r border-slate-400 w-28">ผลงานจริง</th>
+                  <th class="p-2.5 w-28">ร้อยละ (%)</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-300 text-slate-800">
                 <tr class="bg-teal-50/70 font-bold text-teal-950">
-                  <td class="p-1.5 text-center border-r border-slate-300 font-mono">6</td>
-                  <td class="p-1.5 border-r border-slate-300" colspan="4">
+                  <td class="p-2.5 text-center border-r border-slate-300 font-mono">6</td>
+                  <td class="p-2.5 border-r border-slate-300" colspan="4">
                     การเจาะเลือดตรวจคัดกรองด้วยกระดาษทดสอบ (Reactive Paper)
                   </td>
                 </tr>
                 <tr>
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-500">6.1</td>
-                  <td class="p-1.5 border-r border-slate-300 pl-3 font-semibold">จำนวนเกษตรกรที่ได้รับการเจาะเลือดตรวจคัดกรองจริง (จากกลุ่มเสี่ยงสูงที่ต้องส่งเจาะเลือด {{ stats.totalHighGroup }} คน)</td>
-                  <td class="p-1.5 text-center border-r border-slate-300">คน</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 font-bold text-teal-900">{{ stats.bloodTested }}</td>
-                  <td class="p-1.5 text-center font-bold">{{ stats.bloodTestedPct }}</td>
+                  <td class="p-2.5 text-center border-r border-slate-300 text-slate-500">6.1</td>
+                  <td class="p-2.5 border-r border-slate-300 pl-4 font-semibold">จำนวนเกษตรกรที่ได้รับการเจาะเลือดตรวจคัดกรองจริง (จากกลุ่มเสี่ยงสูงที่ต้องส่งเจาะเลือด {{ stats.totalHighGroup }} คน)</td>
+                  <td class="p-2.5 text-center border-r border-slate-300">คน</td>
+                  <td class="p-2.5 text-center border-r border-slate-300 font-bold text-teal-900">{{ stats.bloodTested }}</td>
+                  <td class="p-2.5 text-center font-bold">{{ stats.bloodTestedPct }}</td>
                 </tr>
                 <tr class="bg-slate-50/60">
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-400">-</td>
-                  <td class="p-1.5 border-r border-slate-300 pl-6 text-slate-700">1) ผลตรวจ "ปกติ" (แถบสีส้มเหลือง)</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-500">คน</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 font-medium">{{ stats.normal }}</td>
-                  <td class="p-1.5 text-center font-medium">{{ stats.normalPct }}</td>
+                  <td class="p-2 text-center border-r border-slate-300 text-slate-400">-</td>
+                  <td class="p-2 border-r border-slate-300 pl-8 text-slate-700">1) ผลตรวจ "ปกติ" (แถบสีส้มเหลือง)</td>
+                  <td class="p-2 text-center border-r border-slate-300 text-slate-500">คน</td>
+                  <td class="p-2 text-center border-r border-slate-300 font-medium">{{ stats.normal }}</td>
+                  <td class="p-2 text-center font-medium">{{ stats.normalPct }}</td>
                 </tr>
                 <tr>
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-400">-</td>
-                  <td class="p-1.5 border-r border-slate-300 pl-6 text-slate-700">2) ผลตรวจ "ปลอดภัย" (แถบสีเหลืองอมเขียว)</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-500">คน</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 font-medium">{{ stats.safe }}</td>
-                  <td class="p-1.5 text-center font-medium">{{ stats.safePct }}</td>
+                  <td class="p-2 text-center border-r border-slate-300 text-slate-400">-</td>
+                  <td class="p-2 border-r border-slate-300 pl-8 text-slate-700">2) ผลตรวจ "ปลอดภัย" (แถบสีเหลืองอมเขียว)</td>
+                  <td class="p-2 text-center border-r border-slate-300 text-slate-500">คน</td>
+                  <td class="p-2 text-center border-r border-slate-300 font-medium">{{ stats.safe }}</td>
+                  <td class="p-2 text-center font-medium">{{ stats.safePct }}</td>
                 </tr>
                 <tr class="bg-slate-50/60">
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-400">-</td>
-                  <td class="p-1.5 border-r border-slate-300 pl-6 text-amber-900 font-semibold">3) ผลตรวจ "มีความเสี่ยง" (แถบสีเขียวอมเหลือง)</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-500">คน</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 font-bold text-amber-800">{{ stats.atRisk }}</td>
-                  <td class="p-1.5 text-center font-bold text-amber-800">{{ stats.atRiskPct }}</td>
+                  <td class="p-2 text-center border-r border-slate-300 text-slate-400">-</td>
+                  <td class="p-2 border-r border-slate-300 pl-8 text-amber-900 font-semibold">3) ผลตรวจ "มีความเสี่ยง" (แถบสีเขียวอมเหลือง)</td>
+                  <td class="p-2 text-center border-r border-slate-300 text-slate-500">คน</td>
+                  <td class="p-2 text-center border-r border-slate-300 font-bold text-amber-800">{{ stats.atRisk }}</td>
+                  <td class="p-2 text-center font-bold text-amber-800">{{ stats.atRiskPct }}</td>
                 </tr>
                 <tr>
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-400">-</td>
-                  <td class="p-1.5 border-r border-slate-300 pl-6 text-rose-900 font-semibold">4) ผลตรวจ "ไม่ปลอดภัย" (แถบสีเขียวเข้ม)</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-500">คน</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 font-bold text-rose-800">{{ stats.unsafe }}</td>
-                  <td class="p-1.5 text-center font-bold text-rose-800">{{ stats.unsafePct }}</td>
+                  <td class="p-2 text-center border-r border-slate-300 text-slate-400">-</td>
+                  <td class="p-2 border-r border-slate-300 pl-8 text-rose-900 font-semibold">4) ผลตรวจ "ไม่ปลอดภัย" (แถบสีเขียวเข้ม)</td>
+                  <td class="p-2 text-center border-r border-slate-300 text-slate-500">คน</td>
+                  <td class="p-2 text-center border-r border-slate-300 font-bold text-rose-800">{{ stats.unsafe }}</td>
+                  <td class="p-2 text-center font-bold text-rose-800">{{ stats.unsafePct }}</td>
                 </tr>
                 <tr class="bg-rose-50 font-bold border-t-2 border-slate-800">
-                  <td class="p-2 text-center border-r border-slate-300 text-rose-900 font-mono">6.2</td>
-                  <td class="p-2 border-r border-slate-300 pl-3 text-rose-950">
+                  <td class="p-2.5 text-center border-r border-slate-300 text-rose-900 font-mono">6.2</td>
+                  <td class="p-2.5 border-r border-slate-300 pl-4 text-rose-950">
                     รวมเกษตรกรผลตรวจเลือดผิดปกติ ("มีความเสี่ยง" + "ไม่ปลอดภัย")
                   </td>
-                  <td class="p-2 text-center border-r border-slate-300 text-slate-700">คน</td>
-                  <td class="p-2 text-center border-r border-slate-300 font-black text-rose-900">{{ stats.abnormalBlood }}</td>
-                  <td class="p-2 text-center font-black text-rose-900">{{ stats.abnormalBloodPct }}</td>
+                  <td class="p-2.5 text-center border-r border-slate-300 text-slate-700">คน</td>
+                  <td class="p-2.5 text-center border-r border-slate-300 font-black text-rose-900">{{ stats.abnormalBlood }}</td>
+                  <td class="p-2.5 text-center font-black text-rose-900">{{ stats.abnormalBloodPct }}</td>
                 </tr>
 
                 <!-- Item 7-9 Interventions -->
                 <tr class="bg-slate-100 font-bold text-slate-900">
-                  <td class="p-1.5 text-center border-r border-slate-300 font-mono">7</td>
-                  <td class="p-1.5 border-r border-slate-300" colspan="4">
+                  <td class="p-2.5 text-center border-r border-slate-300 font-mono">7</td>
+                  <td class="p-2.5 border-r border-slate-300" colspan="4">
                     การส่งต่อพบแพทย์ และมาตรการด้านอาชีวอนามัย
                   </td>
                 </tr>
                 <tr>
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-500">7.1</td>
-                  <td class="p-1.5 border-r border-slate-300 pl-3 text-slate-800">
+                  <td class="p-2.5 text-center border-r border-slate-300 text-slate-500">7.1</td>
+                  <td class="p-2.5 border-r border-slate-300 pl-4 text-slate-800">
                     จำนวนเกษตรกรผลเลือด "ไม่ปลอดภัย" ที่ส่งต่อพบแพทย์ รพ. เพื่อตรวจยืนยันแล็บ
                   </td>
-                  <td class="p-1.5 text-center border-r border-slate-300">คน</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 font-bold text-rose-800">{{ stats.referred }}</td>
-                  <td class="p-1.5 text-center font-semibold">{{ stats.unsafe > 0 ? '100.0%' : '-' }}</td>
+                  <td class="p-2.5 text-center border-r border-slate-300">คน</td>
+                  <td class="p-2.5 text-center border-r border-slate-300 font-bold text-rose-800">{{ stats.referred }}</td>
+                  <td class="p-2.5 text-center font-semibold">{{ stats.unsafe > 0 ? '100.0%' : '-' }}</td>
                 </tr>
                 <tr class="bg-slate-50/60">
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-500">7.2</td>
-                  <td class="p-1.5 border-r border-slate-300 pl-3 text-slate-800">
+                  <td class="p-2 text-center border-r border-slate-300 text-slate-500">7.2</td>
+                  <td class="p-2 border-r border-slate-300 pl-4 text-slate-800">
                     จำนวนเกษตรกรผลเลือด "มีความเสี่ยง" ที่นัดเจาะเลือดซ้ำภายใน 2-4 สัปดาห์
                   </td>
-                  <td class="p-1.5 text-center border-r border-slate-300">คน</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 font-bold text-amber-800">{{ stats.retestNeeded }}</td>
-                  <td class="p-1.5 text-center font-semibold">{{ stats.atRisk > 0 ? '100.0%' : '-' }}</td>
+                  <td class="p-2 text-center border-r border-slate-300">คน</td>
+                  <td class="p-2 text-center border-r border-slate-300 font-bold text-amber-800">{{ stats.retestNeeded }}</td>
+                  <td class="p-2 text-center font-semibold">{{ stats.atRisk > 0 ? '100.0%' : '-' }}</td>
                 </tr>
                 <tr>
-                  <td class="p-1.5 text-center border-r border-slate-300 text-slate-500">7.3</td>
-                  <td class="p-1.5 border-r border-slate-300 pl-3 text-slate-800">
+                  <td class="p-2 text-center border-r border-slate-300 text-slate-500">7.3</td>
+                  <td class="p-2 border-r border-slate-300 pl-4 text-slate-800">
                     จำนวนเกษตรกรที่ได้รับคำแนะนำปรับเปลี่ยนพฤติกรรมและการสวมอุปกรณ์ PPE
                   </td>
-                  <td class="p-1.5 text-center border-r border-slate-300">คน</td>
-                  <td class="p-1.5 text-center border-r border-slate-300 font-bold text-emerald-900">{{ stats.advised }}</td>
-                  <td class="p-1.5 text-center font-bold text-emerald-900">100.0%</td>
+                  <td class="p-2 text-center border-r border-slate-300">คน</td>
+                  <td class="p-2 text-center border-r border-slate-300 font-bold text-emerald-900">{{ stats.advised }}</td>
+                  <td class="p-2 text-center font-bold text-emerald-900">100.0%</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
           <!-- Section 3: Dual Signatures -->
-          <div class="pt-3 border-t-2 border-slate-900 space-y-2 break-inside-avoid">
-            <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wide">ส่วนที่ 3: การรับรองรายงานทางการ</h4>
-            <div class="grid grid-cols-2 gap-4 text-center text-xs">
-              <div class="p-3 rounded-lg border border-slate-300 bg-slate-50/70 space-y-1.5 break-inside-avoid">
+          <div class="pt-4 border-t-2 border-slate-900 space-y-3 break-inside-avoid">
+            <h4 class="text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wide">ส่วนที่ 3: การรับรองรายงานทางการ</h4>
+            <div class="grid grid-cols-2 gap-5 text-center text-xs sm:text-sm">
+              <div class="p-4 rounded-xl border border-slate-300 bg-slate-50/80 space-y-2 break-inside-avoid">
                 <p class="font-bold text-slate-900">ผู้รวบรวมรายงาน</p>
-                <div class="pt-5 pb-0.5">
-                  <span class="inline-block border-b border-dotted border-slate-800 w-44"></span>
+                <div class="pt-6 pb-1">
+                  <span class="inline-block border-b border-dotted border-slate-800 w-48"></span>
                 </div>
                 <p class="font-semibold text-slate-800">(.........................................................)</p>
-                <p class="text-[11px] text-slate-700 font-medium">(ผู้รับผิดชอบงานอาชีวเวชกรรมและอนามัยสิ่งแวดล้อม รพ.บ้านแพ้ว)</p>
-                <p class="text-[11px] text-slate-500">วันที่ .......... เดือน .................... พ.ศ. {{ fiscalYear }}</p>
+                <p class="text-xs text-slate-700 font-medium">(ผู้รับผิดชอบงานอาชีวเวชกรรมและอนามัยสิ่งแวดล้อม รพ.บ้านแพ้ว)</p>
+                <p class="text-xs text-slate-500">วันที่ .......... เดือน .................... พ.ศ. {{ fiscalYear }}</p>
               </div>
 
-              <div class="p-3 rounded-lg border border-slate-300 bg-slate-50/70 space-y-1.5 break-inside-avoid">
+              <div class="p-4 rounded-xl border border-slate-300 bg-slate-50/80 space-y-2 break-inside-avoid">
                 <p class="font-bold text-slate-900">ผู้รับรอง</p>
-                <div class="pt-5 pb-0.5">
-                  <span class="inline-block border-b border-dotted border-slate-800 w-44"></span>
+                <div class="pt-6 pb-1">
+                  <span class="inline-block border-b border-dotted border-slate-800 w-48"></span>
                 </div>
                 <p class="font-semibold text-slate-800">(.........................................................)</p>
-                <p class="text-[11px] text-slate-700 font-medium">(หัวหน้างานป้องกันโรค รพ.บ้านแพ้ว)</p>
-                <p class="text-[11px] text-slate-500">วันที่ .......... เดือน .................... พ.ศ. {{ fiscalYear }}</p>
+                <p class="text-xs text-slate-700 font-medium">(หัวหน้างานป้องกันโรค รพ.บ้านแพ้ว)</p>
+                <p class="text-xs text-slate-500">วันที่ .......... เดือน .................... พ.ศ. {{ fiscalYear }}</p>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Sheet 2 Footer Note & Pagination -->
-        <div class="pt-2 border-t border-slate-300 flex justify-between items-center text-xs text-slate-500">
-          <span>แบบรายงาน OCC-นบ 01</span>
-          <span class="font-bold text-slate-700">(หน้า 2 จาก 2 — จบรายงาน)</span>
+        <div class="pt-4 border-t border-slate-300 flex justify-between items-center text-xs sm:text-sm text-slate-600">
+          <span class="font-medium">แบบรายงาน OCC-นบ 01</span>
+          <span class="font-bold text-slate-800">(หน้า 2 จาก 2 — จบรายงาน)</span>
         </div>
       </div>
 
@@ -431,12 +428,22 @@ defineExpose({
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-  padding: 36px 44px 28px 44px !important;
+  padding: 40px 48px 30px 48px !important;
   margin: 0 !important;
   overflow: hidden !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: space-between !important;
+}
+
+.pdf-export-mode .a4-sheet:first-child {
+  page-break-after: always !important;
+  break-after: page !important;
+}
+
+.pdf-export-mode .a4-sheet:last-child {
+  page-break-after: auto !important;
+  break-after: auto !important;
 }
 
 /* Native Browser Print (@media print) */
@@ -457,14 +464,16 @@ defineExpose({
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;
-    padding: 14mm 16mm 10mm 16mm !important;
+    padding: 16mm 18mm 12mm 18mm !important;
     margin: 0 !important;
-    page-break-after: always !important;
-    break-after: page !important;
     overflow: hidden !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
+  }
+  .a4-sheet:first-child {
+    page-break-after: always !important;
+    break-after: page !important;
   }
   .a4-sheet:last-child {
     page-break-after: auto !important;

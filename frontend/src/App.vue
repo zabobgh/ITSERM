@@ -222,27 +222,27 @@ onUnmounted(() => {
     <!-- DESKTOP LEFT SIDEBAR (Standard 260px-280px, sticky full height, no-print) -->
     <!-- ========================================================================= -->
     <aside 
-      class="hidden md:flex flex-col w-64 lg:w-72 bg-white border-r border-slate-200/90 h-screen sticky top-0 shrink-0 select-none z-30 no-print"
+      class="hidden md:flex flex-col w-72 lg:w-80 bg-white border-r border-slate-200/90 h-screen sticky top-0 shrink-0 select-none z-30 no-print"
       aria-label="เมนูนำทางหลักด้านซ้าย"
     >
       <!-- 1. Brand & Organization Header -->
-      <div class="p-4 lg:p-5 border-b border-slate-100 flex items-center space-x-3 cursor-pointer group" @click="switchTab('dashboard')">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-700 via-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-xs ring-1 ring-emerald-600/20 group-hover:scale-105 transition-transform shrink-0">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="p-4 lg:p-5 border-b border-slate-100 flex items-center space-x-3.5 cursor-pointer group" @click="switchTab('dashboard')">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-emerald-700 via-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-xs ring-1 ring-emerald-600/20 group-hover:scale-105 transition-transform shrink-0">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
           </svg>
         </div>
         <div class="min-w-0 flex-1">
           <div class="flex items-center space-x-1.5">
-            <h1 class="text-sm font-bold text-slate-900 truncate leading-tight tracking-tight">
+            <h1 class="text-base font-bold text-slate-900 truncate leading-tight tracking-tight">
               ระบบคัดกรองเกษตรกร
             </h1>
           </div>
-          <p class="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+          <p class="text-xs text-slate-500 font-medium truncate mt-0.5">
             นบก. 1-56 & OCC-นบ
           </p>
           <div class="mt-1">
-            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
               สธ. / กรมควบคุมโรค
             </span>
           </div>
@@ -250,28 +250,28 @@ onUnmounted(() => {
       </div>
 
       <!-- 2. Primary Call To Action (New Assessment) -->
-      <div class="p-3 lg:p-4">
+      <div class="p-3.5 lg:p-4">
         <button 
           type="button"
           @click="startNewAssessment"
-          class="w-full inline-flex items-center justify-between px-3.5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-bold shadow-xs ring-1 ring-emerald-700/20 transition transform active:scale-98 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1"
+          class="w-full inline-flex items-center justify-between px-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-sm font-bold shadow-xs ring-1 ring-emerald-700/20 transition transform active:scale-98 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 cursor-pointer"
           aria-label="เริ่มประเมินความเสี่ยงเกษตรกรรายใหม่"
         >
-          <div class="flex items-center space-x-2">
-            <div class="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center">
-              <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center">
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
               </svg>
             </div>
             <span>ประเมินรายใหม่</span>
           </div>
-          <kbd class="text-[10px] font-mono font-bold bg-emerald-800/60 text-emerald-100 px-1.5 py-0.5 rounded">N</kbd>
+          <kbd class="text-xs font-mono font-bold bg-emerald-800/60 text-emerald-100 px-2 py-0.5 rounded">N</kbd>
         </button>
       </div>
 
       <!-- 3. Navigation Links List -->
-      <nav class="flex-1 px-3 space-y-1 overflow-y-auto" aria-label="เมนูหลัก">
-        <div class="px-2 pt-1 pb-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+      <nav class="flex-1 px-3 space-y-1.5 overflow-y-auto" aria-label="เมนูหลัก">
+        <div class="px-2 pt-1 pb-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider">
           เมนูหลัก
         </div>
 
@@ -280,7 +280,7 @@ onUnmounted(() => {
           type="button"
           @click="switchTab('dashboard')"
           :class="[
-            'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition group',
+            'w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm lg:text-base font-semibold transition group cursor-pointer',
             currentTab === 'dashboard' 
               ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs ring-1 ring-emerald-300/80' 
               : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80'
@@ -288,7 +288,7 @@ onUnmounted(() => {
         >
           <div class="flex items-center space-x-3">
             <svg 
-              :class="['w-4 h-4 transition', currentTab === 'dashboard' ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600']" 
+              :class="['w-5 h-5 transition', currentTab === 'dashboard' ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600']" 
               fill="none" stroke="currentColor" viewBox="0 0 24 24"
             >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
@@ -303,7 +303,7 @@ onUnmounted(() => {
           type="button"
           @click="switchTab('wizard')"
           :class="[
-            'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition group',
+            'w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm lg:text-base font-semibold transition group cursor-pointer',
             currentTab === 'wizard' 
               ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs ring-1 ring-emerald-300/80' 
               : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80'
@@ -311,7 +311,7 @@ onUnmounted(() => {
         >
           <div class="flex items-center space-x-3">
             <svg 
-              :class="['w-4 h-4 transition', currentTab === 'wizard' ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600']" 
+              :class="['w-5 h-5 transition', currentTab === 'wizard' ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600']" 
               fill="none" stroke="currentColor" viewBox="0 0 24 24"
             >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
@@ -326,7 +326,7 @@ onUnmounted(() => {
           type="button"
           @click="switchTab('registry')"
           :class="[
-            'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition group',
+            'w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm lg:text-base font-semibold transition group cursor-pointer',
             currentTab === 'registry' 
               ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs ring-1 ring-emerald-300/80' 
               : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80'
@@ -334,7 +334,7 @@ onUnmounted(() => {
         >
           <div class="flex items-center space-x-3">
             <svg 
-              :class="['w-4 h-4 transition', currentTab === 'registry' ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600']" 
+              :class="['w-5 h-5 transition', currentTab === 'registry' ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600']" 
               fill="none" stroke="currentColor" viewBox="0 0 24 24"
             >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
@@ -349,7 +349,7 @@ onUnmounted(() => {
           type="button"
           @click="switchTab('occ')"
           :class="[
-            'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition group',
+            'w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm lg:text-base font-semibold transition group cursor-pointer',
             currentTab === 'occ' 
               ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs ring-1 ring-emerald-300/80' 
               : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80'
@@ -357,7 +357,7 @@ onUnmounted(() => {
         >
           <div class="flex items-center space-x-3">
             <svg 
-              :class="['w-4 h-4 transition', currentTab === 'occ' ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600']" 
+              :class="['w-5 h-5 transition', currentTab === 'occ' ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600']" 
               fill="none" stroke="currentColor" viewBox="0 0 24 24"
             >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -551,31 +551,31 @@ onUnmounted(() => {
       <!-- Top Contextual Header Bar (Sticky) -->
       <header class="bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-20 no-print transition-all">
         <div class="px-4 sm:px-6 lg:px-8">
-          <div class="flex items-center justify-between h-16">
+          <div class="flex items-center justify-between h-16 lg:h-18">
             <!-- Left: Mobile Toggle & Page Context Title -->
             <div class="flex items-center space-x-3 min-w-0">
               <!-- Mobile Hamburger Button -->
               <button 
                 type="button"
                 @click="isMobileMenuOpen = true"
-                class="md:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+                class="md:hidden p-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 cursor-pointer"
                 aria-label="เปิดเมนูนำทาง"
               >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
               </button>
 
               <div>
-                <div class="flex items-center space-x-2">
-                  <h2 class="text-sm sm:text-base font-bold text-slate-900 truncate leading-tight tracking-tight">
+                <div class="flex items-center space-x-2.5">
+                  <h2 class="text-base sm:text-lg lg:text-xl font-bold text-slate-900 truncate leading-tight tracking-tight">
                     {{ tabMetadata.title }}
                   </h2>
-                  <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
+                  <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
                     {{ tabMetadata.badge }}
                   </span>
                 </div>
-                <p class="hidden sm:block text-xs text-slate-500 font-medium truncate mt-0.5">
+                <p class="hidden sm:block text-xs sm:text-sm text-slate-500 font-medium truncate mt-0.5">
                   {{ tabMetadata.subtitle }}
                 </p>
               </div>
@@ -584,8 +584,8 @@ onUnmounted(() => {
             <!-- Right: Date, Reset Demo, and Action Button -->
             <div class="flex items-center space-x-2.5">
               <!-- Date display -->
-              <div class="hidden xl:flex items-center space-x-1.5 text-xs text-slate-500 font-medium px-2.5 py-1.5 bg-slate-50 rounded-lg border border-slate-200/70">
-                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="hidden xl:flex items-center space-x-1.5 text-xs sm:text-sm text-slate-600 font-medium px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-200/70">
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
                 <span>{{ todayThai }}</span>
@@ -596,10 +596,10 @@ onUnmounted(() => {
                 v-if="isDemo"
                 type="button"
                 @click="handleResetDemo"
-                class="inline-flex items-center space-x-1 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-xs font-semibold transition"
+                class="inline-flex items-center space-x-1 px-3 py-2 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer"
                 title="รีเซ็ตข้อมูลเกษตรกรตัวอย่างทั้งหมด"
               >
-                <svg class="w-3.5 h-3.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                 </svg>
                 <span class="hidden sm:inline">รีเซ็ต Demo</span>
@@ -610,9 +610,9 @@ onUnmounted(() => {
                 v-if="currentTab !== 'wizard'"
                 type="button"
                 @click="startNewAssessment" 
-                class="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition transform active:scale-95"
+                class="inline-flex items-center space-x-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-xs transition transform active:scale-95 cursor-pointer"
               >
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
                 <span class="hidden sm:inline">ประเมินรายใหม่</span>
@@ -624,7 +624,7 @@ onUnmounted(() => {
       </header>
 
       <!-- Main Content Area -->
-      <main class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-12 max-w-7xl w-full mx-auto">
+      <main class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-7 pb-24 md:pb-12 max-w-[1440px] w-full mx-auto">
         <DashboardTab 
           ref="dashboardRef"
           v-show="currentTab === 'dashboard'" 
