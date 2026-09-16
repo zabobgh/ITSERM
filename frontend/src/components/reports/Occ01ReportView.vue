@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
 import type { OCC01DetailedStats } from '../../types'
-// @ts-ignore - html2pdf.js bundle
-import html2pdf from 'html2pdf.js'
+import html2canvas from 'html2canvas'
+import { jsPDF } from 'jspdf'
 
 const props = defineProps<{
   stats: OCC01DetailedStats
@@ -21,23 +21,33 @@ async function downloadPdf() {
   isGeneratingPdf.value = true
   await nextTick()
 
-  const opt = {
-    margin: 0,
-    filename: `แบบรายงาน_OCC-นบ01_${props.healthCenter}_ปี${props.fiscalYear}.pdf`,
-    image: { type: 'jpeg' as const, quality: 0.98 },
-    html2canvas: { 
-      scale: 2, 
-      useCORS: true, 
-      letterRendering: true,
-      windowWidth: 840,
-      scrollY: 0
-    },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
-    pagebreak: { mode: 'css' }
-  }
-
   try {
-    await html2pdf().set(opt).from(pdfContainer.value).save()
+    const sheets = pdfContainer.value.querySelectorAll<HTMLElement>('.a4-sheet')
+    if (!sheets || sheets.length === 0) return
+
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+      compress: true
+    })
+
+    for (let i = 0; i < sheets.length; i++) {
+      const sheet = sheets[i]
+      const canvas = await html2canvas(sheet, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      })
+      const imgData = canvas.toDataURL('image/jpeg', 0.98)
+      if (i > 0) {
+        pdf.addPage('a4', 'portrait')
+      }
+      pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST')
+    }
+
+    pdf.save(`แบบรายงาน_OCC-นบ01_${props.healthCenter}_ปี${props.fiscalYear}.pdf`)
   } catch (err) {
     console.error('PDF Generation Error:', err)
   } finally {
@@ -60,7 +70,7 @@ defineExpose({
     <!-- Action Bar for OCC-01 -->
     <div class="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5 bg-slate-100/90 rounded-2xl border border-slate-200 no-print">
       <div class="flex items-center space-x-2.5">
-        <span class="inline-block w-3.5 h-3.5 rounded-full bg-emerald-600 animate-pulse"></span>
+        <span class="inline-block w-3.5 h-3.5 rounded-full bg-emerald-600"></span>
         <span class="text-sm sm:text-base font-bold text-slate-800">
           ตัวอย่างเอกสารราชการ A4 (มาตรฐาน 2 หน้าต่อเนื่อง จบรายงานพอดี)
         </span>
@@ -148,10 +158,10 @@ defineExpose({
 
           <!-- Section 1 -->
           <div class="space-y-3 mb-6">
-            <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center space-x-2">
+            <h2 class="text-sm sm:text-base font-bold text-slate-900 flex items-center space-x-2">
               <span class="w-2.5 h-2.5 rounded-full bg-emerald-800"></span>
               <span>ส่วนที่ 1: ข้อมูลพื้นฐานเกษตรกรในเขตพื้นที่รับผิดชอบ</span>
-            </h3>
+            </h2>
             <div class="grid grid-cols-2 gap-4 text-sm sm:text-base">
               <div class="p-3.5 sm:p-4 rounded-xl border border-slate-300 bg-slate-50 flex justify-between items-center">
                 <span class="text-slate-700 font-medium">1. เกษตรกรที่ขึ้นทะเบียนทั้งหมด (เป้าหมาย):</span>
@@ -166,10 +176,10 @@ defineExpose({
 
           <!-- Section 2 Part A: Item 5 Risk Screening -->
           <div class="space-y-3">
-            <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center space-x-2">
+            <h2 class="text-sm sm:text-base font-bold text-slate-900 flex items-center space-x-2">
               <span class="w-2.5 h-2.5 rounded-full bg-emerald-800"></span>
               <span>ส่วนที่ 2: ผลการประเมินความเสี่ยงสุขภาพเกษตรกร (นบก. 1-56)</span>
-            </h3>
+            </h2>
 
             <table class="w-full text-left text-sm sm:text-base border-2 border-slate-900 border-collapse">
               <thead class="bg-slate-100 text-slate-900 font-bold border-b-2 border-slate-900 text-center">
@@ -369,7 +379,7 @@ defineExpose({
 
           <!-- Section 3: Dual Signatures -->
           <div class="pt-4 border-t-2 border-slate-900 space-y-3 break-inside-avoid">
-            <h4 class="text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wide">ส่วนที่ 3: การรับรองรายงานทางการ</h4>
+            <h2 class="text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wide">ส่วนที่ 3: การรับรองรายงานทางการ</h2>
             <div class="grid grid-cols-2 gap-5 text-center text-xs sm:text-sm">
               <div class="p-4 rounded-xl border border-slate-300 bg-slate-50/80 space-y-2 break-inside-avoid">
                 <p class="font-bold text-slate-900">ผู้รวบรวมรายงาน</p>
@@ -410,7 +420,7 @@ defineExpose({
   box-sizing: border-box;
 }
 
-/* Dedicated CSS when exporting via html2pdf to guarantee pixel-perfect A4 fit */
+/* Dedicated CSS when exporting via html2canvas/jsPDF to guarantee pixel-perfect A4 fit */
 .pdf-export-mode {
   width: 794px !important;
   max-width: 794px !important;
@@ -421,19 +431,20 @@ defineExpose({
 
 .pdf-export-mode .a4-sheet {
   width: 794px !important;
-  height: 1122px !important;
-  min-height: 1122px !important;
-  max-height: 1122px !important;
+  height: 1123px !important;
+  min-height: 1123px !important;
+  max-height: 1123px !important;
   box-sizing: border-box !important;
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-  padding: 40px 48px 30px 48px !important;
+  padding: 34px 44px 26px 44px !important;
   margin: 0 !important;
   overflow: hidden !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: space-between !important;
+  background: #ffffff !important;
 }
 
 .pdf-export-mode .a4-sheet:first-child {

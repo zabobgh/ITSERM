@@ -187,7 +187,7 @@ defineExpose({
     <div class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-emerald-900/10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
       <div class="space-y-2 max-w-xl">
         <div class="inline-flex items-center space-x-2 px-3 py-1 bg-white/10 rounded-full text-xs font-semibold backdrop-blur-xs">
-          <span class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
+          <span class="w-2 h-2 rounded-full bg-emerald-300"></span>
           <span>ระบบสนับสนุนการปฏิบัติงานภาคสนาม (Field Screening)</span>
         </div>
         <h2 class="text-xl sm:text-2xl font-black tracking-tight">
@@ -491,7 +491,7 @@ defineExpose({
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
         <div>
           <h3 class="text-sm font-bold text-slate-800 flex items-center space-x-2">
-            <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
             <span>เกษตรกรกลุ่มเสี่ยงสูงที่ต้องติดตามเร่งด่วน</span>
           </h3>
           <p class="text-xs text-slate-500 mt-0.5">เรียงลำดับตามคะแนนความเสี่ยงและผลเจาะเลือดผิดปกติ</p>

@@ -242,7 +242,7 @@ onUnmounted(() => {
             นบก. 1-56 & OCC-นบ
           </p>
           <div class="mt-1">
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
               สธ. / กรมควบคุมโรค
             </span>
           </div>
@@ -253,113 +253,80 @@ onUnmounted(() => {
       <div class="p-3.5 lg:p-4">
         <button 
           type="button"
-          @click="startNewAssessment"
-          class="w-full inline-flex items-center justify-between px-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-sm font-bold shadow-xs ring-1 ring-emerald-700/20 transition transform active:scale-98 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 cursor-pointer"
-          aria-label="เริ่มประเมินความเสี่ยงเกษตรกรรายใหม่"
+          @click="switchTab('wizard')"
+          class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-sm shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2.5 active:scale-[0.99] cursor-pointer"
         >
-          <div class="flex items-center space-x-2.5">
-            <div class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center">
-              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-              </svg>
-            </div>
-            <span>ประเมินรายใหม่</span>
-          </div>
-          <kbd class="text-xs font-mono font-bold bg-emerald-800/60 text-emerald-100 px-2 py-0.5 rounded">N</kbd>
+          <svg class="w-5 h-5 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span class="tracking-wide">เริ่มทำแบบประเมิน</span>
+          <kbd class="hidden xl:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-white/20 text-white rounded">N</kbd>
         </button>
       </div>
 
-      <!-- 3. Navigation Links List -->
-      <nav class="flex-1 px-3 space-y-1.5 overflow-y-auto" aria-label="เมนูหลัก">
-        <div class="px-2 pt-1 pb-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider">
-          เมนูหลัก
-        </div>
-
-        <!-- Dashboard -->
+      <!-- 3. Navigation Links (Primary Workspace Sections) -->
+      <nav class="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar" aria-label="แถบนำทางหลัก">
         <button 
           type="button"
           @click="switchTab('dashboard')"
           :class="[
-            'w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm lg:text-base font-semibold transition group cursor-pointer',
-            currentTab === 'dashboard' 
-              ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs ring-1 ring-emerald-300/80' 
-              : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80'
+            'nav-item-btn',
+            currentTab === 'dashboard' ? 'nav-item-active' : 'nav-item-inactive'
           ]"
         >
           <div class="flex items-center space-x-3">
-            <svg 
-              :class="['w-5 h-5 transition', currentTab === 'dashboard' ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600']" 
-              fill="none" stroke="currentColor" viewBox="0 0 24 24"
-            >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
             </svg>
-            <span>แดชบอร์ดภาพรวม</span>
+            <span>ภาพรวมแดชบอร์ด</span>
           </div>
           <kbd class="kbd-badge">1</kbd>
         </button>
 
-        <!-- Wizard นบก. 1-56 -->
         <button 
           type="button"
           @click="switchTab('wizard')"
           :class="[
-            'w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm lg:text-base font-semibold transition group cursor-pointer',
-            currentTab === 'wizard' 
-              ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs ring-1 ring-emerald-300/80' 
-              : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80'
+            'nav-item-btn',
+            currentTab === 'wizard' ? 'nav-item-active' : 'nav-item-inactive'
           ]"
         >
           <div class="flex items-center space-x-3">
-            <svg 
-              :class="['w-5 h-5 transition', currentTab === 'wizard' ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600']" 
-              fill="none" stroke="currentColor" viewBox="0 0 24 24"
-            >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
             </svg>
-            <span>แบบประเมิน นบก. 1-56</span>
+            <span>ทำแบบประเมินความเสี่ยง</span>
           </div>
           <kbd class="kbd-badge">2</kbd>
         </button>
 
-        <!-- Registry เกษตรกร -->
         <button 
           type="button"
           @click="switchTab('registry')"
           :class="[
-            'w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm lg:text-base font-semibold transition group cursor-pointer',
-            currentTab === 'registry' 
-              ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs ring-1 ring-emerald-300/80' 
-              : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80'
+            'nav-item-btn',
+            currentTab === 'registry' ? 'nav-item-active' : 'nav-item-inactive'
           ]"
         >
           <div class="flex items-center space-x-3">
-            <svg 
-              :class="['w-5 h-5 transition', currentTab === 'registry' ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600']" 
-              fill="none" stroke="currentColor" viewBox="0 0 24 24"
-            >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
             </svg>
-            <span>ทะเบียนเกษตรกร</span>
+            <span>ทะเบียนประเมินและผลเลือด</span>
           </div>
           <kbd class="kbd-badge">3</kbd>
         </button>
 
-        <!-- OCC Report -->
         <button 
           type="button"
           @click="switchTab('occ')"
           :class="[
-            'w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm lg:text-base font-semibold transition group cursor-pointer',
-            currentTab === 'occ' 
-              ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs ring-1 ring-emerald-300/80' 
-              : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80'
+            'nav-item-btn',
+            currentTab === 'occ' ? 'nav-item-active' : 'nav-item-inactive'
           ]"
         >
           <div class="flex items-center space-x-3">
-            <svg 
-              :class="['w-5 h-5 transition', currentTab === 'occ' ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600']" 
-              fill="none" stroke="currentColor" viewBox="0 0 24 24"
-            >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
             <span>รายงานราชการ OCC-นบ</span>
@@ -369,7 +336,7 @@ onUnmounted(() => {
 
         <!-- Service Context Widget -->
         <div class="pt-4 pb-1">
-          <div class="px-2 pb-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          <div class="px-2 pb-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
             พื้นที่ปฏิบัติงาน
           </div>
           <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-200/80 text-[11px] text-slate-600 space-y-1">
@@ -380,7 +347,7 @@ onUnmounted(() => {
               </svg>
               <span>อ.บ้านแพ้ว จ.สมุทรสาคร</span>
             </div>
-            <p class="text-[10px] text-slate-500 pl-5">
+            <p class="text-[11px] text-slate-500 pl-5">
               เครือข่าย 19 รพ.สต. + 1 โรงพยาบาล
             </p>
           </div>
@@ -392,14 +359,14 @@ onUnmounted(() => {
         <!-- Status Indicator -->
         <div class="flex items-center justify-between text-[11px]">
           <span class="inline-flex items-center space-x-1.5 text-slate-600">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
             <span class="font-medium">{{ isDemo ? 'Demo (LocalStorage)' : 'ระบบพร้อมใช้งาน' }}</span>
           </span>
           <button 
             v-if="isDemo"
             type="button"
             @click="handleResetDemo"
-            class="text-[10px] font-bold text-amber-800 hover:text-amber-900 underline cursor-pointer"
+            class="text-[11px] font-bold text-amber-800 hover:text-amber-900 underline cursor-pointer"
             title="รีเซ็ตข้อมูลตัวอย่างกลับเป็นค่าเริ่มต้น"
           >
             รีเซ็ตตัวอย่าง
@@ -407,7 +374,7 @@ onUnmounted(() => {
         </div>
 
         <!-- Shortcuts Quick Hint -->
-        <div class="text-[10px] text-slate-400 flex items-center justify-between pt-1 border-t border-slate-200/50">
+        <div class="text-[11px] text-slate-400 flex items-center justify-between pt-1 border-t border-slate-200/50">
           <span>คีย์ลัด: 1-4 สลับหน้า | N ใหม่</span>
           <span class="font-mono font-medium">v1.2</span>
         </div>
@@ -440,7 +407,7 @@ onUnmounted(() => {
             </div>
             <div>
               <h2 class="text-xs font-bold text-slate-900 leading-tight">ระบบคัดกรองเกษตรกร</h2>
-              <p class="text-[10px] text-slate-500">นบก. 1-56 & OCC-นบ</p>
+              <p class="text-[11px] text-slate-500">นบก. 1-56 & OCC-นบ</p>
             </div>
           </div>
           <button 
@@ -549,7 +516,7 @@ onUnmounted(() => {
     <!-- ========================================================================= -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
       <!-- Top Contextual Header Bar (Sticky) -->
-      <header class="bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-20 no-print transition-all">
+      <header class="bg-white border-b border-slate-200 sticky top-0 z-20 no-print transition-all shadow-xs">
         <div class="px-4 sm:px-6 lg:px-8">
           <div class="flex items-center justify-between h-16 lg:h-18">
             <!-- Left: Mobile Toggle & Page Context Title -->
@@ -575,7 +542,7 @@ onUnmounted(() => {
                     {{ tabMetadata.badge }}
                   </span>
                 </div>
-                <p class="hidden sm:block text-xs sm:text-sm text-slate-500 font-medium truncate mt-0.5">
+                <p class="hidden sm:block text-xs sm:text-sm text-slate-600 font-medium truncate mt-0.5">
                   {{ tabMetadata.subtitle }}
                 </p>
               </div>
@@ -748,7 +715,7 @@ onUnmounted(() => {
         type="button"
         @click="switchTab('dashboard')"
         :class="[
-          'flex flex-col items-center py-1 px-3 rounded-xl text-[10px] font-semibold transition', 
+          'flex flex-col items-center py-1 px-3 rounded-xl text-xs font-semibold transition', 
           currentTab === 'dashboard' ? 'text-emerald-800 font-bold' : 'text-slate-500 hover:text-slate-800'
         ]"
       >
@@ -762,7 +729,7 @@ onUnmounted(() => {
         type="button"
         @click="switchTab('wizard')"
         :class="[
-          'flex flex-col items-center py-1 px-3 rounded-xl text-[10px] font-semibold transition', 
+          'flex flex-col items-center py-1 px-3 rounded-xl text-xs font-semibold transition', 
           currentTab === 'wizard' ? 'text-emerald-800 font-bold' : 'text-slate-500 hover:text-slate-800'
         ]"
       >
@@ -776,7 +743,7 @@ onUnmounted(() => {
         type="button"
         @click="switchTab('registry')"
         :class="[
-          'flex flex-col items-center py-1 px-3 rounded-xl text-[10px] font-semibold transition', 
+          'flex flex-col items-center py-1 px-3 rounded-xl text-xs font-semibold transition', 
           currentTab === 'registry' ? 'text-emerald-800 font-bold' : 'text-slate-500 hover:text-slate-800'
         ]"
       >
@@ -790,7 +757,7 @@ onUnmounted(() => {
         type="button"
         @click="switchTab('occ')"
         :class="[
-          'flex flex-col items-center py-1 px-3 rounded-xl text-[10px] font-semibold transition', 
+          'flex flex-col items-center py-1 px-3 rounded-xl text-xs font-semibold transition', 
           currentTab === 'occ' ? 'text-emerald-800 font-bold' : 'text-slate-500 hover:text-slate-800'
         ]"
       >

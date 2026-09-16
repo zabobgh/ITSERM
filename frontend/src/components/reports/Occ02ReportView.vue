@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
 import type { CenterBreakdownItem, AssessmentRecord, ReportOCC02 } from '../../types'
-// @ts-ignore - html2pdf.js bundle
-import html2pdf from 'html2pdf.js'
+import html2canvas from 'html2canvas'
+import { jsPDF } from 'jspdf'
 
 const props = defineProps<{
   records: AssessmentRecord[]
@@ -46,23 +46,27 @@ async function downloadPdf() {
   isGeneratingPdf.value = true
   await nextTick()
 
-  const opt = {
-    margin: 0,
-    filename: `แบบรายงาน_OCC-นบ02_จ.${props.provinceName}_ปี${props.fiscalYear}.pdf`,
-    image: { type: 'jpeg' as const, quality: 0.98 },
-    html2canvas: { 
-      scale: 2, 
-      useCORS: true, 
-      letterRendering: true,
-      windowWidth: 1123,
-      scrollY: 0
-    },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' as const },
-    pagebreak: { mode: 'css' }
-  }
-
   try {
-    await html2pdf().set(opt).from(pdfContainer.value).save()
+    const sheet = pdfContainer.value.querySelector<HTMLElement>('.a4-sheet')
+    if (!sheet) return
+
+    const canvas = await html2canvas(sheet, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff'
+    })
+    const imgData = canvas.toDataURL('image/jpeg', 0.98)
+
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4',
+      compress: true
+    })
+
+    pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210, undefined, 'FAST')
+    pdf.save(`แบบรายงาน_OCC-นบ02_จ.${props.provinceName}_ปี${props.fiscalYear}.pdf`)
   } catch (err) {
     console.error('PDF Generation Error:', err)
   } finally {
@@ -85,7 +89,7 @@ defineExpose({
     <!-- Action Bar for OCC-02 -->
     <div class="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5 bg-slate-100/90 rounded-2xl border border-slate-200 no-print">
       <div class="flex items-center space-x-2.5">
-        <span class="inline-block w-3.5 h-3.5 rounded-full bg-teal-600 animate-pulse"></span>
+        <span class="inline-block w-3.5 h-3.5 rounded-full bg-teal-600"></span>
         <span class="text-sm sm:text-base font-bold text-slate-800">
           รายงานสรุปภาพรวมระดับอำเภอ (OCC-นบ 02 ตาม Requirement ผู้ใช้งานและโครงสร้างระบบปัจจุบัน)
         </span>
@@ -169,9 +173,9 @@ defineExpose({
 
           <!-- District Summary Table -->
           <div class="space-y-3 mb-5">
-            <h3 class="text-sm sm:text-base font-bold text-slate-900">
+            <h2 class="text-sm sm:text-base font-bold text-slate-900">
               ตารางสรุปผลงานรายหน่วยบริการปฐมภูมิในสังกัดอำเภอบ้านแพ้ว (รพ.สต.)
-            </h3>
+            </h2>
 
             <div class="overflow-x-auto border-2 border-slate-900 rounded-lg">
               <table class="w-full text-left text-sm sm:text-base border-collapse">

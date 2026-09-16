@@ -1153,7 +1153,7 @@ defineExpose({
           <!-- Group 3 (High Alert / Severe) -->
           <div class="p-5 sm:p-6 rounded-2xl border border-rose-300 bg-rose-50/50 space-y-3">
             <h4 class="text-sm sm:text-base font-bold text-rose-900 flex items-center space-x-2">
-              <span class="w-3 h-3 rounded-full bg-rose-600 animate-pulse"></span>
+              <span class="w-3 h-3 rounded-full bg-rose-600"></span>
               <span>กลุ่มที่ 3: ระบบประสาทส่วนกลาง / อาการรุนแรง (ส่งพบแพทย์ทันทีหากมีอาการ)</span>
             </h4>
             <div class="flex flex-wrap gap-2">
@@ -1295,7 +1295,7 @@ defineExpose({
               </tbody>
             </table>
           </div>
-          <p class="text-[10px] text-slate-500">* หมายเหตุ: ระดับที่มีเครื่องหมายดอกจัน (*) คือกลุ่มเป้าหมายที่ต้องได้รับการเจาะเลือดคัดกรองเอนไซม์</p>
+          <p class="text-xs text-slate-500">* หมายเหตุ: ระดับที่มีเครื่องหมายดอกจัน (*) คือกลุ่มเป้าหมายที่ต้องได้รับการเจาะเลือดคัดกรองเอนไซม์</p>
         </div>
 
         <!-- Action Protocol Alert Banner -->
@@ -1433,7 +1433,7 @@ defineExpose({
                 :style="{ backgroundColor: item.colorHex }"
               ></span>
               <span class="block text-sm sm:text-base font-bold">{{ item.val }}</span>
-              <span class="block text-[10px] opacity-80">{{ item.sub }}</span>
+              <span class="block text-[11px] opacity-80">{{ item.sub }}</span>
             </div>
           </div>
 
