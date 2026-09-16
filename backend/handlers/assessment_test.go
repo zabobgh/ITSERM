@@ -89,3 +89,59 @@ func TestAssessmentPersistenceAndDashboard(t *testing.T) {
 		t.Fatalf("registry roundtrip mismatch")
 	}
 }
+
+func TestAssessmentID_RapidSequentialUniqueness(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	db, err := database.InitDB(filepath.Join(t.TempDir(), "qa_unique.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	r := gin.New()
+	r.POST("/api/assessments", CreateAssessment)
+
+	tc := models.AssessmentSubmission{
+		CitizenID: "1234567890123",
+		Fullname:  "Rapid Submitter",
+		Gender:    "หญิง",
+		Age:       38,
+		AnswersA: map[string]int{
+			"q9": 1, "q10": 1, "q11": 1, "q12": 1, "q13": 1,
+			"q14": 1, "q15": 1, "q16": 1, "q17": 1,
+		},
+		AnswersB: map[string]int{
+			"q18": 1, "q19": 1, "q20": 1, "q21": 1, "q22": 1, "q23": 1,
+		},
+		Symptoms: []string{},
+	}
+
+	body, _ := json.Marshal(tc)
+	generatedIDs := make(map[string]bool)
+
+	// Send 30 rapid sequential requests within a fraction of a millisecond
+	for i := 0; i < 30; i++ {
+		w := httptest.NewRecorder()
+		req := httptest.NewRequest("POST", "/api/assessments", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		r.ServeHTTP(w, req)
+
+		if w.Code != 201 {
+			t.Fatalf("failed at iteration %d with code %d: %s", i, w.Code, w.Body.String())
+		}
+
+		var saved models.AssessmentRecord
+		if err := json.Unmarshal(w.Body.Bytes(), &saved); err != nil {
+			t.Fatal(err)
+		}
+
+		if generatedIDs[saved.ID] {
+			t.Fatalf("collision detected for ID: %s at iteration %d", saved.ID, i)
+		}
+		generatedIDs[saved.ID] = true
+	}
+
+	if len(generatedIDs) != 30 {
+		t.Fatalf("expected 30 unique IDs, got %d", len(generatedIDs))
+	}
+}

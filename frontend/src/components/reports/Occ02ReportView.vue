@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { CenterBreakdownItem, AssessmentRecord, ReportOCC02 } from '../../types'
 // @ts-ignore - html2pdf.js bundle
 import html2pdf from 'html2pdf.js'
@@ -10,7 +10,33 @@ const props = defineProps<{
   occ02: ReportOCC02
   provinceName: string
   fiscalYear: string
+  reportLogo?: string
 }>()
+
+const totalHighRisk = computed(() => {
+  return props.records.filter(r => 
+    r.risk_level === 'มีความเสี่ยงค่อนข้างสูง' || 
+    r.risk_level === 'มีความเสี่ยงสูง' || 
+    r.risk_level === 'มีความเสี่ยงสูงมาก'
+  ).length
+})
+
+const totalBloodTested = computed(() => {
+  return props.records.filter(r => 
+    ['ปกติ', 'ปลอดภัย', 'มีความเสี่ยง', 'ไม่ปลอดภัย'].includes(r.cholinesterase_result)
+  ).length
+})
+
+const totalAbnormal = computed(() => {
+  return props.records.filter(r => 
+    r.cholinesterase_result === 'ไม่ปลอดภัย' || r.cholinesterase_result === 'มีความเสี่ยง'
+  ).length
+})
+
+const totalCoveragePct = computed(() => {
+  if (totalHighRisk.value === 0) return '0.0%'
+  return `${((totalBloodTested.value / totalHighRisk.value) * 100).toFixed(1)}%`
+})
 
 const isGeneratingPdf = ref(false)
 const pdfContainer = ref<HTMLElement | null>(null)
@@ -49,7 +75,7 @@ defineExpose({
       <div class="flex items-center space-x-2">
         <span class="inline-block w-3 h-3 rounded-full bg-teal-600 animate-pulse"></span>
         <span class="text-xs sm:text-sm font-bold text-slate-800">
-          รายงานสรุปภาพรวมระดับอำเภอ/จังหวัด (OCC-นบ 02)
+          รายงานสรุปภาพรวมระดับอำเภอ (OCC-นบ 02 ตาม Requirement ผู้ใช้งานและโครงสร้างระบบปัจจุบัน)
         </span>
       </div>
 
@@ -79,27 +105,30 @@ defineExpose({
           <!-- Official Header -->
           <div class="text-center space-y-2 border-b-2 border-slate-900 pb-4 mb-5">
             <div class="flex justify-between items-start">
-              <div class="text-left text-xs font-semibold text-slate-700">
-                <p>แบบฟอร์มกระทรวงสาธารณสุข</p>
-                <p>กลุ่มงานอาชีวอนามัย สสจ.</p>
+              <div class="text-left text-xs font-semibold text-slate-700 w-28">
+                <!-- Header left spacing -->
               </div>
-              <div class="w-14 h-14 mx-auto flex items-center justify-center">
-                <svg class="w-12 h-12 text-teal-900" viewBox="0 0 100 100" fill="currentColor">
-                  <path d="M50 5 L55 25 L75 25 L60 38 L65 58 L50 45 L35 58 L40 38 L25 25 L45 25 Z" fill="#065f46" />
-                  <circle cx="50" cy="50" r="38" fill="none" stroke="#065f46" stroke-width="3" />
-                  <text x="50" y="80" font-size="10" text-anchor="middle" font-weight="bold" fill="#065f46">สธ.</text>
-                </svg>
+              <div class="h-16 flex items-center justify-center min-w-[80px]">
+                <img 
+                  v-if="reportLogo" 
+                  :src="reportLogo" 
+                  alt="โลโก้รายงาน" 
+                  class="max-h-16 max-w-[140px] object-contain mx-auto" 
+                />
               </div>
-              <div class="text-right text-xs font-mono font-bold text-slate-900">
-                <span class="px-2.5 py-1 border border-slate-800 rounded-md">แบบ OCC-นบ 02</span>
+              <div class="text-right text-xs font-mono font-bold text-slate-900 w-28">
+                <span class="px-2.5 py-1 border border-slate-800 rounded-md">แบบรายงาน OCC-นบ 02</span>
               </div>
             </div>
 
             <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
-              แบบสรุปผลการดำเนินงานจัดบริการอาชีวอนามัยระดับอำเภอ / จังหวัด
+              แบบสรุปผลการดำเนินงานจัดบริการอาชีวอนามัยระดับอำเภอ (OCC-นบ 02)
             </h1>
             <p class="text-sm font-semibold text-slate-700">
               สรุปภาพรวมการเฝ้าระวังและคัดกรองความเสี่ยงสุขภาพเกษตรกร ประจำปีงบประมาณ {{ fiscalYear }}
+            </p>
+            <p class="text-xs text-slate-600 font-normal mt-0.5">
+              (รายงานสรุปตาม Requirement ผู้ใช้งานและโครงสร้างระบบปัจจุบัน)
             </p>
 
             <div class="flex items-center justify-center gap-6 text-sm font-medium text-slate-800 pt-1">
@@ -121,10 +150,10 @@ defineExpose({
                     <th class="p-2 border-r border-slate-400 w-10">ที่</th>
                     <th class="p-2 border-r border-slate-400 text-left">ชื่อหน่วยบริการ (รพ.สต.)</th>
                     <th class="p-2 border-r border-slate-400 w-24">คัดกรองสะสม (คน)</th>
-                    <th class="p-2 border-r border-slate-400 w-24">กลุ่มเสี่ยงสูง (คน)</th>
-                    <th class="p-2 border-r border-slate-400 w-24">ตรวจเลือด (คน)</th>
+                    <th class="p-2 border-r border-slate-400 w-28">กลุ่มเสี่ยงสูงที่ต้องเจาะเลือด (คน)</th>
+                    <th class="p-2 border-r border-slate-400 w-24">ตรวจเลือดจริง (คน)</th>
                     <th class="p-2 border-r border-slate-400 w-24">ผลผิดปกติ (คน)</th>
-                    <th class="p-2 w-24">ความครอบคลุม (%)</th>
+                    <th class="p-2 w-28">ร้อยละการตรวจเลือด (%)</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-300 text-slate-800">
@@ -141,10 +170,14 @@ defineExpose({
                     <td class="p-2 text-center border-r border-slate-300 text-rose-900 font-bold">{{ c.unsafe }}</td>
                     <td class="p-2 text-center font-bold">
                       <span 
+                        v-if="c.highRisk > 0"
                         class="px-2 py-0.5 rounded-full text-xs font-bold"
                         :class="c.coverage >= 80 ? 'bg-emerald-100 text-emerald-900' : 'bg-amber-100 text-amber-900'"
                       >
-                        {{ c.coverage }}%
+                        {{ c.coverage.toFixed(1) }}%
+                      </span>
+                      <span v-else class="text-xs text-slate-400 font-normal">
+                        ไม่มีผู้เข้าเกณฑ์
                       </span>
                     </td>
                   </tr>
@@ -154,16 +187,16 @@ defineExpose({
                     <td class="p-2.5 border-r border-slate-400" colspan="2">รวมทั้งสิ้นในเขตอำเภอบ้านแพ้ว</td>
                     <td class="p-2.5 border-r border-slate-400 font-black">{{ records.length }}</td>
                     <td class="p-2.5 border-r border-slate-400 font-black text-amber-950">
-                      {{ records.filter(r => r.risk_level.includes('สูง')).length }}
+                      {{ totalHighRisk }}
                     </td>
                     <td class="p-2.5 border-r border-slate-400 font-black text-teal-950">
-                      {{ records.filter(r => Boolean(r.cholinesterase_result)).length }}
+                      {{ totalBloodTested }}
                     </td>
                     <td class="p-2.5 border-r border-slate-400 font-black text-rose-950">
-                      {{ records.filter(r => r.cholinesterase_result === 'ไม่ปลอดภัย' || r.cholinesterase_result === 'มีความเสี่ยง').length }}
+                      {{ totalAbnormal }}
                     </td>
                     <td class="p-2.5 font-black text-emerald-950">
-                      {{ occ02.blood_testing_coverage }}%
+                      {{ totalCoveragePct }}
                     </td>
                   </tr>
                 </tfoot>
@@ -171,32 +204,34 @@ defineExpose({
             </div>
           </div>
 
-          <!-- Official Signatures -->
-          <div class="pt-6 border-t-2 border-slate-900 space-y-4">
+          <!-- Section: Dual Signatures -->
+          <div class="pt-6 border-t-2 border-slate-900 space-y-4 break-inside-avoid">
             <div class="grid grid-cols-2 gap-6 text-center text-xs sm:text-sm">
-              <div class="p-4 rounded-lg border border-slate-300 bg-slate-50/70 space-y-2">
-                <p class="font-bold text-slate-900">ผู้รวบรวมรายงานระดับอำเภอ</p>
+              <div class="p-4 rounded-lg border border-slate-300 bg-slate-50/70 space-y-2 break-inside-avoid">
+                <p class="font-bold text-slate-900">ผู้รวบรวมรายงาน</p>
                 <div class="pt-8 pb-1">
                   <span class="inline-block border-b border-dotted border-slate-800 w-48"></span>
                 </div>
-                <p class="font-semibold text-slate-800">(ผู้รับผิดชอบงานอาชีวอนามัย สสอ.)</p>
-                <p class="text-xs text-slate-600">สำนักงานสาธารณสุขอำเภอบ้านแพ้ว</p>
+                <p class="font-semibold text-slate-800">(.........................................................)</p>
+                <p class="text-xs text-slate-700 font-medium">(ผู้รับผิดชอบงานอาชีวเวชกรรมและอนามัยสิ่งแวดล้อม รพ.บ้านแพ้ว)</p>
+                <p class="text-xs text-slate-500">วันที่ .......... เดือน .................... พ.ศ. {{ fiscalYear }}</p>
               </div>
 
-              <div class="p-4 rounded-lg border border-slate-300 bg-slate-50/70 space-y-2">
-                <p class="font-bold text-slate-900">นายแพทย์สาธารณสุขจังหวัด / ผู้มีอำนาจรับรอง</p>
+              <div class="p-4 rounded-lg border border-slate-300 bg-slate-50/70 space-y-2 break-inside-avoid">
+                <p class="font-bold text-slate-900">ผู้รับรอง</p>
                 <div class="pt-8 pb-1">
                   <span class="inline-block border-b border-dotted border-slate-800 w-48"></span>
                 </div>
-                <p class="font-semibold text-slate-800">(นายแพทย์สาธารณสุขจังหวัดสมุทรสาคร)</p>
-                <p class="text-xs text-slate-600">สำนักงานสาธารณสุขจังหวัดสมุทรสาคร</p>
+                <p class="font-semibold text-slate-800">(.........................................................)</p>
+                <p class="text-xs text-slate-700 font-medium">(หัวหน้างานป้องกันโรค รพ.บ้านแพ้ว)</p>
+                <p class="text-xs text-slate-500">วันที่ .......... เดือน .................... พ.ศ. {{ fiscalYear }}</p>
               </div>
             </div>
           </div>
         </div>
 
         <div class="pt-4 border-t border-slate-300 flex justify-between items-center text-xs text-slate-500">
-          <span>แบบรายงานราชการ OCC-นบ 02 • กรมควบคุมโรค กระทรวงสาธารณสุข</span>
+          <span>แบบรายงาน OCC-นบ 02</span>
           <span class="font-bold text-slate-700">(จบรายงาน)</span>
         </div>
       </div>

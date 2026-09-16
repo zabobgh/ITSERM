@@ -187,7 +187,7 @@ func GetReportOCC02(c *gin.Context) {
 	if report.TotalHighRiskCumulative > 0 {
 		report.BloodTestingCoverage = math.Round((float64(testedHighRisk)/float64(report.TotalHighRiskCumulative))*1000) / 10
 	} else {
-		report.BloodTestingCoverage = 100.0
+		report.BloodTestingCoverage = 0.0
 	}
 
 	c.JSON(http.StatusOK, report)

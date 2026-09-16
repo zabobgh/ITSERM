@@ -33,11 +33,73 @@ const occ02 = ref<ReportOCC02>({
   fiscal_year: '2569',
   total_high_risk_cumulative: 0,
   total_screened_target: 0,
-  blood_testing_coverage: 100
+  blood_testing_coverage: 0
 })
 
 const occ01ViewRef = ref<InstanceType<typeof Occ01ReportView> | null>(null)
 const occ02ViewRef = ref<InstanceType<typeof Occ02ReportView> | null>(null)
+
+// Report Logo State (persisted in localStorage)
+const STORAGE_KEY_REPORT_LOGO = 'nbk_report_logo_v1'
+const reportLogo = ref<string>(localStorage.getItem(STORAGE_KEY_REPORT_LOGO) || '')
+const logoFileInputRef = ref<HTMLInputElement | null>(null)
+const logoError = ref('')
+
+function triggerLogoUpload() {
+  logoError.value = ''
+  logoFileInputRef.value?.click()
+}
+
+function handleLogoFileChange(event: Event) {
+  logoError.value = ''
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+
+  // Validate file type
+  const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
+  if (!validTypes.includes(file.type)) {
+    logoError.value = 'กรุณาเลือกไฟล์ภาพที่ถูกต้อง (PNG, JPG, WebP)'
+    target.value = ''
+    return
+  }
+
+  // Validate file size (max 2MB)
+  if (file.size > 2 * 1024 * 1024) {
+    logoError.value = 'ขนาดไฟล์ภาพต้องไม่เกิน 2MB'
+    target.value = ''
+    return
+  }
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    const result = e.target?.result as string
+    if (result) {
+      reportLogo.value = result
+      try {
+        localStorage.setItem(STORAGE_KEY_REPORT_LOGO, result)
+      } catch (err) {
+        console.warn('Could not save logo to localStorage:', err)
+      }
+    }
+    target.value = ''
+  }
+  reader.onerror = () => {
+    logoError.value = 'เกิดข้อผิดพลาดในการอ่านไฟล์ภาพ'
+    target.value = ''
+  }
+  reader.readAsDataURL(file)
+}
+
+function removeLogo() {
+  reportLogo.value = ''
+  try {
+    localStorage.removeItem(STORAGE_KEY_REPORT_LOGO)
+  } catch {
+    // ignore
+  }
+  if (logoFileInputRef.value) logoFileInputRef.value.value = ''
+}
 
 // Filter records belonging to selected center
 const centerRecords = computed(() => {
@@ -89,7 +151,8 @@ const occ01Stats = computed<OCC01DetailedStats>(() => {
     totalHighGroupPct: calcPct(totalHighGroup, total),
 
     bloodTested,
-    bloodTestedPct: calcPct(bloodTested, total),
+    // Confirmed business rule: Percentage = (tested blood / high-risk farmers requiring blood screening) * 100
+    bloodTestedPct: calcPct(bloodTested, totalHighGroup),
     normal,
     normalPct: calcPct(normal, bloodTested),
     safe,
@@ -118,8 +181,10 @@ const centerBreakdowns = computed<CenterBreakdownItem[]>(() => {
       r.risk_level === 'มีความเสี่ยงสูงมาก'
     ).length
     const bloodTested = centerRecs.filter(r => ['ปกติ', 'ปลอดภัย', 'มีความเสี่ยง', 'ไม่ปลอดภัย'].includes(r.cholinesterase_result)).length
-    const unsafe = centerRecs.filter(r => r.cholinesterase_result === 'ไม่ปลอดภัย' || r.cholinesterase_result === 'มีความเสี่ยง').length
-    const coverage = highRisk > 0 ? Math.min(100, Math.round((bloodTested / highRisk) * 100)) : (bloodTested > 0 ? 100 : 0)
+    const unsafe = centerRecs.filter(r => r.cholinesterase_result === 'มีความเสี่ยง' || r.cholinesterase_result === 'ไม่ปลอดภัย').length
+    
+    // Denominator = high-risk farmers requiring blood screening
+    const coverage = highRisk > 0 ? Number(((bloodTested / highRisk) * 100).toFixed(1)) : 0
 
     return {
       center,
@@ -159,54 +224,98 @@ function handleDownloadPdf() {
 }
 
 function exportReportCSV() {
-  const headers = [
-    'หน่วยบริการ',
-    'ปีงบประมาณ',
-    'รอบระยะเวลา',
-    'เกษตรกรที่คัดกรองทั้งหมด',
-    'เสี่ยงต่ำ',
-    'เสี่ยงปานกลาง',
-    'เสี่ยงค่อนข้างสูง',
-    'เสี่ยงสูงมาก',
-    'รวมเสี่ยงสูง',
-    'เจาะเลือดเอนไซม์',
-    'ปกติ',
-    'ปลอดภัย',
-    'มีความเสี่ยง',
-    'ไม่ปลอดภัย',
-    'ส่งต่อ รพ.',
-    'ได้รับคำแนะนำ'
-  ]
+  if (activeReport.value === '01') {
+    const headers = [
+      'หน่วยบริการ',
+      'ปีงบประมาณ',
+      'รอบระยะเวลา',
+      'เกษตรกรที่คัดกรองทั้งหมด',
+      'เสี่ยงต่ำ',
+      'เสี่ยงปานกลาง',
+      'เสี่ยงค่อนข้างสูง',
+      'เสี่ยงสูงมาก',
+      'รวมกลุ่มเสี่ยงสูงที่ต้องเจาะเลือด',
+      'เจาะเลือดเอนไซม์จริง',
+      'ร้อยละการตรวจเลือดต่อกลุ่มเสี่ยงสูง',
+      'ปกติ',
+      'ปลอดภัย',
+      'มีความเสี่ยง',
+      'ไม่ปลอดภัย',
+      'ส่งต่อ รพ.',
+      'ได้รับคำแนะนำ'
+    ]
 
-  const s = occ01Stats.value
-  const row = [
-    `"${selectedCenter.value}"`,
-    `"${fiscalYear.value}"`,
-    `"${reportingPeriod.value === '6month' ? 'รอบ 6 เดือน' : 'รอบ 12 เดือน'}"`,
-    s.total,
-    s.lowRisk,
-    s.medRisk,
-    s.highRisk,
-    s.veryHighRisk,
-    s.totalHighGroup,
-    s.bloodTested,
-    s.normal,
-    s.safe,
-    s.atRisk,
-    s.unsafe,
-    s.referred,
-    s.advised
-  ]
+    const s = occ01Stats.value
+    const row = [
+      `"${selectedCenter.value}"`,
+      `"${fiscalYear.value}"`,
+      `"${reportingPeriod.value === '6month' ? 'รอบ 6 เดือน' : 'รอบ 12 เดือน'}"`,
+      s.total,
+      s.lowRisk,
+      s.medRisk,
+      s.highRisk,
+      s.veryHighRisk,
+      s.totalHighGroup,
+      s.bloodTested,
+      `"${s.bloodTestedPct}"`,
+      s.normal,
+      s.safe,
+      s.atRisk,
+      s.unsafe,
+      s.referred,
+      s.advised
+    ]
 
-  let csvContent = '\uFEFF' + headers.join(',') + '\r\n' + row.join(',') + '\r\n'
+    const csvContent = '\uFEFF' + headers.join(',') + '\r\n' + row.join(',') + '\r\n'
+    downloadCSV(csvContent, `แบบรายงาน_OCC-นบ01_${selectedCenter.value}_${fiscalYear.value}.csv`)
+  } else {
+    const headers = [
+      'ลำดับ',
+      'หน่วยบริการปฐมภูมิ',
+      'ประเมินทั้งหมด (คน)',
+      'กลุ่มเสี่ยงสูงที่ต้องเจาะเลือด (คน)',
+      'ตรวจเลือดจริง (คน)',
+      'ร้อยละความครอบคลุมการตรวจเลือด (%)'
+    ]
+
+    const rows = centerBreakdowns.value.map((item, idx) => [
+      idx + 1,
+      `"${item.center}"`,
+      item.evaluated,
+      item.highRisk,
+      item.bloodTested,
+      item.coverage.toFixed(1)
+    ])
+
+    const totalEvaluated = centerBreakdowns.value.reduce((acc, c) => acc + c.evaluated, 0)
+    const totalHighRisk = centerBreakdowns.value.reduce((acc, c) => acc + c.highRisk, 0)
+    const totalBloodTested = centerBreakdowns.value.reduce((acc, c) => acc + c.bloodTested, 0)
+    const totalCoverage = totalHighRisk > 0 ? ((totalBloodTested / totalHighRisk) * 100).toFixed(1) : '0.0'
+
+    const summaryRow = [
+      '""',
+      '"รวมทั้งอำเภอ"',
+      totalEvaluated,
+      totalHighRisk,
+      totalBloodTested,
+      totalCoverage
+    ]
+
+    const csvContent = '\uFEFF' + headers.join(',') + '\r\n' + rows.map(r => r.join(',')).join('\r\n') + '\r\n' + summaryRow.join(',') + '\r\n'
+    downloadCSV(csvContent, `แบบรายงาน_OCC-นบ02_${provinceName.value}_${fiscalYear.value}.csv`)
+  }
+}
+
+function downloadCSV(csvContent: string, fileName: string) {
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.setAttribute('href', url)
-  link.setAttribute('download', `แบบรายงาน_${activeReport.value === '01' ? 'OCC-นบ01' : 'OCC-นบ02'}_${selectedCenter.value}_${fiscalYear.value}.csv`)
+  link.setAttribute('download', fileName)
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
+  URL.revokeObjectURL(url)
 }
 
 onMounted(() => {
@@ -230,19 +339,19 @@ defineExpose({
       <div>
         <div class="flex items-center space-x-2">
           <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-            ระบบรายงานราชการ สธ.
+            ระบบรายงานเฝ้าระวังสุขภาพ
           </span>
-          <span class="text-xs text-slate-500 font-medium">กองโรคจากการประกอบอาชีพและสิ่งแวดล้อม กรมควบคุมโรค</span>
+          <span class="text-xs text-slate-500 font-medium">โรงพยาบาลบ้านแพ้ว (องค์การมหาชน)</span>
         </div>
         <h2 class="text-lg sm:text-xl font-bold text-slate-900 mt-1">
           ระบบแบบรายงานเฝ้าระวังและจัดบริการอาชีวอนามัย (OCC-นบ)
         </h2>
         <p class="text-xs sm:text-sm text-slate-600 mt-0.5">
-          แบบรายงานมาตรฐานระดับหน่วยบริการปฐมภูมิ (OCC-นบ 01) และระดับจังหวัด (OCC-นบ 02) พร้อมระบบโหลดเอกสาร PDF ต่อเนื่อง
+          แบบรายงานระดับหน่วยบริการปฐมภูมิ (OCC-นบ 01) และรายงานสรุป OCC-นบ 02 ตาม Requirement ผู้ใช้งานและโครงสร้างระบบปัจจุบัน
         </p>
       </div>
 
-      <!-- Report Tabs & PDF Actions -->
+      <!-- Report Tabs & Actions -->
       <div class="flex flex-wrap items-center gap-2.5">
         <div class="inline-flex rounded-xl border border-slate-200 p-1 bg-slate-100">
           <button 
@@ -263,7 +372,7 @@ defineExpose({
               activeReport === '02' ? 'bg-white text-emerald-800 shadow-xs' : 'text-slate-600 hover:text-slate-900'
             ]"
           >
-            OCC-นบ 02 (สสจ./สสอ.)
+            OCC-นบ 02 (ระดับอำเภอ)
           </button>
         </div>
 
@@ -287,7 +396,64 @@ defineExpose({
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
           </svg>
-          <span>ดาวน์โหลด PDF</span>
+          <span>พิมพ์ / บันทึก PDF</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- LOGO UPLOAD & CONFIGURATION BAR (Screen only) -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-4 no-print">
+      <div class="flex items-center space-x-3">
+        <input 
+          ref="logoFileInputRef" 
+          type="file" 
+          accept="image/png,image/jpeg,image/webp" 
+          class="hidden" 
+          @change="handleLogoFileChange"
+        />
+        
+        <div class="w-12 h-12 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
+          <img 
+            v-if="reportLogo" 
+            :src="reportLogo" 
+            alt="โลโก้รายงาน" 
+            class="w-full h-full object-contain p-1"
+          />
+          <svg v-else class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="text-xs font-bold text-slate-800">โลโก้ส่วนหัวรายงาน</span>
+            <span v-if="reportLogo" class="text-[11px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-medium">พร้อมใช้งาน</span>
+            <span v-else class="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">ยังไม่ได้แนบโลโก้ (ใช้สัญลักษณ์มาตรฐาน)</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">รองรับไฟล์ PNG, JPG, WebP ขนาดไม่เกิน 2MB เพื่อแสดงในเอกสารรายงานและตอนพิมพ์/PDF</p>
+          <p v-if="logoError" class="text-xs text-rose-600 font-semibold mt-0.5">{{ logoError }}</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <button 
+          type="button" 
+          @click="triggerLogoUpload" 
+          class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition cursor-pointer flex items-center space-x-1.5"
+        >
+          <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+          </svg>
+          <span>{{ reportLogo ? 'เปลี่ยนโลโก้' : 'แนบโลโก้รายงาน' }}</span>
+        </button>
+
+        <button 
+          v-if="reportLogo" 
+          type="button" 
+          @click="removeLogo" 
+          class="px-3 py-1.5 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-xl transition cursor-pointer"
+        >
+          ลบโลโก้
         </button>
       </div>
     </div>
@@ -338,6 +504,7 @@ defineExpose({
       :province-name="provinceName"
       :fiscal-year="fiscalYear"
       :reporting-period="reportingPeriod"
+      :report-logo="reportLogo"
     />
 
     <!-- REPORT VIEW OCC-นบ 02 (District Summary with PDF export) -->
@@ -349,6 +516,7 @@ defineExpose({
       :occ02="occ02"
       :province-name="provinceName"
       :fiscal-year="fiscalYear"
+      :report-logo="reportLogo"
     />
 
   </div>

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync/atomic"
 	"time"
 
 	"nbk-occ-system/backend/database"
@@ -12,6 +13,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+var assessmentCounter uint64
 
 // GetFarmerByCitizenID searches existing farmer data by 13-digit ID
 func GetFarmerByCitizenID(c *gin.Context) {
@@ -91,7 +94,7 @@ func CreateAssessment(c *gin.Context) {
 	}
 
 	// 2. Insert assessment record
-	assessmentID := fmt.Sprintf("eval-%s-%d", sub.CitizenID, time.Now().UnixNano())
+	assessmentID := fmt.Sprintf("eval-%s-%d-%d", sub.CitizenID, time.Now().UnixNano(), atomic.AddUint64(&assessmentCounter, 1))
 	symptomsJSON, _ := json.Marshal(sub.Symptoms)
 	chemJSON, _ := json.Marshal(sub.ChemicalNames)
 	answersAJSON, _ := json.Marshal(sub.AnswersA)

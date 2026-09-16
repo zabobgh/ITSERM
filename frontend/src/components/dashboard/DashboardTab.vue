@@ -380,21 +380,24 @@ defineExpose({
         <div class="flex items-center justify-between text-xs">
           <span class="font-bold text-slate-800 flex items-center space-x-1.5">
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>อัตราการตรวจคัดกรองสารเคมีในเลือด (Reactive Paper)</span>
+            <span>อัตราการตรวจคัดกรองสารเคมีในเลือด (Reactive Paper ในกลุ่มเสี่ยงสูง)</span>
           </span>
           <span class="font-bold font-mono text-emerald-800">
-            {{ stats.total_farmers > 0 ? Math.round((stats.tested_blood / stats.total_farmers) * 100) : 0 }}%
+            {{ stats.high_risk_farmers > 0 ? Math.round((stats.tested_blood / stats.high_risk_farmers) * 100) : 0 }}%
           </span>
         </div>
         <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
           <div 
             class="bg-gradient-to-r from-emerald-500 to-teal-500 h-full rounded-full transition-all duration-500"
-            :style="{ width: `${stats.total_farmers > 0 ? Math.round((stats.tested_blood / stats.total_farmers) * 100) : 0}%` }"
+            :style="{ width: `${stats.high_risk_farmers > 0 ? Math.min(100, Math.round((stats.tested_blood / stats.high_risk_farmers) * 100)) : 0}%` }"
           ></div>
         </div>
         <div class="flex items-center justify-between text-[11px] text-slate-500">
-          <span>ตรวจเลือดแล้ว {{ stats.tested_blood }} จากแบบประเมินทั้งหมด {{ stats.total_farmers }} รายการ</span>
-          <span class="text-slate-400">กลุ่มเสี่ยงสูงในระบบ: {{ stats.high_risk_farmers }} ราย</span>
+          <span>
+            ตรวจเลือดแล้ว {{ stats.tested_blood }} จากกลุ่มเสี่ยงสูงที่ต้องตรวจเลือด {{ stats.high_risk_farmers }} ราย
+            <span v-if="stats.high_risk_farmers === 0" class="text-slate-400">(ไม่มีผู้เข้าเกณฑ์)</span>
+          </span>
+          <span class="text-slate-400">แบบประเมินทั้งหมดในระบบ: {{ stats.total_farmers }} ราย</span>
         </div>
       </div>
 

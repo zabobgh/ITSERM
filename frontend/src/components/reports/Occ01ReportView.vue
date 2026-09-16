@@ -10,6 +10,7 @@ const props = defineProps<{
   provinceName: string
   fiscalYear: string
   reportingPeriod: '6month' | '12month'
+  reportLogo?: string
 }>()
 
 const isGeneratingPdf = ref(false)
@@ -83,18 +84,18 @@ defineExpose({
           <!-- Header Official -->
           <div class="text-center space-y-2 border-b-2 border-slate-900 pb-4 mb-5">
             <div class="flex justify-between items-start">
-              <div class="text-left text-xs font-semibold text-slate-700">
-                <p>แบบฟอร์มกระทรวงสาธารณสุข</p>
-                <p>กองโรคจากการประกอบอาชีพฯ</p>
+              <div class="text-left text-xs font-semibold text-slate-700 w-28">
+                <!-- Header left spacing -->
               </div>
-              <div class="w-14 h-14 mx-auto flex items-center justify-center">
-                <svg class="w-12 h-12 text-emerald-900" viewBox="0 0 100 100" fill="currentColor">
-                  <path d="M50 5 L55 25 L75 25 L60 38 L65 58 L50 45 L35 58 L40 38 L25 25 L45 25 Z" fill="#065f46" />
-                  <circle cx="50" cy="50" r="38" fill="none" stroke="#065f46" stroke-width="3" />
-                  <text x="50" y="80" font-size="10" text-anchor="middle" font-weight="bold" fill="#065f46">สธ.</text>
-                </svg>
+              <div class="h-16 flex items-center justify-center min-w-[80px]">
+                <img 
+                  v-if="reportLogo" 
+                  :src="reportLogo" 
+                  alt="โลโก้รายงาน" 
+                  class="max-h-16 max-w-[140px] object-contain mx-auto" 
+                />
               </div>
-              <div class="text-right text-xs font-mono font-bold text-slate-900">
+              <div class="text-right text-xs font-mono font-bold text-slate-900 w-28">
                 <span class="px-2.5 py-1 border border-slate-800 rounded-md">แบบ OCC-นบ 01</span>
               </div>
             </div>
@@ -208,7 +209,7 @@ defineExpose({
 
         <!-- Sheet 1 Footer Note & Pagination -->
         <div class="pt-4 border-t border-slate-300 flex justify-between items-center text-xs text-slate-500">
-          <span>แบบรายงานราชการ OCC-นบ 01 • กรมควบคุมโรค</span>
+          <span>แบบรายงาน OCC-นบ 01</span>
           <span class="font-bold text-slate-700">(หน้า 1 จาก 2 — มีต่อหน้า 2)</span>
         </div>
       </div>
@@ -258,7 +259,7 @@ defineExpose({
                 </tr>
                 <tr>
                   <td class="p-2 text-center border-r border-slate-300 text-slate-500">6.1</td>
-                  <td class="p-2 border-r border-slate-300 pl-4 font-semibold">จำนวนเกษตรกรที่ได้รับการเจาะเลือดตรวจคัดกรองทั้งหมด</td>
+                  <td class="p-2 border-r border-slate-300 pl-4 font-semibold">จำนวนเกษตรกรที่ได้รับการเจาะเลือดตรวจคัดกรองจริง (จากกลุ่มเสี่ยงสูงที่ต้องส่งเจาะเลือด {{ stats.totalHighGroup }} คน)</td>
                   <td class="p-2 text-center border-r border-slate-300">คน</td>
                   <td class="p-2 text-center border-r border-slate-300 font-bold text-teal-900">{{ stats.bloodTested }}</td>
                   <td class="p-2 text-center font-bold">{{ stats.bloodTestedPct }}</td>
@@ -340,26 +341,26 @@ defineExpose({
           </div>
 
           <!-- Section 3: Dual Signatures -->
-          <div class="pt-6 border-t-2 border-slate-900 space-y-4">
+          <div class="pt-6 border-t-2 border-slate-900 space-y-4 break-inside-avoid">
             <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wide">ส่วนที่ 3: การรับรองรายงานทางการ</h4>
             <div class="grid grid-cols-2 gap-6 text-center text-xs sm:text-sm">
-              <div class="p-4 rounded-lg border border-slate-300 bg-slate-50/70 space-y-2">
-                <p class="font-bold text-slate-900">ผู้รายงานผลการดำเนินงาน</p>
+              <div class="p-4 rounded-lg border border-slate-300 bg-slate-50/70 space-y-2 break-inside-avoid">
+                <p class="font-bold text-slate-900">ผู้รวบรวมรายงาน</p>
                 <div class="pt-8 pb-1">
-                  <span class="inline-block border-b border-dotted border-slate-800 w-44"></span>
+                  <span class="inline-block border-b border-dotted border-slate-800 w-48"></span>
                 </div>
-                <p class="font-semibold text-slate-800">(นางสาวสุภาพร ชื่นจิต)</p>
-                <p class="text-xs text-slate-600">ตำแหน่ง: นักวิชาการสาธารณสุขปฏิบัติการ</p>
+                <p class="font-semibold text-slate-800">(.........................................................)</p>
+                <p class="text-xs text-slate-700 font-medium">(ผู้รับผิดชอบงานอาชีวเวชกรรมและอนามัยสิ่งแวดล้อม รพ.บ้านแพ้ว)</p>
                 <p class="text-xs text-slate-500">วันที่ .......... เดือน .................... พ.ศ. {{ fiscalYear }}</p>
               </div>
 
-              <div class="p-4 rounded-lg border border-slate-300 bg-slate-50/70 space-y-2">
-                <p class="font-bold text-slate-900">ผู้รับรองรายงาน</p>
+              <div class="p-4 rounded-lg border border-slate-300 bg-slate-50/70 space-y-2 break-inside-avoid">
+                <p class="font-bold text-slate-900">ผู้รับรอง</p>
                 <div class="pt-8 pb-1">
-                  <span class="inline-block border-b border-dotted border-slate-800 w-44"></span>
+                  <span class="inline-block border-b border-dotted border-slate-800 w-48"></span>
                 </div>
-                <p class="font-semibold text-slate-800">(นายสมศักดิ์ มั่นคง)</p>
-                <p class="text-xs text-slate-600">ตำแหน่ง: ผู้อำนวยการโรงพยาบาลส่งเสริมสุขภาพตำบล</p>
+                <p class="font-semibold text-slate-800">(.........................................................)</p>
+                <p class="text-xs text-slate-700 font-medium">(หัวหน้างานป้องกันโรค รพ.บ้านแพ้ว)</p>
                 <p class="text-xs text-slate-500">วันที่ .......... เดือน .................... พ.ศ. {{ fiscalYear }}</p>
               </div>
             </div>
@@ -368,7 +369,7 @@ defineExpose({
 
         <!-- Sheet 2 Footer Note & Pagination -->
         <div class="pt-4 border-t border-slate-300 flex justify-between items-center text-xs text-slate-500">
-          <span>แบบรายงานราชการ OCC-นบ 01 • กระทรวงสาธารณสุข</span>
+          <span>แบบรายงาน OCC-นบ 01</span>
           <span class="font-bold text-slate-700">(หน้า 2 จาก 2 — จบรายงาน)</span>
         </div>
       </div>

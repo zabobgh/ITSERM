@@ -549,7 +549,7 @@ export const localApi = {
       r.risk_level === 'มีความเสี่ยงสูง' || 
       r.risk_level === 'มีความเสี่ยงสูงมาก'
     ).length
-    const target = Math.max(highRisk, 1)
+    const target = highRisk
     const tested = records.filter(r => ['ปกติ', 'ปลอดภัย', 'มีความเสี่ยง', 'ไม่ปลอดภัย'].includes(r.cholinesterase_result)).length
 
     return Promise.resolve({
@@ -557,7 +557,7 @@ export const localApi = {
       fiscal_year: fiscalYear,
       total_high_risk_cumulative: highRisk,
       total_screened_target: target,
-      blood_testing_coverage: highRisk > 0 ? Math.min(100, Math.round((tested / target) * 100)) : 100
+      blood_testing_coverage: highRisk > 0 ? Math.min(100, Math.round((tested / highRisk) * 100)) : 0
     })
   },
 
