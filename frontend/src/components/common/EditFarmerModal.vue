@@ -127,8 +127,8 @@ async function handleSave() {
 </script>
 
 <template>
-  <div 
-    v-if="isOpen && record" 
+  <div
+    v-if="isOpen && record"
     class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 sm:p-6 backdrop-blur-xs overflow-y-auto"
     v-modal-focus="() => emit('close')"
     @click.self="emit('close')"
@@ -153,7 +153,7 @@ async function handleSave() {
             </p>
           </div>
         </div>
-        <button 
+        <button
           type="button"
           @click="emit('close')"
           class="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-xl transition"
@@ -179,24 +179,24 @@ async function handleSave() {
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label for="EditFarmerModal-form-fullname" class="block text-xs font-medium text-slate-600 mb-1">ชื่อ-นามสกุล *</label>
-              <input id="EditFarmerModal-form-fullname" 
-                v-model="form.fullname" 
-                type="text" 
+              <input id="EditFarmerModal-form-fullname"
+                v-model="form.fullname"
+                type="text"
                 class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               />
             </div>
             <div>
               <label for="EditFarmerModal-form-age" class="block text-xs font-medium text-slate-600 mb-1">อายุ (ปี)</label>
-              <input id="EditFarmerModal-form-age" 
-                v-model.number="form.age" 
-                type="number" 
+              <input id="EditFarmerModal-form-age"
+                v-model.number="form.age"
+                type="number"
                 class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               />
             </div>
             <div>
               <label for="EditFarmerModal-form-gender" class="block text-xs font-medium text-slate-600 mb-1">เพศ</label>
-              <select id="EditFarmerModal-form-gender" 
-                v-model="form.gender" 
+              <select id="EditFarmerModal-form-gender"
+                v-model="form.gender"
                 class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               >
                 <option value="ชาย">ชาย</option>
@@ -205,40 +205,40 @@ async function handleSave() {
             </div>
             <div class="sm:col-span-2">
               <label for="EditFarmerModal-form-address" class="block text-xs font-medium text-slate-600 mb-1">ที่อยู่ปัจจุบัน</label>
-              <input id="EditFarmerModal-form-address" 
-                v-model="form.address" 
-                type="text" 
+              <input id="EditFarmerModal-form-address"
+                v-model="form.address"
+                type="text"
                 class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               />
             </div>
             <div>
               <label for="EditFarmerModal-form-eval_date" class="block text-xs font-medium text-slate-600 mb-1">วันที่ประเมิน</label>
-              <input id="EditFarmerModal-form-eval_date" 
-                v-model="form.eval_date" 
-                type="date" 
+              <input id="EditFarmerModal-form-eval_date"
+                v-model="form.eval_date"
+                type="date"
                 class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               />
             </div>
             <div>
               <label for="EditFarmerModal-form-occupation" class="block text-xs font-medium text-slate-600 mb-1">ลักษณะงานเกษตร</label>
-              <input id="EditFarmerModal-form-occupation" 
-                v-model="form.occupation" 
-                type="text" 
+              <input id="EditFarmerModal-form-occupation"
+                v-model="form.occupation"
+                type="text"
                 class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               />
             </div>
             <div>
               <label for="EditFarmerModal-form-plant_type" class="block text-xs font-medium text-slate-600 mb-1">ชนิดพืชที่ปลูก</label>
-              <input id="EditFarmerModal-form-plant_type" 
-                v-model="form.plant_type" 
-                type="text" 
+              <input id="EditFarmerModal-form-plant_type"
+                v-model="form.plant_type"
+                type="text"
                 class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               />
             </div>
             <div>
               <label for="EditFarmerModal-form-health_center" class="block text-xs font-medium text-slate-600 mb-1">หน่วยบริการ</label>
-              <select id="EditFarmerModal-form-health_center" 
-                v-model="form.health_center" 
+              <select id="EditFarmerModal-form-health_center"
+                v-model="form.health_center"
                 class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               >
                 <option v-for="c in HEALTH_CENTERS" :key="c" :value="c">{{ c }}</option>
@@ -253,13 +253,13 @@ async function handleSave() {
             2. ผลการตรวจสารเคมีในเลือด (Reactive Paper)
           </h4>
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            <label 
+            <label
               v-for="opt in [
                 { val: 'ปกติ', color: '#f59e0b', desc: 'สีส้มเหลือง' },
                 { val: 'ปลอดภัย', color: '#84cc16', desc: 'สีเหลืองเขียว' },
                 { val: 'มีความเสี่ยง', color: '#10b981', desc: 'สีเขียวเหลือง' },
                 { val: 'ไม่ปลอดภัย', color: '#047857', desc: 'สีเขียวขี้ม้า' }
-              ]" 
+              ]"
               :key="opt.val"
               :class="[
                 'p-3 rounded-xl border cursor-pointer transition flex items-center space-x-2.5',
@@ -270,7 +270,7 @@ async function handleSave() {
               <span class="w-4 h-4 rounded-full border border-black/10 shrink-0" :style="{ backgroundColor: opt.color }"></span>
               <div>
                 <p class="font-bold text-xs text-slate-900 leading-tight">{{ opt.val }}</p>
-                <p class="text-[10px] text-slate-400">{{ opt.desc }}</p>
+                <p class="text-xs text-slate-400">{{ opt.desc }}</p>
               </div>
             </label>
           </div>
@@ -285,8 +285,8 @@ async function handleSave() {
             <div v-for="sg in symptomGroups" :key="sg.group" class="bg-white p-3 rounded-lg border border-slate-200">
               <p class="text-xs font-bold text-slate-700 mb-2">{{ sg.title }}</p>
               <div class="flex flex-wrap gap-1.5">
-                <button 
-                  v-for="item in sg.items" 
+                <button
+                  v-for="item in sg.items"
                   :key="item"
                   type="button"
                   @click="toggleSymptom(item)"
@@ -313,7 +313,7 @@ async function handleSave() {
               <span class="text-xs text-slate-600">(คะแนนรวม: {{ liveScores.totalScore }} คะแนน / กลุ่มอาการสูงสุด: {{ liveScores.highestGroup }})</span>
             </div>
           </div>
-          <span 
+          <span
             :class="[
               'px-3 py-1 rounded-full text-xs font-bold',
               liveScores.requireBlood ? 'bg-rose-100 text-rose-800 border border-rose-300' : 'bg-emerald-100 text-emerald-800'
@@ -326,14 +326,14 @@ async function handleSave() {
 
       <!-- Modal Footer -->
       <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-end space-x-3">
-        <button 
+        <button
           type="button"
           @click="emit('close')"
           class="px-4 py-2 border border-slate-300 hover:bg-slate-100 rounded-xl text-xs font-semibold text-slate-700 transition"
         >
           ยกเลิก
         </button>
-        <button 
+        <button
           type="button"
           @click="handleSave"
           :disabled="isSaving"

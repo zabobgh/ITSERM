@@ -17,6 +17,7 @@ const emit = defineEmits<{
 
 const records = ref<AssessmentRecord[]>([])
 const loading = ref(false)
+const loadError = ref('')
 const searchQuery = ref('')
 const riskFilter = ref('ALL')
 const bloodFilter = ref('ALL')
@@ -59,12 +60,14 @@ const isDeleting = ref(false)
 
 async function loadRecords() {
   loading.value = true
+  loadError.value = ''
   try {
     const [assessments, followups] = await Promise.all([fetchAssessments(), fetchFollowUps().catch(() => [])])
     records.value = assessments
     followedAssessmentIds.value = new Set(followups.flatMap(f => f.assessment_id ? [f.assessment_id] : []))
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการโหลดข้อมูล'
+    loadError.value = errorMsg
     emit('showToast', 'ข้อผิดพลาด', errorMsg, false)
   } finally {
     loading.value = false
@@ -78,7 +81,7 @@ const filteredRecords = computed(() => {
   // 1. Text Search across multiple fields
   const q = searchQuery.value.trim().toLowerCase()
   if (q) {
-    list = list.filter(r => 
+    list = list.filter(r =>
       r.fullname.toLowerCase().includes(q) ||
       r.citizen_id.includes(q) ||
       (r.address && r.address.toLowerCase().includes(q)) ||
@@ -90,9 +93,9 @@ const filteredRecords = computed(() => {
 
   // 2. Risk Level filter
   if (riskFilter.value === 'HIGH_RISK') {
-    list = list.filter(r => 
-      r.risk_level === 'มีความเสี่ยงค่อนข้างสูง' || 
-      r.risk_level === 'มีความเสี่ยงสูง' || 
+    list = list.filter(r =>
+      r.risk_level === 'มีความเสี่ยงค่อนข้างสูง' ||
+      r.risk_level === 'มีความเสี่ยงสูง' ||
       r.risk_level === 'มีความเสี่ยงสูงมาก'
     )
   } else if (riskFilter.value !== 'ALL') {
@@ -128,12 +131,12 @@ const filteredRecords = computed(() => {
 // Filter counts for quick indicators
 const filterCounts = computed(() => {
   const all = records.value.length
-  const highRisk = records.value.filter(r => 
-    r.risk_level === 'มีความเสี่ยงค่อนข้างสูง' || 
-    r.risk_level === 'มีความเสี่ยงสูง' || 
+  const highRisk = records.value.filter(r =>
+    r.risk_level === 'มีความเสี่ยงค่อนข้างสูง' ||
+    r.risk_level === 'มีความเสี่ยงสูง' ||
     r.risk_level === 'มีความเสี่ยงสูงมาก'
   ).length
-  const unsafeBlood = records.value.filter(r => 
+  const unsafeBlood = records.value.filter(r =>
     r.cholinesterase_result === 'มีความเสี่ยง' || r.cholinesterase_result === 'ไม่ปลอดภัย'
   ).length
   return { all, highRisk, unsafeBlood }
@@ -298,9 +301,9 @@ defineExpose({
 
         <!-- Export CSV Button -->
         <div class="flex items-center space-x-2 self-start sm:self-auto">
-          <button 
+          <button
             type="button"
-            @click="exportCSV" 
+            @click="exportCSV"
             class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 focus:outline-none focus:ring-2 focus:ring-slate-300"
           >
             <svg class="w-3.5 h-3.5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -316,18 +319,18 @@ defineExpose({
       <div class="space-y-3">
         <!-- Search Input -->
         <div class="relative w-full">
-          <input 
-            type="text" 
+          <input
+            type="text"
             aria-label="ค้นหาทะเบียนเกษตรกร"
-            v-model="searchQuery" 
-            placeholder="ค้นหาชื่อ, นามสกุล, เลขบัตรประชาชน 13 หลัก, ที่อยู่, พืชที่ปลูก, หรือหน่วยบริการ..." 
+            v-model="searchQuery"
+            placeholder="ค้นหาชื่อ, นามสกุล, เลขบัตรประชาชน 13 หลัก, ที่อยู่, พืชที่ปลูก, หรือหน่วยบริการ..."
             class="w-full pl-9 pr-8 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none bg-slate-50/50"
           >
           <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
-          <button 
-            v-if="searchQuery" 
+          <button
+            v-if="searchQuery"
             type="button"
             @click="searchQuery = ''"
             class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-700 p-1 text-xs font-bold"
@@ -341,7 +344,7 @@ defineExpose({
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
           <!-- Health Center Dropdown -->
           <div>
-            <select 
+            <select
               aria-label="กรองหน่วยบริการ"
               v-model="healthCenterFilter"
               class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-700 focus:ring-2 focus:ring-emerald-500"
@@ -353,7 +356,7 @@ defineExpose({
 
           <!-- Blood Status Dropdown -->
           <div>
-            <select 
+            <select
               aria-label="กรองผลตรวจเลือด"
               v-model="bloodFilter"
               class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-700 focus:ring-2 focus:ring-emerald-500"
@@ -369,19 +372,19 @@ defineExpose({
 
           <!-- Follow-up Toggle & Reset Button -->
           <div class="flex items-center space-x-2">
-            <button 
+            <button
               type="button"
               @click="followUpOnly = !followUpOnly"
               :class="[
                 'flex-1 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 border',
-                followUpOnly 
-                  ? 'bg-amber-100 text-amber-900 border-amber-400 shadow-xs' 
+                followUpOnly
+                  ? 'bg-amber-100 text-amber-900 border-amber-400 shadow-xs'
                   : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
               ]"
             >
               <span>📅 เฉพาะเคสที่ต้องติดตาม</span>
             </button>
-            <button 
+            <button
               type="button"
               @click="clearAllFilters"
               class="px-2.5 py-2 text-slate-500 hover:text-slate-800 rounded-xl hover:bg-slate-100 text-xs font-semibold"
@@ -394,91 +397,91 @@ defineExpose({
 
         <!-- Quick Filter Horizontal Chips for Risk Level -->
         <div class="flex items-center space-x-1.5 overflow-x-auto pb-1 scrollbar-none text-xs pt-1 border-t border-slate-100">
-          <button 
+          <button
             type="button"
             @click="setQuickRiskFilter('ALL')"
             :class="[
               'px-3 py-1.5 rounded-xl whitespace-nowrap font-medium transition flex-shrink-0',
-              riskFilter === 'ALL' 
-                ? 'bg-slate-900 text-white font-bold shadow-xs' 
+              riskFilter === 'ALL'
+                ? 'bg-slate-900 text-white font-bold shadow-xs'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             ]"
           >
             ทั้งหมด ({{ filterCounts.all }})
           </button>
 
-          <button 
+          <button
             type="button"
             @click="setQuickRiskFilter('HIGH_RISK')"
             :class="[
               'px-3 py-1.5 rounded-xl whitespace-nowrap font-medium transition flex-shrink-0 border',
-              riskFilter === 'HIGH_RISK' 
-                ? 'bg-rose-600 text-white font-bold border-rose-600 shadow-xs' 
+              riskFilter === 'HIGH_RISK'
+                ? 'bg-rose-600 text-white font-bold border-rose-600 shadow-xs'
                 : 'bg-rose-50 text-rose-800 border-rose-200 hover:bg-rose-100'
             ]"
           >
             กลุ่มเสี่ยงสูงขึ้นไป ({{ filterCounts.highRisk }})
           </button>
 
-          <button 
+          <button
             type="button"
             @click="setQuickRiskFilter('มีความเสี่ยงต่ำ')"
             :class="[
               'px-3 py-1.5 rounded-xl whitespace-nowrap font-medium transition flex-shrink-0 border',
-              riskFilter === 'มีความเสี่ยงต่ำ' 
-                ? 'bg-emerald-100 text-emerald-900 font-bold border-emerald-400 shadow-xs' 
+              riskFilter === 'มีความเสี่ยงต่ำ'
+                ? 'bg-emerald-100 text-emerald-900 font-bold border-emerald-400 shadow-xs'
                 : 'bg-emerald-50/60 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
             ]"
           >
             เสี่ยงต่ำ
           </button>
 
-          <button 
+          <button
             type="button"
             @click="setQuickRiskFilter('มีความเสี่ยงปานกลาง')"
             :class="[
               'px-3 py-1.5 rounded-xl whitespace-nowrap font-medium transition flex-shrink-0 border',
-              riskFilter === 'มีความเสี่ยงปานกลาง' 
-                ? 'bg-amber-100 text-amber-900 font-bold border-amber-400 shadow-xs' 
+              riskFilter === 'มีความเสี่ยงปานกลาง'
+                ? 'bg-amber-100 text-amber-900 font-bold border-amber-400 shadow-xs'
                 : 'bg-amber-50/60 text-amber-800 border-amber-200 hover:bg-amber-100'
             ]"
           >
             เสี่ยงปานกลาง
           </button>
 
-          <button 
+          <button
             type="button"
             @click="setQuickRiskFilter('มีความเสี่ยงค่อนข้างสูง')"
             :class="[
               'px-3 py-1.5 rounded-xl whitespace-nowrap font-medium transition flex-shrink-0 border',
-              riskFilter === 'มีความเสี่ยงค่อนข้างสูง' 
-                ? 'bg-orange-100 text-orange-900 font-bold border-orange-400 shadow-xs' 
+              riskFilter === 'มีความเสี่ยงค่อนข้างสูง'
+                ? 'bg-orange-100 text-orange-900 font-bold border-orange-400 shadow-xs'
                 : 'bg-orange-50/60 text-orange-800 border-orange-200 hover:bg-orange-100'
             ]"
           >
             เสี่ยงค่อนข้างสูง
           </button>
 
-          <button 
+          <button
             type="button"
             @click="setQuickRiskFilter('มีความเสี่ยงสูง')"
             :class="[
               'px-3 py-1.5 rounded-xl whitespace-nowrap font-medium transition flex-shrink-0 border',
-              riskFilter === 'มีความเสี่ยงสูง' 
-                ? 'bg-rose-100 text-rose-900 font-bold border-rose-400 shadow-xs' 
+              riskFilter === 'มีความเสี่ยงสูง'
+                ? 'bg-rose-100 text-rose-900 font-bold border-rose-400 shadow-xs'
                 : 'bg-rose-50/60 text-rose-800 border-rose-200 hover:bg-rose-100'
             ]"
           >
             เสี่ยงสูง
           </button>
 
-          <button 
+          <button
             type="button"
             @click="setQuickRiskFilter('มีความเสี่ยงสูงมาก')"
             :class="[
               'px-3 py-1.5 rounded-xl whitespace-nowrap font-medium transition flex-shrink-0 border',
-              riskFilter === 'มีความเสี่ยงสูงมาก' 
-                ? 'bg-red-200 text-red-950 font-bold border-red-500 shadow-xs' 
+              riskFilter === 'มีความเสี่ยงสูงมาก'
+                ? 'bg-red-200 text-red-950 font-bold border-red-500 shadow-xs'
                 : 'bg-red-50 text-red-900 border-red-200 hover:bg-red-100'
             ]"
           >
@@ -503,6 +506,21 @@ defineExpose({
         </div>
       </div>
 
+      <div v-else-if="loadError" role="alert" class="px-5 py-12 text-center">
+        <div class="mx-auto max-w-md space-y-4 rounded-2xl border border-rose-200 bg-rose-50 p-5">
+          <svg class="mx-auto h-8 w-8 text-rose-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <div>
+            <p class="font-bold text-rose-950">ไม่สามารถโหลดทะเบียนเกษตรกรได้</p>
+            <p class="mt-1 text-sm text-rose-800">{{ loadError }} ข้อมูลว่างที่เห็นไม่ได้หมายความว่าไม่มีรายการในระบบ</p>
+          </div>
+          <button type="button" @click="loadRecords" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-rose-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-rose-800">
+            ลองโหลดอีกครั้ง
+          </button>
+        </div>
+      </div>
+
       <!-- Empty State -->
       <div v-else-if="filteredRecords.length === 0" class="text-center py-12 text-slate-500 p-4">
         <div class="max-w-xs mx-auto space-y-2">
@@ -510,8 +528,8 @@ defineExpose({
             🔍
           </div>
           <p class="font-bold text-slate-800 text-xs">ไม่พบข้อมูลเกษตรกรตามเงื่อนไขที่ค้นหา</p>
-          <p class="text-[11px] text-slate-400">ลองล้างคำค้นหา หรือเปลี่ยนตัวกรองระดับความเสี่ยง</p>
-          <button 
+          <p class="text-xs text-slate-400">ลองล้างคำค้นหา หรือเปลี่ยนตัวกรองระดับความเสี่ยง</p>
+          <button
             type="button"
             @click="clearAllFilters"
             class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-xl transition"
@@ -536,9 +554,9 @@ defineExpose({
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            <tr 
-              v-for="item in filteredRecords" 
-              :key="item.id" 
+            <tr
+              v-for="item in filteredRecords"
+              :key="item.id"
               tabindex="0"
               @keydown.enter.self="emit('viewDetail', item)"
               @click="emit('viewDetail', item)"
@@ -554,9 +572,9 @@ defineExpose({
                   <div>
                     <div class="font-bold text-slate-900 group-hover:text-emerald-900 transition flex items-center space-x-1.5">
                       <span>{{ item.fullname }}</span>
-                      <span class="text-[11px] font-normal text-slate-400">({{ item.age }} ปี)</span>
+                      <span class="text-xs font-normal text-slate-400">({{ item.age }} ปี)</span>
                     </div>
-                    <span class="text-[11px] text-slate-500 font-mono">{{ formatId(item.citizen_id) }}</span>
+                    <span class="text-xs text-slate-500 font-mono">{{ formatId(item.citizen_id) }}</span>
                   </div>
                 </div>
               </td>
@@ -572,10 +590,10 @@ defineExpose({
               <td class="px-4 py-3 text-center">
                 <div class="inline-flex items-center space-x-1.5">
                   <span class="w-2 h-2 rounded-full flex-shrink-0" :class="getBloodDotColor(item.cholinesterase_result)"></span>
-                  <span 
+                  <span
                     :class="[
                       'text-xs font-semibold whitespace-nowrap',
-                      item.cholinesterase_result === 'ไม่ปลอดภัย' ? 'text-rose-700 font-bold' : 
+                      item.cholinesterase_result === 'ไม่ปลอดภัย' ? 'text-rose-700 font-bold' :
                       item.cholinesterase_result === 'มีความเสี่ยง' ? 'text-amber-700' : 'text-slate-700'
                     ]"
                   >
@@ -587,25 +605,25 @@ defineExpose({
               <!-- Behavior Score -->
               <td class="px-4 py-3 text-center">
                 <span class="font-bold text-slate-800">{{ item.total_score }}</span>
-                <span class="text-[10px] text-slate-400">/45</span>
-                <span class="text-[10px] text-slate-400 block font-mono">({{ item.score_a }}+{{ item.score_b }})</span>
+                <span class="text-xs text-slate-400">/45</span>
+                <span class="text-xs text-slate-400 block font-mono">({{ item.score_a }}+{{ item.score_b }})</span>
               </td>
 
               <!-- Crops & Health Center -->
               <td class="px-4 py-3 text-slate-700">
                 <span class="font-medium truncate block max-w-[150px] text-xs">{{ item.plant_type || item.occupation }}</span>
-                <span class="text-[10px] text-slate-400 truncate block max-w-[150px]">{{ item.health_center }}</span>
+                <span class="text-xs text-slate-400 truncate block max-w-[150px]">{{ item.health_center }}</span>
               </td>
 
               <!-- Date -->
-              <td class="px-4 py-3 font-mono text-[11px] text-slate-500 whitespace-nowrap">
+              <td class="px-4 py-3 font-mono text-xs text-slate-500 whitespace-nowrap">
                 {{ item.eval_date }}
               </td>
 
               <!-- Actions -->
               <td class="px-4 py-3 text-right whitespace-nowrap" @click.stop>
                 <div class="inline-flex items-center space-x-1">
-                  <button 
+                  <button
                     type="button"
                     @click="openFollowUpModal(item)"
                     class="p-1.5 text-amber-700 hover:bg-amber-100 rounded-lg transition"
@@ -613,7 +631,7 @@ defineExpose({
                   >
                     📅
                   </button>
-                  <button 
+                  <button
                     type="button"
                     @click="openEditModal(item)"
                     class="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg transition"
@@ -621,7 +639,7 @@ defineExpose({
                   >
                     ✏️
                   </button>
-                  <button 
+                  <button
                     type="button"
                     @click="openDeleteModal(item)"
                     class="p-1.5 text-rose-600 hover:bg-rose-100 rounded-lg transition"
@@ -638,8 +656,8 @@ defineExpose({
 
       <!-- Mobile View: Cards Layout (visible on small screens, hidden on md+) -->
       <div v-if="filteredRecords.length > 0" class="block md:hidden divide-y divide-slate-100">
-        <div 
-          v-for="item in filteredRecords" 
+        <div
+          v-for="item in filteredRecords"
           :key="item.id"
           @click="emit('viewDetail', item)"
           class="p-4 hover:bg-slate-50 transition space-y-2.5 active:bg-slate-100/70"
@@ -652,16 +670,16 @@ defineExpose({
               </div>
               <div class="min-w-0">
                 <span class="font-bold text-slate-900 text-sm truncate block">{{ item.fullname }}</span>
-                <span class="text-slate-500 font-mono text-[11px]">{{ formatId(item.citizen_id) }} ({{ item.age }} ปี)</span>
+                <span class="text-slate-500 font-mono text-xs">{{ formatId(item.citizen_id) }} ({{ item.age }} ปี)</span>
               </div>
             </div>
-            <span :class="['px-2.5 py-0.5 rounded-lg font-bold text-[10px] whitespace-nowrap flex-shrink-0', getRiskBadgeClass(item.risk_level)]">
+            <span :class="['px-2.5 py-0.5 rounded-lg font-bold text-xs whitespace-nowrap flex-shrink-0', getRiskBadgeClass(item.risk_level)]">
               {{ item.risk_level.replace('มีความเสี่ยง', 'เสี่ยง') }}
             </span>
           </div>
 
           <!-- Middle Meta Row -->
-          <div class="grid grid-cols-2 gap-2 text-[11px] bg-slate-50/80 p-2.5 rounded-xl border border-slate-200/60">
+          <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50/80 p-2.5 rounded-xl border border-slate-200/60">
             <div>
               <span class="text-slate-500">ผลเจาะเลือด: </span>
               <strong :class="[
@@ -683,16 +701,16 @@ defineExpose({
 
           <!-- Action Buttons for Touch Targets -->
           <div class="flex items-center justify-between gap-2 pt-1" @click.stop>
-            <span class="text-[10px] text-slate-400 font-mono">{{ item.eval_date }}</span>
+            <span class="text-xs text-slate-400 font-mono">{{ item.eval_date }}</span>
             <div class="flex items-center space-x-1.5">
-              <button 
+              <button
                 type="button"
                 @click="openFollowUpModal(item)"
                 class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-xs font-bold transition flex items-center space-x-1"
               >
                 <span>📅 ติดตามผล</span>
               </button>
-              <button 
+              <button
                 type="button"
                 @click="emit('viewDetail', item)"
                 class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold transition shadow-xs"
@@ -706,25 +724,25 @@ defineExpose({
     </div>
 
     <!-- Edit Farmer Assessment Modal -->
-    <EditFarmerModal 
-      :is-open="isEditModalOpen" 
-      :record="editingRecord" 
-      @close="isEditModalOpen = false" 
-      @saved="handleRecordUpdated" 
+    <EditFarmerModal
+      :is-open="isEditModalOpen"
+      :record="editingRecord"
+      @close="isEditModalOpen = false"
+      @saved="handleRecordUpdated"
     />
 
     <!-- Follow-up Modal -->
-    <AddFollowUpModal 
-      :is-open="isAddFollowUpOpen" 
-      :record="targetFollowUpRecord" 
-      @close="isAddFollowUpOpen = false" 
-      @saved="handleFollowUpSaved" 
+    <AddFollowUpModal
+      :is-open="isAddFollowUpOpen"
+      :record="targetFollowUpRecord"
+      @close="isAddFollowUpOpen = false"
+      @saved="handleFollowUpSaved"
       @show-toast="(t, m, s) => emit('showToast', t, m, s)"
     />
 
     <!-- Safe Delete Confirmation Modal -->
-    <div 
-      v-if="isDeleteModalOpen && pendingDeleteRecord" 
+    <div
+      v-if="isDeleteModalOpen && pendingDeleteRecord"
       class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
       v-modal-focus="closeDeleteModal"
       @click.self="closeDeleteModal"
@@ -746,8 +764,8 @@ defineExpose({
           <button @click="closeDeleteModal" class="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">
             ยกเลิก
           </button>
-          <button 
-            @click="confirmDelete" 
+          <button
+            @click="confirmDelete"
             :disabled="isDeleting"
             class="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-50 rounded-xl shadow-xs transition"
           >

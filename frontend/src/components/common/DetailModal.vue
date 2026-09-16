@@ -162,8 +162,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div 
-    v-if="isOpen && record" 
+  <div
+    v-if="isOpen && record"
     class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-3 sm:p-6 backdrop-blur-xs overflow-y-auto"
     v-modal-focus="() => emit('close')"
     @click.self="emit('close')"
@@ -172,7 +172,7 @@ onUnmounted(() => {
     aria-labelledby="modal-title"
   >
     <div class="bg-white rounded-3xl max-w-5xl w-full max-h-[92vh] overflow-y-auto p-5 sm:p-8 shadow-2xl border border-slate-200 space-y-6 animate-in fade-in zoom-in-95 duration-200">
-      
+
       <p v-if="followUpError" role="alert" class="text-sm text-rose-800">{{ followUpError }}</p>
       <!-- Top Header & Actions -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-slate-200 gap-4">
@@ -187,13 +187,13 @@ onUnmounted(() => {
             ใบคัดกรองและประเมินความเสี่ยงสุขภาพเกษตรกร
           </h2>
           <p class="text-xs sm:text-sm text-slate-600">
-            หน่วยบริการ: <span class="font-bold text-emerald-800">{{ record.health_center }}</span> 
+            หน่วยบริการ: <span class="font-bold text-emerald-800">{{ record.health_center }}</span>
             | วันที่คัดกรอง: <span class="font-semibold text-slate-800">{{ record.eval_date }}</span>
           </p>
         </div>
 
         <div class="flex items-center space-x-2">
-          <button 
+          <button
             type="button"
             @click="isAddFollowUpOpen = true"
             class="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs sm:text-sm font-bold transition flex items-center space-x-1.5 shadow-xs"
@@ -201,7 +201,7 @@ onUnmounted(() => {
             <span>📅 นัดติดตามผล</span>
           </button>
 
-          <button 
+          <button
             type="button"
             @click="emit('edit', record)"
             class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 rounded-xl text-xs sm:text-sm font-bold transition flex items-center space-x-1.5 shadow-xs"
@@ -212,9 +212,9 @@ onUnmounted(() => {
             <span>แก้ไขข้อมูล</span>
           </button>
 
-          <button 
+          <button
             type="button"
-            @click="printDetail" 
+            @click="printDetail"
             class="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs transition flex items-center space-x-1.5"
             title="พิมพ์เอกสารนี้"
           >
@@ -224,9 +224,9 @@ onUnmounted(() => {
             <span>พิมพ์</span>
           </button>
 
-          <button 
+          <button
             type="button"
-            @click="emit('close')" 
+            @click="emit('close')"
             class="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition"
             aria-label="ปิดหน้าต่าง"
           >
@@ -239,7 +239,7 @@ onUnmounted(() => {
 
       <!-- Navigation Tabs between Assessment & Follow-up Timeline -->
       <div class="flex items-center space-x-2 border-b border-slate-200">
-        <button 
+        <button
           type="button"
           @click="activeSection = 'assessment'"
           :class="[
@@ -252,7 +252,7 @@ onUnmounted(() => {
           <span>📋 ผลการประเมิน นบก. 1-56 ฉบับเต็ม</span>
         </button>
 
-        <button 
+        <button
           type="button"
           @click="activeSection = 'followup'"
           :class="[
@@ -263,7 +263,7 @@ onUnmounted(() => {
           ]"
         >
           <span>📅 ประวัติการติดตามผล (Timeline)</span>
-          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+          <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
             {{ followUps.length }}
           </span>
         </button>
@@ -271,7 +271,7 @@ onUnmounted(() => {
 
       <!-- Main Content Grid -->
       <div v-show="activeSection === 'assessment'" class="space-y-6">
-        
+
         <!-- SECTION 1: Personal & Demographic Info (2-Col Desktop) -->
         <div class="bg-slate-50/90 rounded-2xl p-4 sm:p-6 border border-slate-200">
           <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center space-x-2 mb-3">
@@ -309,8 +309,8 @@ onUnmounted(() => {
               <span class="text-xs text-slate-500 font-medium">สารเคมีทางการเกษตรที่ใช้เป็นประจำ:</span>
               <div class="flex flex-wrap gap-1.5 mt-0.5">
                 <template v-if="record.chemical_names && record.chemical_names.length > 0">
-                  <span 
-                    v-for="chem in record.chemical_names" 
+                  <span
+                    v-for="chem in record.chemical_names"
                     :key="chem"
                     class="px-2.5 py-0.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-800 shadow-xs"
                   >
@@ -325,7 +325,7 @@ onUnmounted(() => {
 
         <!-- SECTION 2: Assessment Scores & Risk Matrix (2-Col Desktop) -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          
+
           <!-- Score Breakdown Card -->
           <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-xs space-y-4">
             <h3 class="text-sm font-bold text-slate-900 flex items-center justify-between">
@@ -337,7 +337,7 @@ onUnmounted(() => {
               <div class="p-4 rounded-xl bg-amber-50/80 border border-amber-200 space-y-1.5">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-amber-900">พฤติกรรมเสี่ยง (A)</span>
-                  <span class="text-[10px] text-amber-800 font-medium">ข้อ 9-17</span>
+                  <span class="text-xs text-amber-800 font-medium">ข้อ 9-17</span>
                 </div>
                 <div class="flex items-baseline space-x-1">
                   <span class="text-2xl sm:text-3xl font-black text-amber-900">{{ record.score_a }}</span>
@@ -346,7 +346,7 @@ onUnmounted(() => {
                 <div class="w-full bg-amber-200/70 h-2 rounded-full overflow-hidden">
                   <div class="bg-amber-600 h-full rounded-full" :style="{ width: `${Math.min(100, (record.score_a / 27) * 100)}%` }"></div>
                 </div>
-                <p class="text-[11px] text-amber-800 leading-tight pt-1">
+                <p class="text-xs text-amber-800 leading-tight pt-1">
                   ยิ่งคะแนนสูง หมายถึงมีพฤติกรรมเสี่ยงต่อการสัมผัสสารเคมีสูง
                 </p>
               </div>
@@ -354,7 +354,7 @@ onUnmounted(() => {
               <div class="p-4 rounded-xl bg-teal-50/80 border border-teal-200 space-y-1.5">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-teal-900">พฤติกรรมป้องกัน (B)</span>
-                  <span class="text-[10px] text-teal-800 font-medium">ข้อ 18-23</span>
+                  <span class="text-xs text-teal-800 font-medium">ข้อ 18-23</span>
                 </div>
                 <div class="flex items-baseline space-x-1">
                   <span class="text-2xl sm:text-3xl font-black text-teal-900">{{ record.score_b }}</span>
@@ -363,7 +363,7 @@ onUnmounted(() => {
                 <div class="w-full bg-teal-200/70 h-2 rounded-full overflow-hidden">
                   <div class="bg-teal-600 h-full rounded-full" :style="{ width: `${Math.min(100, (record.score_b / 18) * 100)}%` }"></div>
                 </div>
-                <p class="text-[11px] text-teal-800 leading-tight pt-1">
+                <p class="text-xs text-teal-800 leading-tight pt-1">
                   คำนวณแบบสเกลกลับด้าน (การสวม PPE และล้างมือ)
                 </p>
               </div>
@@ -401,8 +401,8 @@ onUnmounted(() => {
             <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
               <span class="text-xs font-bold text-slate-700 block mb-1.5">อาการผิดปกติที่ตรวจพบหลังสัมผัสสารเคมี:</span>
               <div v-if="record.symptoms && record.symptoms.length > 0" class="flex flex-wrap gap-1.5">
-                <span 
-                  v-for="sym in record.symptoms" 
+                <span
+                  v-for="sym in record.symptoms"
                   :key="sym"
                   class="px-2.5 py-1 bg-rose-50 text-rose-800 border border-rose-200 rounded-lg text-xs font-medium"
                 >
@@ -421,7 +421,7 @@ onUnmounted(() => {
 
         <!-- SECTION 3: Blood Test Result & Protocol (2-Col Desktop) -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          
+
           <!-- Blood Test Swatch Card -->
           <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-xs space-y-4">
             <h3 class="text-sm font-bold text-slate-900 flex items-center justify-between">
@@ -430,7 +430,7 @@ onUnmounted(() => {
             </h3>
 
             <div class="flex items-center space-x-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
-              <div 
+              <div
                 class="w-16 h-16 rounded-2xl shadow-inner border-2 border-white flex-shrink-0 flex items-center justify-center text-white font-bold text-xs"
                 :style="{ backgroundColor: getBloodSwatch(record.cholinesterase_result).color }"
               >
@@ -452,8 +452,8 @@ onUnmounted(() => {
 
             <!-- Standard Reference Swatches -->
             <div class="space-y-1.5 pt-2 border-t border-slate-100">
-              <span class="text-[11px] font-bold text-slate-600">เกณฑ์เปรียบเทียบมาตรฐาน 4 ระดับ (กรมวิทยาศาสตร์การแพทย์):</span>
-              <div class="grid grid-cols-4 gap-1.5 text-center text-[10px]">
+              <span class="text-xs font-bold text-slate-600">เกณฑ์เปรียบเทียบมาตรฐาน 4 ระดับ (กรมวิทยาศาสตร์การแพทย์):</span>
+              <div class="grid grid-cols-4 gap-1.5 text-center text-xs">
                 <div class="p-1.5 rounded-lg border border-slate-200 bg-amber-50">
                   <div class="w-3.5 h-3.5 rounded-full bg-amber-500 mx-auto mb-1"></div>
                   <span class="font-bold text-amber-900">ปกติ</span>
@@ -500,7 +500,7 @@ onUnmounted(() => {
               </div>
             </div>
 
-            <div class="pt-3 border-t border-emerald-800 text-[11px] text-emerald-300 flex justify-between items-center">
+            <div class="pt-3 border-t border-emerald-800 text-xs text-emerald-300 flex justify-between items-center">
               <span>ลงชื่อผู้ตรวจ: {{ record.interviewer_name || '-' }}</span>
               <span>ตำแหน่ง: เจ้าหน้าที่สาธารณสุข</span>
             </div>
@@ -521,7 +521,7 @@ onUnmounted(() => {
             </p>
           </div>
 
-          <button 
+          <button
             type="button"
             @click="isAddFollowUpOpen = true"
             class="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-xs"
@@ -541,10 +541,10 @@ onUnmounted(() => {
             📅
           </div>
           <p class="text-xs font-bold text-slate-700">ยังไม่มีบันทึกการติดตามผลสำหรับเกษตรกรรายนี้</p>
-          <p class="text-[11px] text-slate-400 max-w-sm mx-auto">
+          <p class="text-xs text-slate-400 max-w-sm mx-auto">
             เกษตรกรกลุ่มเสี่ยงควรได้รับการนัดเจาะเลือดซ้ำใน 2-4 สัปดาห์ หรือติดตามการสวมใส่อุปกรณ์ PPE
           </p>
-          <button 
+          <button
             type="button"
             @click="isAddFollowUpOpen = true"
             class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-xs transition"
@@ -554,9 +554,9 @@ onUnmounted(() => {
         </div>
 
         <div v-else class="relative border-l-2 border-amber-200 ml-4 pl-5 space-y-5 py-2">
-          <div 
-            v-for="fu in followUps" 
-            :key="fu.id" 
+          <div
+            v-for="fu in followUps"
+            :key="fu.id"
             class="relative space-y-2 bg-slate-50/80 p-4 rounded-2xl border border-slate-200/90 hover:border-amber-300 transition"
           >
             <!-- Timeline Node Indicator -->
@@ -565,13 +565,13 @@ onUnmounted(() => {
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs">
               <div class="flex items-center space-x-2">
                 <span class="font-bold text-slate-900 text-sm">📅 วันที่: {{ fu.follow_up_date }}</span>
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
                   {{ fu.follow_up_type }}
                 </span>
               </div>
-              <span 
+              <span
                 :class="[
-                  'px-2.5 py-0.5 rounded-full text-[10px] font-bold border self-start sm:self-auto',
+                  'px-2.5 py-0.5 rounded-full text-xs font-bold border self-start sm:self-auto',
                   fu.result === 'ปกติ/ปลอดภัยแล้ว' ? 'bg-emerald-50 text-emerald-800 border-emerald-300' :
                   fu.result === 'ส่งต่อเรียบร้อยแล้ว' ? 'bg-teal-50 text-teal-800 border-teal-300' :
                   fu.result === 'ไม่สามารถติดต่อได้' ? 'bg-slate-100 text-slate-600 border-slate-300' :
@@ -586,9 +586,9 @@ onUnmounted(() => {
               {{ fu.notes || 'ไม่มีบันทึกเพิ่มเติม' }}
             </p>
 
-            <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+            <div class="flex items-center justify-between text-xs text-slate-400 pt-1">
               <span>ผู้บันทึก: <strong class="text-slate-600">{{ fu.responsible_person }}</strong></span>
-              <span class="font-mono text-[10px]">{{ fu.created_at ? fu.created_at.slice(0, 10) : '' }}</span>
+              <span class="font-mono text-xs">{{ fu.created_at ? fu.created_at.slice(0, 10) : '' }}</span>
             </div>
           </div>
         </div>
@@ -600,14 +600,14 @@ onUnmounted(() => {
           รหัสอ้างอิงเอกสาร: NBK-{{ record.id }}
         </span>
         <div class="flex items-center space-x-2">
-          <button 
+          <button
             type="button"
-            @click="emit('close')" 
+            @click="emit('close')"
             class="px-5 py-2.5 text-sm border border-slate-300 rounded-xl hover:bg-slate-100 font-bold text-slate-700 transition"
           >
             ปิด
           </button>
-          <button 
+          <button
             type="button"
             @click="emit('edit', record)"
             class="px-5 py-2.5 text-sm bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shadow-xs transition flex items-center space-x-1.5"
@@ -623,11 +623,11 @@ onUnmounted(() => {
     </div>
 
     <!-- Modal for adding follow-up record -->
-    <AddFollowUpModal 
-      :is-open="isAddFollowUpOpen" 
-      :record="record" 
-      @close="isAddFollowUpOpen = false" 
-      @saved="handleFollowUpSaved" 
+    <AddFollowUpModal
+      :is-open="isAddFollowUpOpen"
+      :record="record"
+      @close="isAddFollowUpOpen = false"
+      @saved="handleFollowUpSaved"
       @show-toast="(t, m, s) => emit('showToast', t, m, s)"
     />
   </div>

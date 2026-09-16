@@ -59,7 +59,7 @@ async function loadStats() {
     followUpAvailable.value = fuList !== null
     const followedIds = new Set((fuList || []).map(f => f.assessment_id))
     followUpCount.value = assessments.filter(r => followedIds.has(r.id)).length
-    highRiskTestedCount.value = assessments.filter(r => 
+    highRiskTestedCount.value = assessments.filter(r =>
       (r.risk_level === 'มีความเสี่ยงค่อนข้างสูง' || r.risk_level === 'มีความเสี่ยงสูง' || r.risk_level === 'มีความเสี่ยงสูงมาก') &&
       ['ปกติ', 'ปลอดภัย', 'มีความเสี่ยง', 'ไม่ปลอดภัย'].includes(r.cholinesterase_result)
     ).length
@@ -203,8 +203,8 @@ defineExpose({
         </p>
       </div>
       <div class="flex items-center gap-3">
-        <button 
-          @click="emit('newAssessment')" 
+        <button
+          @click="emit('newAssessment')"
           class="w-full sm:w-auto px-5 py-3.5 bg-white text-emerald-800 hover:bg-emerald-50 rounded-2xl font-bold text-xs shadow-lg transition transform active:scale-95 flex items-center justify-center space-x-2"
         >
           <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -224,7 +224,7 @@ defineExpose({
             ขั้นตอนการให้บริการคัดกรองสารเคมีกำจัดศัตรูพืชตกค้างในเลือด (รพ.สต. และ โรงพยาบาล)
           </h3>
         </div>
-        <span class="text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+        <span class="text-xs font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
           กระบวนการ 4 ขั้นตอน
         </span>
       </div>
@@ -235,9 +235,9 @@ defineExpose({
         <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-200/80 space-y-1">
           <div class="flex items-center justify-between">
             <span class="font-bold text-slate-900">1. ตรวจคัดกรองเลือด</span>
-            <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 font-mono font-bold text-[10px] flex items-center justify-center">1</span>
+            <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 font-mono font-bold text-xs flex items-center justify-center">1</span>
           </div>
-          <p class="text-[11px] text-slate-600 leading-relaxed">
+          <p class="text-xs text-slate-600 leading-relaxed">
             รพ.สต. และ รพ. ตรวจคัดกรองสารเคมีตกค้างในเลือดด้วยกระดาษทดสอบ (Reactive Paper)
           </p>
         </div>
@@ -246,9 +246,9 @@ defineExpose({
         <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-200/80 space-y-1">
           <div class="flex items-center justify-between">
             <span class="font-bold text-slate-900">2. จำแนกผล 4 ระดับ</span>
-            <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 font-mono font-bold text-[10px] flex items-center justify-center">2</span>
+            <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 font-mono font-bold text-xs flex items-center justify-center">2</span>
           </div>
-          <div class="flex items-center space-x-1 text-[10px] pt-0.5">
+          <div class="flex items-center space-x-1 text-xs pt-0.5">
             <span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-semibold">ปกติ</span>
             <span class="px-1.5 py-0.5 rounded bg-lime-50 text-lime-800 border border-lime-200 font-semibold">ปลอดภัย</span>
             <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold">เสี่ยง</span>
@@ -260,9 +260,9 @@ defineExpose({
         <div class="p-3 bg-amber-50/60 rounded-xl border border-amber-200 space-y-1">
           <div class="flex items-center justify-between">
             <span class="font-bold text-amber-950">3. คัดกรองซ้ำ & ซักประวัติ</span>
-            <span class="w-5 h-5 rounded-full bg-amber-200 text-amber-900 font-mono font-bold text-[10px] flex items-center justify-center">3</span>
+            <span class="w-5 h-5 rounded-full bg-amber-200 text-amber-900 font-mono font-bold text-xs flex items-center justify-center">3</span>
           </div>
-          <p class="text-[11px] text-amber-900 leading-relaxed">
+          <p class="text-xs text-amber-900 leading-relaxed">
             ผล <strong class="text-emerald-800">เสี่ยง</strong> หรือ <strong class="text-rose-700">ไม่ปลอดภัย</strong> ➔ <strong>ต้องเจาะซ้ำ</strong> และเข้าสู่แบบประเมิน นบก. 1-56
           </p>
         </div>
@@ -271,9 +271,9 @@ defineExpose({
         <div class="p-3 bg-emerald-50/60 rounded-xl border border-emerald-200 space-y-1">
           <div class="flex items-center justify-between">
             <span class="font-bold text-emerald-950">4. จนท. ซักประวัติผ่านระบบ</span>
-            <span class="w-5 h-5 rounded-full bg-emerald-200 text-emerald-900 font-mono font-bold text-[10px] flex items-center justify-center">4</span>
+            <span class="w-5 h-5 rounded-full bg-emerald-200 text-emerald-900 font-mono font-bold text-xs flex items-center justify-center">4</span>
           </div>
-          <p class="text-[11px] text-emerald-900 leading-relaxed">
+          <p class="text-xs text-emerald-900 leading-relaxed">
             เจ้าหน้าที่ รพ.สต. / รพ. ซักประวัติพฤติกรรม อาการ คำนวณความเสี่ยง และวางแผนส่งต่อแพทย์
           </p>
         </div>
@@ -293,12 +293,12 @@ defineExpose({
           </div>
           <div class="mt-3 flex items-baseline justify-between">
             <p class="text-2xl sm:text-3xl font-black text-slate-800">{{ stats.total_farmers }}</p>
-            <span class="text-[11px] font-medium text-slate-400">รายสะสม</span>
+            <span class="text-xs font-medium text-slate-400">รายสะสม</span>
           </div>
         </div>
-        <button 
+        <button
           type="button"
-          @click="emit('filterRegistry', { riskLevel: 'ALL' })" 
+          @click="emit('filterRegistry', { riskLevel: 'ALL' })"
           class="w-full mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700 hover:text-emerald-700 transition"
         >
           <span>ดูทะเบียนเกษตรกร</span>
@@ -317,12 +317,12 @@ defineExpose({
           </div>
           <div class="mt-3 flex items-baseline justify-between">
             <p class="text-2xl sm:text-3xl font-black text-rose-600">{{ stats.high_risk_farmers }}</p>
-            <span class="text-[11px] font-medium text-rose-400">เป้าหมายเจาะเลือด</span>
+            <span class="text-xs font-medium text-rose-400">เป้าหมายเจาะเลือด</span>
           </div>
         </div>
-        <button 
+        <button
           type="button"
-          @click="emit('filterRegistry', { riskLevel: 'HIGH_RISK' })" 
+          @click="emit('filterRegistry', { riskLevel: 'HIGH_RISK' })"
           class="w-full mt-3 pt-2.5 border-t border-rose-100 flex items-center justify-between text-xs font-bold text-rose-700 hover:text-rose-900 transition"
         >
           <span>ดูรายชื่อกลุ่มเสี่ยงสูง</span>
@@ -341,12 +341,12 @@ defineExpose({
           </div>
           <div class="mt-3 flex items-baseline justify-between">
             <p class="text-2xl sm:text-3xl font-black text-teal-600">{{ stats.tested_blood }}</p>
-            <span class="text-[11px] font-medium text-teal-400">Reactive Paper</span>
+            <span class="text-xs font-medium text-teal-400">Reactive Paper</span>
           </div>
         </div>
-        <button 
+        <button
           type="button"
-          @click="emit('filterRegistry', { bloodResult: 'TESTED' })" 
+          @click="emit('filterRegistry', { bloodResult: 'TESTED' })"
           class="w-full mt-3 pt-2.5 border-t border-teal-100 flex items-center justify-between text-xs font-bold text-teal-700 hover:text-teal-900 transition"
         >
           <span>ดูผลตรวจเลือด</span>
@@ -365,12 +365,12 @@ defineExpose({
           </div>
           <div class="mt-3 flex items-baseline justify-between">
             <p class="text-2xl sm:text-3xl font-black text-amber-600">{{ stats.unsafe_blood }}</p>
-            <span class="text-[11px] font-medium text-amber-500">ต้องส่งต่อพบแพทย์</span>
+            <span class="text-xs font-medium text-amber-500">ต้องส่งต่อพบแพทย์</span>
           </div>
         </div>
-        <button 
+        <button
           type="button"
-          @click="emit('filterRegistry', { bloodResult: 'UNSAFE' })" 
+          @click="emit('filterRegistry', { bloodResult: 'UNSAFE' })"
           class="w-full mt-3 pt-2.5 border-t border-amber-100 flex items-center justify-between text-xs font-bold text-amber-700 hover:text-amber-900 transition"
         >
           <span>ดูเคสผิดปกติ / ส่งต่อ</span>
@@ -392,12 +392,12 @@ defineExpose({
           </span>
         </div>
         <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-          <div 
+          <div
             class="bg-gradient-to-r from-emerald-500 to-teal-500 h-full rounded-full transition-all duration-500 max-w-full"
             :style="{ width: `${stats.high_risk_farmers > 0 ? Math.min(100, Math.round((highRiskTestedCount / stats.high_risk_farmers) * 100)) : 0}%` }"
           ></div>
         </div>
-        <div class="flex items-center justify-between text-[11px] text-slate-500">
+        <div class="flex items-center justify-between text-xs text-slate-500">
           <span>
             ตรวจเลือดแล้ว {{ highRiskTestedCount }} จากกลุ่มเสี่ยงสูงที่ต้องตรวจเลือด {{ stats.high_risk_farmers }} ราย
             <span v-if="stats.high_risk_farmers === 0" class="text-slate-400">(ไม่มีผู้เข้าเกณฑ์)</span>
@@ -416,10 +416,10 @@ defineExpose({
             {{ followUpAvailable ? followUpCount : 'ไม่พร้อมใช้งาน' }}
           </span>
         </div>
-        <p class="text-[11px] text-amber-900 leading-tight">
+        <p class="text-xs text-amber-900 leading-tight">
           ติดตามอาการพิษ ตรวจเลือดซ้ำใน 2-4 สัปดาห์ และตรวจเยี่ยมการสวมใส่ PPE
         </p>
-        <button 
+        <button
           type="button"
           :disabled="!followUpAvailable"
           @click="emit('filterRegistry', { followUpOnly: true })"
@@ -441,7 +441,7 @@ defineExpose({
               <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
               <span>สัดส่วนระดับความเสี่ยง (Risk Matrix)</span>
             </h3>
-            <span class="text-[11px] font-medium text-slate-400">5 ระดับมาตรฐาน</span>
+            <span class="text-xs font-medium text-slate-400">5 ระดับมาตรฐาน</span>
           </div>
           <p class="text-xs text-slate-500 mt-1">
             จำแนกตามเกณฑ์คะแนนพฤติกรรม นบก. 1-56 ร่วมกับกลุ่มอาการผิดปกติ
@@ -453,7 +453,7 @@ defineExpose({
         </div>
 
         <!-- Custom Legend -->
-        <div class="grid grid-cols-5 gap-1 pt-2 border-t border-slate-100 text-[10px] text-center">
+        <div class="grid grid-cols-5 gap-1 pt-2 border-t border-slate-100 text-xs text-center">
           <div><span class="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1"></span>ต่ำ ({{ stats.risk_distribution['มีความเสี่ยงต่ำ'] || 0 }})</div>
           <div><span class="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1"></span>ปานกลาง ({{ stats.risk_distribution['มีความเสี่ยงปานกลาง'] || 0 }})</div>
           <div><span class="inline-block w-2 h-2 rounded-full bg-orange-500 mr-1"></span>ค่อนข้างสูง ({{ stats.risk_distribution['มีความเสี่ยงค่อนข้างสูง'] || 0 }})</div>
@@ -470,7 +470,7 @@ defineExpose({
               <span class="w-2.5 h-2.5 rounded-full bg-teal-500"></span>
               <span>ผลตรวจเอนไซม์โคลีนเอสเตอเรสในเลือด</span>
             </h3>
-            <span class="text-[11px] font-medium text-slate-400">Reactive Paper Test</span>
+            <span class="text-xs font-medium text-slate-400">Reactive Paper Test</span>
           </div>
           <p class="text-xs text-slate-500 mt-1">
             สถิติผลการตรวจ 4 ระดับสีของแถบกระดาษทดสอบ
@@ -482,7 +482,7 @@ defineExpose({
         </div>
 
         <!-- Custom Legend -->
-        <div class="grid grid-cols-4 gap-1 pt-2 border-t border-slate-100 text-[10px] text-center">
+        <div class="grid grid-cols-4 gap-1 pt-2 border-t border-slate-100 text-xs text-center">
           <div><span class="inline-block w-2 h-2 rounded-full bg-emerald-600 mr-1"></span>ปกติ ({{ stats.blood_distribution['ปกติ'] || 0 }})</div>
           <div><span class="inline-block w-2 h-2 rounded-full bg-teal-600 mr-1"></span>ปลอดภัย ({{ stats.blood_distribution['ปลอดภัย'] || 0 }})</div>
           <div><span class="inline-block w-2 h-2 rounded-full bg-amber-600 mr-1"></span>เสี่ยง ({{ stats.blood_distribution['มีความเสี่ยง'] || 0 }})</div>
@@ -501,7 +501,7 @@ defineExpose({
           </h3>
           <p class="text-xs text-slate-500 mt-0.5">เรียงลำดับตามคะแนนความเสี่ยงและผลเจาะเลือดผิดปกติ</p>
         </div>
-        <button 
+        <button
           type="button"
           @click="emit('filterRegistry', { riskLevel: 'HIGH_RISK' })"
           class="text-xs text-emerald-800 hover:text-emerald-900 font-bold self-start sm:self-auto"
@@ -532,7 +532,7 @@ defineExpose({
               <td class="px-4 py-3 font-semibold text-slate-800">{{ item.fullname }}</td>
               <td class="px-4 py-3 font-mono text-slate-500">{{ formatId(item.citizen_id) }}</td>
               <td class="px-4 py-3">
-                <span :class="['px-2 py-0.5 rounded-full font-semibold text-[10px]', getRiskBadgeClass(item.risk_level)]">
+                <span :class="['px-2 py-0.5 rounded-full font-semibold text-xs', getRiskBadgeClass(item.risk_level)]">
                   {{ item.risk_level }}
                 </span>
               </td>
@@ -541,22 +541,22 @@ defineExpose({
                 {{ item.symptoms && item.symptoms.length > 0 ? item.symptoms.slice(0, 2).join(', ') : 'ไม่มี' }}
               </td>
               <td class="px-4 py-3">
-                <span :class="['px-2 py-0.5 rounded-full font-semibold text-[10px]', getBloodBadgeClass(item.cholinesterase_result)]">
+                <span :class="['px-2 py-0.5 rounded-full font-semibold text-xs', getBloodBadgeClass(item.cholinesterase_result)]">
                   {{ item.cholinesterase_result || '-' }}
                 </span>
               </td>
               <td class="px-4 py-3 text-right">
                 <div class="inline-flex items-center space-x-1.5">
-                  <button 
+                  <button
                     type="button"
-                    @click="emit('recordFollowUp', item)" 
+                    @click="emit('recordFollowUp', item)"
                     class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-xs font-bold transition"
                   >
                     📅 ติดตามผล
                   </button>
-                  <button 
+                  <button
                     type="button"
-                    @click="emit('viewDetail', item)" 
+                    @click="emit('viewDetail', item)"
                     class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-lg text-xs font-bold transition"
                   >
                     ดูประวัติ
@@ -573,22 +573,22 @@ defineExpose({
         <div v-if="stats.recent_priority_cases.length === 0" class="py-6 text-center text-xs text-slate-400">
           ยังไม่มีข้อมูลการประเมินในระบบ
         </div>
-        <div 
-          v-for="item in stats.recent_priority_cases" 
+        <div
+          v-for="item in stats.recent_priority_cases"
           :key="item.id"
           class="p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200 space-y-2.5 text-xs"
         >
           <div class="flex items-start justify-between">
             <div>
               <span class="font-bold text-slate-900 text-sm block">{{ item.fullname }}</span>
-              <span class="text-slate-500 font-mono text-[11px]">{{ formatId(item.citizen_id) }}</span>
+              <span class="text-slate-500 font-mono text-xs">{{ formatId(item.citizen_id) }}</span>
             </div>
-            <span :class="['px-2 py-0.5 rounded-full font-bold text-[10px]', getRiskBadgeClass(item.risk_level)]">
+            <span :class="['px-2 py-0.5 rounded-full font-bold text-xs', getRiskBadgeClass(item.risk_level)]">
               {{ item.risk_level }}
             </span>
           </div>
 
-          <div class="grid grid-cols-2 gap-2 text-[11px] pt-1 border-t border-slate-200/60">
+          <div class="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-slate-200/60">
             <div>
               <span class="text-slate-500">คะแนนรวม: </span>
               <strong class="text-slate-800">{{ item.total_score }} / 45</strong>
@@ -601,19 +601,19 @@ defineExpose({
             </div>
           </div>
 
-          <div v-if="item.symptoms && item.symptoms.length > 0" class="text-[11px] text-slate-600">
+          <div v-if="item.symptoms && item.symptoms.length > 0" class="text-xs text-slate-600">
             <span class="text-slate-400">อาการ: </span>{{ item.symptoms.slice(0, 3).join(', ') }}
           </div>
 
           <div class="pt-2 border-t border-slate-200/60 flex items-center justify-end space-x-2">
-            <button 
+            <button
               type="button"
               @click="emit('recordFollowUp', item)"
               class="flex-1 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition shadow-xs text-center"
             >
               📅 ติดตามผล
             </button>
-            <button 
+            <button
               type="button"
               @click="emit('viewDetail', item)"
               class="flex-1 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition shadow-xs text-center"

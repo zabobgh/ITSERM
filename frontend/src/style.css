@@ -13,11 +13,11 @@ html {
 }
 
 body, button, input, select, textarea {
-  font-family: 'Sarabun', sans-serif !important;
+  font-family: 'Prompt', 'Noto Sans Thai', 'Sarabun', sans-serif !important;
 }
 
 body {
-  font-family: 'Sarabun', sans-serif !important;
+  font-family: 'Prompt', 'Noto Sans Thai', 'Sarabun', sans-serif !important;
   -webkit-tap-highlight-color: transparent;
   line-height: 1.6;
   font-size: 1rem;
@@ -71,6 +71,12 @@ body {
     background-color: white !important;
     color: black !important;
   }
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+    overflow: visible !important;
+  }
   .no-print {
     display: none !important;
   }
@@ -95,4 +101,19 @@ body {
 
 @media (max-width: 640px) {
   button { min-height: 44px; }
+}
+
+.safe-bottom-bar {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

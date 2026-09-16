@@ -93,6 +93,21 @@ func migrate() error {
 	CREATE INDEX IF NOT EXISTS idx_assessments_citizen_id ON assessments(citizen_id);
 	CREATE INDEX IF NOT EXISTS idx_assessments_risk_level ON assessments(risk_level);
 	CREATE INDEX IF NOT EXISTS idx_assessments_eval_date ON assessments(eval_date);
+
+	CREATE TABLE IF NOT EXISTS followups (
+		id TEXT PRIMARY KEY,
+		citizen_id TEXT NOT NULL,
+		assessment_id TEXT,
+		follow_up_date TEXT NOT NULL,
+		responsible_person TEXT NOT NULL,
+		follow_up_type TEXT NOT NULL,
+		result TEXT NOT NULL,
+		notes TEXT,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		FOREIGN KEY (citizen_id) REFERENCES farmers(citizen_id) ON DELETE CASCADE
+	);
+
+	CREATE INDEX IF NOT EXISTS idx_followups_citizen_id ON followups(citizen_id);
 	`
 
 	_, err := DB.Exec(createTablesQuery)

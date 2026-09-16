@@ -133,8 +133,8 @@ function printReport() {
 </script>
 
 <template>
-  <div 
-    v-if="isOpen && record" 
+  <div
+    v-if="isOpen && record"
     class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs overflow-y-auto animate-fadeIn"
     v-modal-focus="() => emit('close')"
     @click.self="emit('close')"
@@ -151,8 +151,8 @@ function printReport() {
             <p class="text-xs text-slate-500 font-mono">วันที่ประเมิน: {{ record.eval_date }} • {{ record.health_center }}</p>
           </div>
         </div>
-        <button 
-          @click="emit('close')" 
+        <button
+          @click="emit('close')"
           class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 text-sm font-bold"
           aria-label="ปิดหน้าต่างสรุปผล"
         >
@@ -168,7 +168,7 @@ function printReport() {
         </div>
         <div class="text-right">
           <span class="text-slate-600 font-medium block">{{ record.plant_type }}</span>
-          <span class="text-slate-400 text-[11px]">{{ record.occupation }}</span>
+          <span class="text-slate-400 text-xs">{{ record.occupation }}</span>
         </div>
       </div>
 
@@ -197,16 +197,16 @@ function printReport() {
       <!-- Scores & Blood Test Grid -->
       <div class="grid grid-cols-3 gap-2.5 text-center text-xs">
         <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
-          <span class="text-slate-500 block text-[11px]">พฤติกรรมเสี่ยง (A)</span>
+          <span class="text-slate-500 block text-xs">พฤติกรรมเสี่ยง (A)</span>
           <strong class="text-amber-800 text-sm font-bold">{{ record.score_a }} / 27</strong>
         </div>
         <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
-          <span class="text-slate-500 block text-[11px]">พฤติกรรมป้องกัน (B)</span>
+          <span class="text-slate-500 block text-xs">พฤติกรรมป้องกัน (B)</span>
           <strong class="text-teal-800 text-sm font-bold">{{ record.score_b }} / 18</strong>
         </div>
         <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
-          <span class="text-slate-500 block text-[11px]">ผลเลือด Reactive</span>
-          <strong :class="['text-xs font-bold block mt-0.5', 
+          <span class="text-slate-500 block text-xs">ผลเลือด Reactive</span>
+          <strong :class="['text-xs font-bold block mt-0.5',
             record.cholinesterase_result === 'ไม่ปลอดภัย' ? 'text-rose-700' :
             record.cholinesterase_result === 'มีความเสี่ยง' ? 'text-amber-700' : 'text-emerald-700'
           ]">
@@ -234,15 +234,15 @@ function printReport() {
 
       <!-- Next Actions -->
       <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2.5">
-        <button 
-          type="button" 
+        <button
+          type="button"
           @click="emit('close')"
           class="w-full sm:w-auto px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition order-2 sm:order-1"
         >
           ปิดหน้าต่าง
         </button>
         <div class="flex items-center space-x-2 w-full sm:w-auto order-1 sm:order-2">
-          <button 
+          <button
             type="button"
             @click="printReport"
             class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1"
@@ -250,14 +250,14 @@ function printReport() {
           >
             <span>🖨️ พิมพ์</span>
           </button>
-          <button 
+          <button
             type="button"
             @click="emit('addFollowUp', record)"
             class="flex-1 sm:flex-initial px-3.5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center space-x-1"
           >
             <span>📅 นัดติดตามผล</span>
           </button>
-          <button 
+          <button
             type="button"
             @click="emit('viewDetail', record)"
             class="flex-1 sm:flex-initial px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center space-x-1"

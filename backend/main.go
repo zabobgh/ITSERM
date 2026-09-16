@@ -48,6 +48,11 @@ func main() {
 		api.PUT("/assessments/:id", handlers.UpdateAssessment)
 		api.DELETE("/assessments/:id", handlers.DeleteAssessment)
 
+		// Follow-up endpoints
+		api.GET("/followups", handlers.GetFollowUps)
+		api.POST("/followups", handlers.CreateFollowUp)
+		api.DELETE("/followups/:id", handlers.DeleteFollowUp)
+
 		// Analytics & Government Reports
 		api.GET("/stats/dashboard", handlers.GetDashboardStats)
 		api.GET("/reports/occ01", handlers.GetReportOCC01)
@@ -89,7 +94,7 @@ func main() {
 		})
 	}
 
-	port := os.Getenv("PORT")
+	port := strings.TrimSpace(os.Getenv("PORT"))
 	if port == "" {
 		port = "8080"
 	}

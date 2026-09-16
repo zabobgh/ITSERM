@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import type { AssessmentRecord, ReportOCC01, ReportOCC02, OCC01DetailedStats, CenterBreakdownItem } from '../../types'
-import { fetchAssessments, fetchReportOCC01, fetchReportOCC02 } from '../../services/api'
+import type { AssessmentRecord, OCC01DetailedStats, CenterBreakdownItem } from '../../types'
+import { fetchAssessments } from '../../services/api'
 import { HEALTH_CENTERS } from '../../constants/healthCenters'
 import Occ01ReportView from './Occ01ReportView.vue'
 import Occ02ReportView from './Occ02ReportView.vue'
@@ -12,29 +12,13 @@ const props = defineProps<{
 
 const activeReport = ref<'01' | '02'>('01')
 const loading = ref(false)
+const loadError = ref('')
 const reportingPeriod = ref<'6month' | '12month'>('12month')
 const fiscalYear = ref('2569')
 const selectedCenter = ref('รพ.สต.หลักสาม')
 const provinceName = ref('สมุทรสาคร')
 
 const records = ref<AssessmentRecord[]>([])
-const occ01 = ref<ReportOCC01>({
-  health_center: 'รพ.สต.หลักสาม',
-  fiscal_year: '2569',
-  total_evaluated: 0,
-  high_risk_evaluated: 0,
-  total_blood_tested: 0,
-  unsafe_blood_count: 0,
-  total_advised: 0
-})
-
-const occ02 = ref<ReportOCC02>({
-  province: 'สมุทรสาคร',
-  fiscal_year: '2569',
-  total_high_risk_cumulative: 0,
-  total_screened_target: 0,
-  blood_testing_coverage: 0
-})
 
 const occ01ViewRef = ref<InstanceType<typeof Occ01ReportView> | null>(null)
 const occ02ViewRef = ref<InstanceType<typeof Occ02ReportView> | null>(null)
@@ -118,13 +102,18 @@ const occ01Stats = computed<OCC01DetailedStats>(() => {
   const highRisk = list.filter(r => r.risk_level === 'มีความเสี่ยงค่อนข้างสูง').length
   const veryHighRisk = list.filter(r => r.risk_level === 'มีความเสี่ยงสูง' || r.risk_level === 'มีความเสี่ยงสูงมาก').length
   const totalHighGroup = highRisk + veryHighRisk
+  const eligibleRecords = list.filter(r => [
+    'มีความเสี่ยงค่อนข้างสูง',
+    'มีความเสี่ยงสูง',
+    'มีความเสี่ยงสูงมาก'
+  ].includes(r.risk_level))
 
-  // Blood Test Breakdown
-  const bloodTested = list.filter(r => ['ปกติ', 'ปลอดภัย', 'มีความเสี่ยง', 'ไม่ปลอดภัย'].includes(r.cholinesterase_result)).length
-  const normal = list.filter(r => r.cholinesterase_result === 'ปกติ').length
-  const safe = list.filter(r => r.cholinesterase_result === 'ปลอดภัย').length
-  const atRisk = list.filter(r => r.cholinesterase_result === 'มีความเสี่ยง').length
-  const unsafe = list.filter(r => r.cholinesterase_result === 'ไม่ปลอดภัย').length
+  // Results are reported only for farmers who meet the blood-screening criteria.
+  const bloodTested = eligibleRecords.filter(r => ['ปกติ', 'ปลอดภัย', 'มีความเสี่ยง', 'ไม่ปลอดภัย'].includes(r.cholinesterase_result)).length
+  const normal = eligibleRecords.filter(r => r.cholinesterase_result === 'ปกติ').length
+  const safe = eligibleRecords.filter(r => r.cholinesterase_result === 'ปลอดภัย').length
+  const atRisk = eligibleRecords.filter(r => r.cholinesterase_result === 'มีความเสี่ยง').length
+  const unsafe = eligibleRecords.filter(r => r.cholinesterase_result === 'ไม่ปลอดภัย').length
   const abnormalBlood = atRisk + unsafe
 
   // Follow-up
@@ -133,7 +122,7 @@ const occ01Stats = computed<OCC01DetailedStats>(() => {
   const advised = total // All get occupational counseling
 
   const calcPct = (cnt: number, base: number) => {
-    if (!base) return '0.0%'
+    if (!base) return '—'
     return `${((cnt / base) * 100).toFixed(1)}%`
   }
 
@@ -180,8 +169,13 @@ const centerBreakdowns = computed<CenterBreakdownItem[]>(() => {
       r.risk_level === 'มีความเสี่ยงสูง' || 
       r.risk_level === 'มีความเสี่ยงสูงมาก'
     ).length
-    const bloodTested = centerRecs.filter(r => ['ปกติ', 'ปลอดภัย', 'มีความเสี่ยง', 'ไม่ปลอดภัย'].includes(r.cholinesterase_result)).length
-    const unsafe = centerRecs.filter(r => r.cholinesterase_result === 'มีความเสี่ยง' || r.cholinesterase_result === 'ไม่ปลอดภัย').length
+    const eligibleCenterRecs = centerRecs.filter(r => [
+      'มีความเสี่ยงค่อนข้างสูง',
+      'มีความเสี่ยงสูง',
+      'มีความเสี่ยงสูงมาก'
+    ].includes(r.risk_level))
+    const bloodTested = eligibleCenterRecs.filter(r => ['ปกติ', 'ปลอดภัย', 'มีความเสี่ยง', 'ไม่ปลอดภัย'].includes(r.cholinesterase_result)).length
+    const unsafe = eligibleCenterRecs.filter(r => r.cholinesterase_result === 'มีความเสี่ยง' || r.cholinesterase_result === 'ไม่ปลอดภัย').length
     
     // Denominator = high-risk farmers requiring blood screening
     const coverage = highRisk > 0 ? Number(((bloodTested / highRisk) * 100).toFixed(1)) : 0
@@ -199,17 +193,12 @@ const centerBreakdowns = computed<CenterBreakdownItem[]>(() => {
 
 async function loadData() {
   loading.value = true
+  loadError.value = ''
   try {
-    const [allRecs, r1, r2] = await Promise.all([
-      fetchAssessments(),
-      fetchReportOCC01(selectedCenter.value, fiscalYear.value),
-      fetchReportOCC02(provinceName.value, fiscalYear.value)
-    ])
-    records.value = allRecs
-    occ01.value = r1
-    occ02.value = r2
+    records.value = await fetchAssessments()
   } catch (err) {
     console.error('Error loading report data:', err)
+    loadError.value = err instanceof Error ? err.message : 'ไม่สามารถโหลดข้อมูลรายงานได้'
   } finally {
     loading.value = false
   }
@@ -356,17 +345,20 @@ defineExpose({
         <h2 class="text-lg sm:text-xl font-bold text-slate-900 mt-1">
           ระบบแบบรายงานเฝ้าระวังและจัดบริการอาชีวอนามัย (OCC-นบ)
         </h2>
-        <p class="text-xs sm:text-sm text-slate-600 mt-0.5">
-          แบบรายงานระดับหน่วยบริการปฐมภูมิ (OCC-นบ 01) และรายงานสรุป OCC-นบ 02 ตาม Requirement ผู้ใช้งานและโครงสร้างระบบปัจจุบัน
+        <p class="text-sm text-slate-600 mt-1 max-w-3xl leading-relaxed">
+          จัดทำรายงานระดับหน่วยบริการปฐมภูมิ (OCC-นบ 01) และรายงานสรุปภาพรวมระดับอำเภอ (OCC-นบ 02) พร้อมส่งออกเป็น PDF ขนาด A4
         </p>
       </div>
 
       <!-- Report Tabs & Actions -->
       <div class="flex flex-wrap items-center gap-2.5">
-        <div class="inline-flex rounded-xl border border-slate-200 p-1 bg-slate-100">
+        <div class="inline-flex rounded-xl border border-slate-200 p-1 bg-slate-100" role="tablist" aria-label="เลือกแบบรายงาน">
           <button 
             type="button"
             @click="activeReport = '01'"
+            role="tab"
+            :aria-selected="activeReport === '01'"
+            aria-controls="occ-report-01"
             :class="[
               'px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition cursor-pointer',
               activeReport === '01' ? 'bg-white text-emerald-800 shadow-xs' : 'text-slate-600 hover:text-slate-900'
@@ -377,6 +369,9 @@ defineExpose({
           <button 
             type="button"
             @click="activeReport = '02'"
+            role="tab"
+            :aria-selected="activeReport === '02'"
+            aria-controls="occ-report-02"
             :class="[
               'px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition cursor-pointer',
               activeReport === '02' ? 'bg-white text-emerald-800 shadow-xs' : 'text-slate-600 hover:text-slate-900'
@@ -389,7 +384,8 @@ defineExpose({
         <button 
           type="button"
           @click="exportReportCSV"
-          class="px-3.5 py-2 text-xs sm:text-sm border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl font-bold transition flex items-center space-x-1.5 shadow-xs cursor-pointer"
+          :disabled="loading || !!loadError"
+          class="px-3.5 py-2 text-xs sm:text-sm border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl font-bold transition flex items-center space-x-1.5 shadow-xs cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
           title="ส่งออกรายงานในรูปแบบ CSV / Excel"
         >
           <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -401,7 +397,8 @@ defineExpose({
         <button 
           type="button"
           @click="handlePrint"
-          class="px-3.5 py-2 text-xs sm:text-sm border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl font-bold transition flex items-center space-x-1.5 shadow-xs cursor-pointer"
+          :disabled="loading || !!loadError"
+          class="px-3.5 py-2 text-xs sm:text-sm border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl font-bold transition flex items-center space-x-1.5 shadow-xs cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
           title="พิมพ์ผ่านเบราว์เซอร์ (สามารถเลือกบันทึกเป็น PDF คมชัดสูงได้)"
         >
           <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -413,7 +410,8 @@ defineExpose({
         <button 
           type="button"
           @click="handleDownloadPdf"
-          class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs sm:text-sm font-bold transition flex items-center space-x-1.5 shadow-xs cursor-pointer"
+          :disabled="loading || !!loadError"
+          class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs sm:text-sm font-bold transition flex items-center space-x-1.5 shadow-xs cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
@@ -423,8 +421,14 @@ defineExpose({
       </div>
     </div>
 
+    <div v-if="loadError" role="alert" class="no-print rounded-2xl border border-rose-200 bg-rose-50 p-5 text-rose-950">
+      <p class="font-bold">ไม่สามารถจัดทำรายงานได้</p>
+      <p class="mt-1 text-sm">{{ loadError }}</p>
+      <button type="button" @click="loadData" class="mt-3 min-h-11 rounded-xl bg-rose-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-rose-800">ลองโหลดอีกครั้ง</button>
+    </div>
+
     <!-- LOGO UPLOAD & CONFIGURATION BAR (Screen only) -->
-    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-4 no-print">
+    <div v-if="!loadError" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-4 no-print">
       <div class="flex items-center space-x-3">
         <input 
           ref="logoFileInputRef" 
@@ -481,10 +485,11 @@ defineExpose({
     </div>
 
     <!-- REPORT FILTERS BAR (Screen only) -->
-    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm no-print">
+    <div v-if="!loadError" class="bg-slate-50 p-4 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm no-print">
       <div>
-        <label class="block text-xs font-bold text-slate-700 mb-1">หน่วยบริการปฐมภูมิ (รพ.สต.):</label>
+        <label for="report-health-center" class="block text-sm font-bold text-slate-700 mb-1">หน่วยบริการปฐมภูมิ (รพ.สต.)</label>
         <select 
+          id="report-health-center"
           v-model="selectedCenter" 
           class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-hidden cursor-pointer"
         >
@@ -494,8 +499,9 @@ defineExpose({
       </div>
 
       <div>
-        <label class="block text-xs font-bold text-slate-700 mb-1">ประจำปีงบประมาณ:</label>
+        <label for="report-fiscal-year" class="block text-sm font-bold text-slate-700 mb-1">ประจำปีงบประมาณ</label>
         <select 
+          id="report-fiscal-year"
           v-model="fiscalYear" 
           class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-hidden cursor-pointer"
         >
@@ -506,8 +512,9 @@ defineExpose({
       </div>
 
       <div>
-        <label class="block text-xs font-bold text-slate-700 mb-1">รอบระยะเวลาการรายงาน:</label>
+        <label for="reporting-period" class="block text-sm font-bold text-slate-700 mb-1">รอบระยะเวลาการรายงาน</label>
         <select 
+          id="reporting-period"
           v-model="reportingPeriod" 
           class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-hidden cursor-pointer"
         >
@@ -519,6 +526,8 @@ defineExpose({
 
     <!-- REPORT VIEW OCC-นบ 01 (Multi-page continuous A4 layout with PDF export) -->
     <Occ01ReportView 
+      v-if="!loadError"
+      id="occ-report-01"
       v-show="activeReport === '01'"
       ref="occ01ViewRef"
       :stats="occ01Stats"
@@ -531,11 +540,12 @@ defineExpose({
 
     <!-- REPORT VIEW OCC-นบ 02 (District Summary with PDF export) -->
     <Occ02ReportView 
+      v-if="!loadError"
+      id="occ-report-02"
       v-show="activeReport === '02'"
       ref="occ02ViewRef"
       :records="records"
       :center-breakdowns="centerBreakdowns"
-      :occ02="occ02"
       :province-name="provinceName"
       :fiscal-year="fiscalYear"
       :report-logo="reportLogo"

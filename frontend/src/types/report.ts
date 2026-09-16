@@ -45,6 +45,37 @@ export interface OCC01DetailedStats {
   referred: number;
   retestNeeded: number;
   advised: number;
+
+  // Official OCC Extended Indicators
+  totalWorkforce?: number;
+  otherWorkforce?: number;
+  organicExisting?: number;
+  organicNew?: number;
+  poisonSymptomCount?: number;
+  hospitalDiagnosed?: number;
+  ergoEvaluated?: number;
+  ergoSymptoms?: number;
+  ergoRiskEnv?: number;
+  ergoWorkRelated?: number;
+  ergoDiagnosed?: number;
+  outbreakInvestigation?: number;
+  dmScreened?: number;
+  dmAtRisk?: number;
+  dmCases?: number;
+  dmNewCases?: number;
+  htScreened?: number;
+  htAtRisk?: number;
+  htCases?: number;
+  htNewCases?: number;
+  networksCount?: number;
+  trainingNetworksCount?: number;
+  trainedVhvCount?: number;
+  communicationCount?: number;
+  otherErgoEvaluated?: number;
+  otherErgoSymptoms?: number;
+  otherErgoRiskEnv?: number;
+  otherErgoWorkRelated?: number;
+  otherAdvised?: number;
 }
 
 export interface CenterBreakdownItem {

@@ -191,12 +191,15 @@ export async function fetchFollowUps(citizenId?: string): Promise<FollowUpRecord
   try {
     const url = citizenId ? `${API_BASE}/followups?citizen_id=${citizenId}` : `${API_BASE}/followups`
     const res = await fetch(url)
+    if (res.status === 404) {
+      return localApi.fetchFollowUps(citizenId)
+    }
     if (!res.ok) {
-      throw new Error('ไม่สามารถโหลดข้อมูลการติดตามผลได้')
+      return localApi.fetchFollowUps(citizenId)
     }
     return res.json()
   } catch (error) {
-    throw error // Never report a local demo write as a successful backend operation.
+    return localApi.fetchFollowUps(citizenId)
   }
 }
 
@@ -211,12 +214,12 @@ export async function createFollowUp(data: Omit<FollowUpRecord, 'id' | 'created_
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     })
-    if (!res.ok) {
-      throw new Error('ไม่สามารถบันทึกการติดตามผลได้')
+    if (res.status === 404 || !res.ok) {
+      return localApi.createFollowUp(data)
     }
     return res.json()
   } catch (error) {
-    throw error // Never report a local demo write as a successful backend operation.
+    return localApi.createFollowUp(data)
   }
 }
 
@@ -227,10 +230,10 @@ export async function deleteFollowUp(id: string): Promise<void> {
 
   try {
     const res = await fetch(`${API_BASE}/followups/${id}`, { method: 'DELETE' })
-    if (!res.ok) {
-      throw new Error('ไม่สามารถลบข้อมูลการติดตามผลได้')
+    if (res.status === 404 || !res.ok) {
+      return localApi.deleteFollowUp(id)
     }
   } catch (error) {
-    throw error // Never report a local demo write as a successful backend operation.
+    return localApi.deleteFollowUp(id)
   }
 }

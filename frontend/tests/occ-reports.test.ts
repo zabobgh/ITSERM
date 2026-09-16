@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import Occ01ReportView from '../src/components/reports/Occ01ReportView.vue'
 import Occ02ReportView from '../src/components/reports/Occ02ReportView.vue'
-import type { OCC01DetailedStats, CenterBreakdownItem, AssessmentRecord, ReportOCC02 } from '../src/types'
+import type { OCC01DetailedStats, CenterBreakdownItem, AssessmentRecord } from '../src/types'
 
 // Mock html2pdf.js bundle
 vi.mock('html2pdf.js', () => {
@@ -101,13 +101,36 @@ describe('OCC-นบ 01 Report Component Tests', () => {
     expect(html).not.toContain('กองโรคจากการประกอบอาชีพและสิ่งแวดล้อม')
   })
 
-  it('renders blood screening results and percentage derived from real denominator', () => {
+  it('renders official OCC-นบ01 headers and sections verbatim', () => {
     const wrapper = mount(Occ01ReportView, { props: defaultProps })
     const text = wrapper.text()
-    // Should display tested count 15 and percentage 75.0%
+    expect(text).toContain('OCC-นบ01')
+    expect(text).toContain('แบบรายงานการดำเนินงานจัดบริการอาชีวอนามัยในหน่วยบริการปฐมภูมิ')
+    expect(text).toContain('1.สถานะของหน่วยบริการในการจัดบริการอาชีวอนามัยแก่แรงงานในชุมชน')
+    expect(text).toContain('ส่วนที่ 1 ข้อมูลพื้นฐานเกี่ยวกับประชากรวัยทำงานในพื้นที่ของหน่วยบริการ')
+    expect(text).toContain('ส่วนที่ 2.การจัดบริการอาชีวอนามัยเพื่อการดูแลสุขภาพเกษตรกร')
+    expect(text).toContain('งานจัดบริการเชิงรุก')
+    expect(text).toContain('ส่วนที่ 3 การจัดบริการอาชีวอนามัยเพื่อดูแลกลุ่มอาชีพอื่นในชุมชน')
+    expect(text).toContain('20 ปัญหา อุปสรรคในการดำเนินงาน')
+    expect(text).toContain('21.ข้อเสนอแนะเพื่อการพัฒนาต่อไป')
+  })
+
+  it('renders blood screening results and counts according to official form', () => {
+    const wrapper = mount(Occ01ReportView, { props: defaultProps })
+    const text = wrapper.text()
+    // Should display evaluated count 50, high-risk 20, and blood tested count 15
+    expect(text).toContain('50')
+    expect(text).toContain('20')
     expect(text).toContain('15')
-    expect(text).toContain('75.0%')
-    expect(text).toContain('จากกลุ่มเสี่ยงสูงที่ต้องส่งเจาะเลือด 20 คน')
+  })
+
+  it('never crashes when stats are zero', () => {
+    const zeroStats = Object.fromEntries(
+      Object.entries(mockStats).map(([key, value]) => [key, typeof value === 'number' ? 0 : '—'])
+    ) as unknown as OCC01DetailedStats
+    const wrapper = mount(Occ01ReportView, { props: { ...defaultProps, stats: zeroStats } })
+    expect(wrapper.text()).toContain('OCC-นบ01')
+    expect(wrapper.text()).toContain('0')
   })
 
   it('renders dual signatures for รพ.บ้านแพ้ว according to requirement', () => {
@@ -157,14 +180,6 @@ describe('OCC-นบ 02 Report Component Tests', () => {
     }
   ]
 
-  const mockOcc02: ReportOCC02 = {
-    province: 'สมุทรสาคร',
-    fiscal_year: '2569',
-    total_high_risk_cumulative: 20,
-    total_screened_target: 20,
-    blood_testing_coverage: 75.0
-  }
-
   const mockRecords: AssessmentRecord[] = [
     {
       id: 'rec-1',
@@ -193,7 +208,6 @@ describe('OCC-นบ 02 Report Component Tests', () => {
   const defaultProps = {
     records: mockRecords,
     centerBreakdowns: mockBreakdowns,
-    occ02: mockOcc02,
     provinceName: 'สมุทรสาคร',
     fiscalYear: '2569'
   }
@@ -206,11 +220,25 @@ describe('OCC-นบ 02 Report Component Tests', () => {
     expect(html).not.toContain('กรมควบคุมโรค กระทรวงสาธารณสุข')
   })
 
-  it('displays correct coverage percentage for centers and handles zero high-risk', () => {
+  it('renders official Occ-นบ 02 headers and sections verbatim', () => {
     const wrapper = mount(Occ02ReportView, { props: defaultProps })
     const text = wrapper.text()
-    expect(text).toContain('75.0%')
-    expect(text).toContain('ไม่มีผู้เข้าเกณฑ์')
+    expect(text).toContain('Occ-นบ 02')
+    expect(text).toContain('แบบรายงานผลการดำเนินงานจัดบริการอาชีวอนามัยในหน่วยบริการปฐมภูมิของสำนักงานสาธารณสุขจังหวัด')
+    expect(text).toContain('ส่วนที่ 1 ข้อมูลพื้นฐานเกี่ยวกับประชากรวัยทำงานในพื้นที่ของหน่วยบริการ')
+    expect(text).toContain('ส่วนที่ 2.การจัดบริการอาชีวอนามัยเพื่อการดูแลสุขภาพเกษตรกร')
+    expect(text).toContain('งานจัดบริการเชิงรุก')
+    expect(text).toContain('ส่วนที่ 3 การจัดบริการอาชีวอนามัยเพื่อดูแลกลุ่มอาชีพอื่นในชุมชน')
+    expect(text).toContain('20 ปัญหา อุปสรรค')
+    expect(text).toContain('21.ข้อเสนอแนะเพื่อการพัฒนาต่อไป')
+  })
+
+  it('renders provincial metrics aggregated from records and health centers', () => {
+    const wrapper = mount(Occ02ReportView, { props: defaultProps })
+    const text = wrapper.text()
+    expect(text).toContain('สมุทรสาคร')
+    expect(text).toContain('2569')
+    expect(text).toContain('จำนวนรพ.สต.ทั้งหมดในจังหวัด')
   })
 
   it('renders dual signatures for รพ.บ้านแพ้ว in OCC-นบ 02', () => {

@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import type { OCC01DetailedStats } from '../../types'
-import html2canvas from 'html2canvas'
-import { jsPDF } from 'jspdf'
 
 const props = defineProps<{
   stats: OCC01DetailedStats
@@ -13,17 +11,31 @@ const props = defineProps<{
   reportLogo?: string
 }>()
 
+const generatedDate = computed(() => {
+  return new Intl.DateTimeFormat('th-TH', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }).format(new Date())
+})
+
 const isGeneratingPdf = ref(false)
 const pdfContainer = ref<HTMLElement | null>(null)
 
 async function downloadPdf() {
-  if (!pdfContainer.value) return
+  if (!pdfContainer.value || isGeneratingPdf.value) return
   isGeneratingPdf.value = true
   await nextTick()
 
   try {
+    await document.fonts?.ready
+    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+      import('html2canvas'),
+      import('jspdf')
+    ])
+
     const sheets = pdfContainer.value.querySelectorAll<HTMLElement>('.a4-sheet')
-    if (!sheets || sheets.length === 0) return
+    if (!sheets.length) return
 
     const pdf = new jsPDF({
       orientation: 'portrait',
@@ -35,19 +47,19 @@ async function downloadPdf() {
     for (let i = 0; i < sheets.length; i++) {
       const sheet = sheets[i]
       const canvas = await html2canvas(sheet, {
-        scale: 2,
+        scale: 2.5,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff'
       })
-      const imgData = canvas.toDataURL('image/jpeg', 0.98)
-      if (i > 0) {
-        pdf.addPage('a4', 'portrait')
-      }
-      pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST')
+
+      const imgData = canvas.toDataURL('image/png')
+      if (i > 0) pdf.addPage('a4', 'portrait')
+      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297, undefined, 'FAST')
     }
 
-    pdf.save(`แบบรายงาน_OCC-นบ01_${props.healthCenter}_ปี${props.fiscalYear}.pdf`)
+    const cleanCenter = (props.healthCenter || 'หน่วยบริการ').replace(/\s+/g, '_')
+    pdf.save(`แบบรายงาน_OCC-นบ01_${cleanCenter}_ปี${props.fiscalYear}.pdf`)
   } catch (err) {
     console.error('PDF Generation Error:', err)
   } finally {
@@ -66,344 +78,517 @@ defineExpose({
 </script>
 
 <template>
-  <div class="space-y-5">
-    <!-- Document Status Banner for OCC-01 (Screen only) -->
-    <div class="flex items-center justify-between p-3.5 sm:p-4 bg-emerald-50/80 rounded-2xl border border-emerald-200/90 no-print text-xs sm:text-sm">
-      <div class="flex items-center space-x-2.5">
-        <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
-        <span class="font-bold text-emerald-950">
-          ตัวอย่างเอกสารราชการ A4 (มาตรฐาน 2 หน้าต่อเนื่อง จบรายงานพอดี)
-        </span>
+  <div class="space-y-4">
+    <!-- Screen-Only Banner -->
+    <div class="no-print flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs">
+      <div class="flex items-center gap-2.5">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div>
+          <p class="font-bold text-slate-900 text-sm">แบบรายงาน OCC-นบ01 • A4 แนวตั้ง • 2 หน้า (ตรงตามต้นฉบับกระทรวง 100%)</p>
+          <p class="text-xs text-slate-500">แบบรายงานการดำเนินงานจัดบริการอาชีวอนามัยในหน่วยบริการปฐมภูมิ</p>
+        </div>
       </div>
-      <div class="flex items-center space-x-2">
-        <button 
+      <div class="flex items-center gap-2">
+        <button
           type="button"
           @click="printReport"
-          class="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-2xs cursor-pointer"
+          class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs transition"
         >
-          <svg class="w-3.5 h-3.5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-          </svg>
-          <span>พิมพ์</span>
+          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          พิมพ์รายงาน
         </button>
-        <button 
+        <button
           type="button"
           @click="downloadPdf"
           :disabled="isGeneratingPdf"
-          class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-2xs cursor-pointer"
+          class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 shadow-xs transition disabled:opacity-50"
         >
-          <svg v-if="!isGeneratingPdf" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-          </svg>
-          <span>{{ isGeneratingPdf ? 'กำลังสร้าง...' : 'ดาวน์โหลด PDF' }}</span>
+          <svg v-if="!isGeneratingPdf" class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <svg v-else class="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          {{ isGeneratingPdf ? 'กำลังสร้าง PDF...' : 'ดาวน์โหลด PDF' }}
         </button>
       </div>
     </div>
 
-    <!-- PDF Printable Container: 2 Continuous A4 Sheets -->
-    <div 
-      ref="pdfContainer" 
-      :class="[
-        'text-slate-900 font-sarabun mx-auto transition-all',
-        isGeneratingPdf ? 'pdf-export-mode' : 'space-y-8 max-w-4xl'
-      ]"
-    >
-      
-      <!-- =================================================================== -->
-      <!-- A4 SHEET 1 (หน้า 1): ข้อมูลทั่วไป และ ข้อ 5 การประเมินความเสี่ยง นบก. 1-56 -->
-      <!-- =================================================================== -->
-      <div class="a4-sheet bg-white p-6 sm:p-8 rounded-2xl shadow-md border border-slate-300 flex flex-col justify-between relative overflow-hidden">
-        <div>
-          <!-- Header Official -->
-          <div class="text-center space-y-1.5 border-b-2 border-slate-900 pb-3 mb-4">
-            <div class="flex justify-between items-start">
-              <div class="text-left text-xs font-semibold text-slate-700 w-32 shrink-0">
-                <!-- Header left spacing -->
-              </div>
-              <div class="h-14 flex items-center justify-center min-w-[70px] flex-1">
-                <img 
-                  v-if="reportLogo" 
-                  :src="reportLogo" 
-                  alt="โลโก้รายงาน" 
-                  class="max-h-14 max-w-[130px] object-contain mx-auto" 
+    <!-- Printable & PDF Viewport Container -->
+    <div class="report-preview-viewport" aria-label="ตัวอย่างเอกสาร OCC-นบ 01">
+      <div ref="pdfContainer" :class="['report-pages text-slate-950 mx-auto', isGeneratingPdf ? 'pdf-export-mode' : 'space-y-6']">
+
+        <!-- ==================== SHEET 1 (Page 4 of PDF) ==================== -->
+        <section class="a4-sheet sheet-1" aria-label="เอกสาร OCC-นบ 01 แผ่นที่ 1">
+          <div>
+            <!-- Header Top Bar -->
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <img
+                  v-if="reportLogo"
+                  :src="reportLogo"
+                  alt="โลโก้รายงาน"
+                  class="h-12 w-auto max-w-[140px] object-contain mb-1"
                 />
               </div>
-              <div class="text-right text-xs font-mono font-bold text-slate-900 w-32 shrink-0">
-                <span class="inline-block whitespace-nowrap px-2.5 py-1 border border-slate-800 rounded-md">แบบ OCC-นบ 01</span>
+              <div class="text-right">
+                <span class="font-bold text-sm tracking-wide text-slate-900">OCC-นบ01</span>
               </div>
             </div>
 
-            <h1 class="text-lg sm:text-xl font-bold tracking-tight text-slate-900 leading-snug">
-              แบบรายงานผลการดำเนินงานจัดบริการอาชีวอนามัยในหน่วยบริการปฐมภูมิ
-            </h1>
-            <p class="text-xs sm:text-sm font-semibold text-slate-700">
-              (การเฝ้าระวังและคัดกรองความเสี่ยงสุขภาพเกษตรกรจากการใช้สารเคมีกำจัดศัตรูพืช)
-            </p>
+            <!-- Title -->
+            <div class="text-center mb-4">
+              <h1 class="text-base font-bold text-slate-900 tracking-tight">
+                แบบรายงานการดำเนินงานจัดบริการอาชีวอนามัยในหน่วยบริการปฐมภูมิ
+              </h1>
+              <div class="mt-2 text-xs flex justify-between items-center text-slate-800">
+                <p>
+                  ชื่อหน่วยบริการสุขภาพ <span class="font-semibold underline decoration-dotted underline-offset-4 px-1">{{ healthCenter || '..............................................................' }}</span>
+                </p>
+                <p>
+                  รายงานผลการดำเนินงานประจำปีพ.ศ. <span class="font-semibold underline decoration-dotted underline-offset-4 px-1">{{ fiscalYear || '...........................' }}</span>
+                </p>
+              </div>
+            </div>
 
-            <div class="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs sm:text-sm font-medium text-slate-800 pt-1">
-              <p>หน่วยบริการ: <span class="font-bold border-b border-dotted border-slate-800 pb-0.5 px-1.5">{{ healthCenter }}</span></p>
-              <p>อำเภอ: <span class="font-bold border-b border-dotted border-slate-800 pb-0.5 px-1.5">บ้านแพ้ว</span></p>
-              <p>จังหวัด: <span class="font-bold border-b border-dotted border-slate-800 pb-0.5 px-1.5">{{ provinceName }}</span></p>
-              <p>ปีงบประมาณ: <span class="font-bold border-b border-dotted border-slate-800 pb-0.5 px-1.5">{{ fiscalYear }}</span></p>
-              <p>รอบระยะเวลา: <span class="font-bold border-b border-dotted border-slate-800 pb-0.5 px-1.5">{{ reportingPeriod === '6month' ? 'รอบ 6 เดือน (1 ต.ค. - 31 มี.ค.)' : 'รอบ 12 เดือน (1 ต.ค. - 30 ก.ย.)' }}</span></p>
+            <!-- ข้อ 1 สถานะของหน่วยบริการฯ -->
+            <div class="mb-3 text-xs leading-relaxed text-slate-900 space-y-1 border-b border-slate-300 pb-2.5">
+              <p class="font-bold">1.สถานะของหน่วยบริการในการจัดบริการอาชีวอนามัยแก่แรงงานในชุมชน</p>
+              <div class="pl-4 space-y-1">
+                <div class="flex items-center gap-4">
+                  <span>1.1 จัดบริการอาชีวอนามัยให้แก่แรงงานในชุมชนกลุ่มอื่นๆ</span>
+                  <label class="inline-flex items-center gap-1 cursor-pointer">
+                    <span class="inline-block w-3.5 h-3.5 rounded-full border border-slate-600"></span> เป็นครั้งแรก
+                  </label>
+                  <label class="inline-flex items-center gap-1 cursor-pointer">
+                    <span class="inline-block w-3.5 h-3.5 rounded-full border border-slate-600"></span> ดำเนินต่อเนื่อง เป็นเวลา ...ปี
+                  </label>
+                </div>
+
+                <div class="flex items-center gap-4">
+                  <span>1.2 จัดบริการอาชีวอนามัยให้แก่เกษตรกร (เฝ้าระวังการสัมผัสสารกำจัดศัตรูพืช)</span>
+                  <label class="inline-flex items-center gap-1 cursor-pointer">
+                    <span class="inline-block w-3.5 h-3.5 rounded-full border border-slate-600"></span> เป็นครั้งแรก
+                  </label>
+                  <label class="inline-flex items-center gap-1 cursor-pointer">
+                    <span class="inline-block w-3.5 h-3.5 rounded-full border border-slate-600"></span> ดำเนินต่อเนื่อง เป็นเวลา .........ปี
+                  </label>
+                </div>
+
+                <div class="flex items-center gap-4">
+                  <span>1.3 จัดบริการคลินิกสุขภาพเกษตรกร</span>
+                  <label class="inline-flex items-center gap-1 cursor-pointer">
+                    <span class="inline-block w-3.5 h-3.5 rounded-full border border-slate-600"></span> ไม่
+                  </label>
+                  <label class="inline-flex items-center gap-1 cursor-pointer">
+                    <span class="inline-block w-3.5 h-3.5 rounded-full border border-slate-600"></span> เป็นครั้งแรก
+                  </label>
+                  <label class="inline-flex items-center gap-1 cursor-pointer">
+                    <span class="inline-block w-3.5 h-3.5 rounded-full border border-slate-600"></span> ดำเนินต่อเนื่อง เป็นเวลา .........ปี
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- ส่วนที่ 1 ข้อมูลพื้นฐานเกี่ยวกับประชากรวัยทำงานฯ -->
+            <div class="mb-3">
+              <h2 class="text-xs font-bold text-slate-900 mb-1">
+                ส่วนที่ 1 ข้อมูลพื้นฐานเกี่ยวกับประชากรวัยทำงานในพื้นที่ของหน่วยบริการ
+              </h2>
+              <table class="report-table">
+                <thead>
+                  <tr>
+                    <th class="col-num">ลำดับ</th>
+                    <th class="col-desc">ข้อมูล</th>
+                    <th class="col-unit">หน่วยนับ</th>
+                    <th class="col-result">ผล</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="text-center font-medium">2</td>
+                    <td>จำนวนแรงงานในชุมชนภาคเกษตรกรรม ทั้งหมดในพื้นที่</td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center font-bold tabular-nums">{{ stats.totalWorkforce ?? 350 }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-center font-medium">3.</td>
+                    <td>จำนวนแรงงานในชุมชนกลุ่มอาชีพอื่นๆ ที่ไม่ใช่เกษตรกรรม ในพื้นที่</td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center tabular-nums">{{ stats.otherWorkforce ?? '—' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-center font-medium">4</td>
+                    <td>จำนวนเกษตรกรที่เพาะปลูกแบบเกษตรอินทรีย์หรือเกษตรทางเลือก ที่มีอยู่เดิม</td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center tabular-nums">{{ stats.organicExisting ?? '—' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-center">&nbsp;</td>
+                    <td class="pl-6">จำนวนเกษตรกรที่เพาะปลูกแบบเกษตรอินทรีย์หรือเกษตรทางเลือก (รายใหม่)</td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center tabular-nums">{{ stats.organicNew ?? '—' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- ส่วนที่ 2.การจัดบริการอาชีวอนามัยเพื่อการดูแลสุขภาพเกษตรกร (หน้า 1) -->
+            <div>
+              <h2 class="text-xs font-bold text-slate-900 mb-1">
+                ส่วนที่ 2.การจัดบริการอาชีวอนามัยเพื่อการดูแลสุขภาพเกษตรกร
+              </h2>
+              <table class="report-table">
+                <thead>
+                  <tr>
+                    <th class="col-num">ลำดับ</th>
+                    <th class="col-desc">กิจกรรมที่ดำเนินการ</th>
+                    <th class="col-unit">หน่วยนับ</th>
+                    <th class="col-result">ผล</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="text-center font-medium">5</td>
+                    <td>
+                      จำนวนเกษตรกรที่ได้รับการประเมินความเสี่ยงในการทำงานของเกษตรกรจากการสัมผัสสารเคมีกำจัดศัตรูพืชด้วยแบบประเมินความเสี่ยงฯ ( นบก 1-56 )
+                    </td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center font-bold tabular-nums">{{ stats.total }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-center">&nbsp;</td>
+                    <td class="pl-6">
+                      ผลการประเมินความเสี่ยงในการทำงานด้วยแบบนบก 1-56 มีผลความเสี่ยงค่อนข้างสูงถึงสูงมาก รวม
+                    </td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center font-bold tabular-nums">{{ stats.totalHighGroup }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-center font-medium">6.</td>
+                    <td>
+                      จำนวนเกษตรกรที่ได้รับการเจาะเลือดตรวจคัดกรองโดยใช้กระดาษ Reactive paper รวมเท่ากับ
+                    </td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center font-bold tabular-nums">{{ stats.bloodTested }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-center">&nbsp;</td>
+                    <td class="pl-6">
+                      ผลการตรวจพบว่ามีความเสี่ยงและไม่ปลอดภัยรวมเท่ากับ
+                    </td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center font-bold tabular-nums">{{ stats.abnormalBlood }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-center font-medium">7.</td>
+                    <td>
+                      จำนวนเกษตรกรที่มีอาการของโรคพิษสารกำจัดศัตรูพืช และได้รับการวินิจฉัยเบื้องต้น
+                    </td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center tabular-nums">{{ stats.poisonSymptomCount ?? '—' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-center font-medium">8.</td>
+                    <td>
+                      จำนวนเกษตรกรที่มีอาการของโรคพิษสารกำจัดศัตรูพืชรุนแรง ได้ส่งต่อเพื่อรับการรักษา
+                    </td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center font-bold tabular-nums">{{ stats.referred }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-center">&nbsp;</td>
+                    <td class="pl-6">
+                      ผลการวินิจฉัยว่าป่วยด้วยโรคพิษจากสารเคมีกำจัดศัตรูพืชจากรพ.ที่รับการส่งต่อ
+                    </td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center tabular-nums">{{ stats.hospitalDiagnosed ?? '—' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-center font-medium">9.</td>
+                    <td>
+                      จำนวนเกษตรกรได้รับการประเมินอาการผิดปกติของระบบโครงร่าง กระดูกและกล้ามเนื้อ
+                    </td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center tabular-nums">{{ stats.ergoEvaluated ?? '—' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-center">&nbsp;</td>
+                    <td class="pl-6">
+                      จำนวนผู้รับการประเมินมีอาการผิดปกติของระบบโครง ร่างกระดูกและกล้ามเนื้อ
+                    </td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center tabular-nums">{{ stats.ergoSymptoms ?? '—' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-center">&nbsp;</td>
+                    <td class="pl-6">
+                      จำนวนผู้รับการประเมินมีสภาพแวดล้อมการทำงานที่มีความเสี่ยงต่อการ เกิด อาการผิดปกติของระบบโครงร่างกระดูกและกล้ามเนื้อ
+                    </td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center tabular-nums">{{ stats.ergoRiskEnv ?? '—' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-center">&nbsp;</td>
+                    <td class="pl-6">
+                      จำนวนผู้รับการประเมินแจ้งว่ามีอาการป่วยของระบบโครงร่าง กระดูกและกล้ามเนื้อที่เกี่ยวข้องจากการทำงาน
+                    </td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center tabular-nums">{{ stats.ergoWorkRelated ?? '—' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-center font-medium">10</td>
+                    <td>
+                      จำนวนเกษตรกรที่ได้รับการวินิจฉัยโรคที่เกิดจากการบาดเจ็บหรือมีอาการปวดระบบโครงร่าง กระดูกและกล้ามเนื้อจากการประกอบอาชีพ
+                    </td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center tabular-nums">{{ stats.ergoDiagnosed ?? '—' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-center font-medium">11</td>
+                    <td>
+                      จำนวนเกษตรกรที่ได้รับคำแนะนำเรื่องการป้องกันอันตรายจากการใช้สารกำจัดศัตรูพืช /
+                    </td>
+                    <td class="text-center">&nbsp;</td>
+                    <td class="text-center">&nbsp;</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
-          <!-- Section 1 -->
-          <div class="space-y-2 mb-4">
-            <h2 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center space-x-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-800"></span>
-              <span>ส่วนที่ 1: ข้อมูลพื้นฐานเกษตรกรในเขตพื้นที่รับผิดชอบ</span>
-            </h2>
-            <div class="grid grid-cols-2 gap-3 text-xs sm:text-sm">
-              <div class="p-3 rounded-xl border border-slate-300 bg-slate-50 flex justify-between items-center">
-                <span class="text-slate-700 font-medium">1. เกษตรกรที่ขึ้นทะเบียนทั้งหมด (เป้าหมาย):</span>
-                <span class="text-base font-bold text-slate-900">350 คน</span>
-              </div>
-              <div class="p-3 rounded-xl border border-slate-300 bg-slate-50 flex justify-between items-center">
-                <span class="text-slate-700 font-medium">2. เกษตรกรที่ได้รับการคัดกรองสะสมจริง:</span>
-                <span class="text-base font-bold text-emerald-900">{{ stats.total }} คน</span>
-              </div>
-            </div>
-          </div>
+          <!-- Page 1 Footer -->
+          <footer class="pt-2 border-t border-slate-300 flex justify-between items-center text-[11px] text-slate-500 mt-2">
+            <span>แบบรายงาน OCC-นบ01 • {{ healthCenter }}</span>
+            <span class="font-medium text-slate-700">หน้า 1 จาก 2</span>
+          </footer>
+        </section>
 
-          <!-- Section 2 Part A: Item 5 Risk Screening -->
-          <div class="space-y-2">
-            <h2 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center space-x-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-800"></span>
-              <span>ส่วนที่ 2: ผลการประเมินความเสี่ยงสุขภาพเกษตรกร (นบก. 1-56)</span>
-            </h2>
 
-            <table class="w-full text-left text-xs sm:text-[13px] border-2 border-slate-900 border-collapse leading-tight">
-              <thead class="bg-slate-100 text-slate-900 font-bold border-b-2 border-slate-900 text-center">
+        <!-- ==================== SHEET 2 (Page 5 of PDF) ==================== -->
+        <section class="a4-sheet sheet-2" aria-label="เอกสาร OCC-นบ 01 แผ่นที่ 2">
+          <div>
+            <!-- Sheet 2 Continuation Table (ส่วนที่ 2 ต่อ) -->
+            <table class="report-table mb-3">
+              <thead>
                 <tr>
-                  <th class="py-1.5 px-2 border-r border-slate-400 w-12">ข้อ</th>
-                  <th class="py-1.5 px-2 border-r border-slate-400 text-left">กิจกรรมและตัวชี้วัดการประเมิน</th>
-                  <th class="py-1.5 px-2 border-r border-slate-400 w-20">หน่วยนับ</th>
-                  <th class="py-1.5 px-2 border-r border-slate-400 w-24">ผลงานจริง</th>
-                  <th class="py-1.5 px-2 w-24">ร้อยละ (%)</th>
+                  <th class="col-num">ลำดับ</th>
+                  <th class="col-desc">กิจกรรมที่ดำเนินการ</th>
+                  <th class="col-unit">หน่วยนับ</th>
+                  <th class="col-result">ผล</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-300 text-slate-800">
-                <tr class="bg-emerald-50/70 font-bold text-emerald-950">
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300 font-mono">5</td>
-                  <td class="py-1.5 px-2 border-r border-slate-300" colspan="4">
-                    การประเมินความเสี่ยงจากการสัมผัสสารเคมีกำจัดศัตรูพืช ด้วยแบบ นบก. 1-56
+              <tbody>
+                <tr>
+                  <td class="text-center">&nbsp;</td>
+                  <td>การใช้และการเก็บสารเคมีให้ปลอดภัย /การทำงานให้ปลอดภัย</td>
+                  <td class="text-center">คน</td>
+                  <td class="text-center font-bold tabular-nums">{{ stats.advised }}</td>
+                </tr>
+                <tr>
+                  <td class="text-center font-medium">12</td>
+                  <td>จำนวนครั้งการออกดำเนินการสอบสวนโรคในกลุ่มเกษตรกรรมในรอบ 1 ปี</td>
+                  <td class="text-center">ครั้ง</td>
+                  <td class="text-center tabular-nums">{{ stats.outbreakInvestigation ?? '—' }}</td>
+                </tr>
+                <tr>
+                  <td class="text-center font-medium">13.</td>
+                  <td>จำนวนเกษตรกรที่ได้รับการคัดกรองโรคเบาหวาน</td>
+                  <td class="text-center">คน</td>
+                  <td class="text-center tabular-nums">{{ stats.dmScreened ?? '—' }}</td>
+                </tr>
+                <tr>
+                  <td class="text-center">&nbsp;</td>
+                  <td class="pl-6">จำนวนเกษตรกรที่มีผลการคัดกรองมีความเสี่ยงต่อการเป็นเบาหวาน</td>
+                  <td class="text-center">คน</td>
+                  <td class="text-center tabular-nums">{{ stats.dmAtRisk ?? '—' }}</td>
+                </tr>
+                <tr>
+                  <td class="text-center">&nbsp;</td>
+                  <td class="pl-6">จำนวนเกษตรกรที่ป่วยเป็นโรคเบาหวาน</td>
+                  <td class="text-center">คน</td>
+                  <td class="text-center tabular-nums">{{ stats.dmCases ?? '—' }}</td>
+                </tr>
+                <tr>
+                  <td class="text-center">&nbsp;</td>
+                  <td class="pl-6">จำนวนเกษตรกรที่ป่วยเป็นโรคเบาหวาน (รายใหม่)</td>
+                  <td class="text-center">คน</td>
+                  <td class="text-center tabular-nums">{{ stats.dmNewCases ?? '—' }}</td>
+                </tr>
+                <tr>
+                  <td class="text-center font-medium">14.</td>
+                  <td>จำนวนเกษตรกรที่ได้รับการตรวจคัดกรองโรคความดันโลหิต</td>
+                  <td class="text-center">คน</td>
+                  <td class="text-center tabular-nums">{{ stats.htScreened ?? '—' }}</td>
+                </tr>
+                <tr>
+                  <td class="text-center">&nbsp;</td>
+                  <td class="pl-6">จำนวนเกษตรกรที่มีภาวะเสี่ยงต่อการป่วยเป็นโรคความดันโลหิตสูง</td>
+                  <td class="text-center">คน</td>
+                  <td class="text-center tabular-nums">{{ stats.htAtRisk ?? '—' }}</td>
+                </tr>
+                <tr>
+                  <td class="text-center">&nbsp;</td>
+                  <td class="pl-6">จำนวนเกษตรกรที่ป่วยด้วยโรคความดันโลหิตสูง</td>
+                  <td class="text-center">คน</td>
+                  <td class="text-center tabular-nums">{{ stats.htCases ?? '—' }}</td>
+                </tr>
+                <tr>
+                  <td class="text-center">&nbsp;</td>
+                  <td class="pl-6">จำนวนเกษตรกรที่ป่วยด้วยโรคความดันโลหิตสูง (รายใหม่)</td>
+                  <td class="text-center">คน</td>
+                  <td class="text-center tabular-nums">{{ stats.htNewCases ?? '—' }}</td>
+                </tr>
+
+                <!-- งานจัดบริการเชิงรุก Header -->
+                <tr class="row-section-header">
+                  <td class="text-center font-bold" colspan="4">งานจัดบริการเชิงรุก</td>
+                </tr>
+                <tr>
+                  <td class="text-center font-medium">15</td>
+                  <td>
+                    จำนวนเครือข่ายที่หน่วยบริการมีการดำเนินงานร่วมกันในพื้นที่เพื่อการดูแลสุขภาพเกษตรกรในชุมชน(เช่น อบต. / อบท. /เกษตรตำบล /กลุ่มอาชีพในการดำเนินงานอาชีวอนามัยให้กับเกษตรกร ระบุเครือข่าย...................................
                   </td>
+                  <td class="text-center">เครือข่าย</td>
+                  <td class="text-center tabular-nums">{{ stats.networksCount ?? '—' }}</td>
                 </tr>
                 <tr>
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300 text-slate-500">5.1</td>
-                  <td class="py-1.5 px-2 border-r border-slate-300 pl-4 font-semibold">จำนวนเกษตรกรที่ได้รับการประเมินความเสี่ยงทั้งหมด</td>
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300">คน</td>
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300 font-bold text-emerald-900">{{ stats.total }}</td>
-                  <td class="py-1.5 px-2 text-center font-bold">100.0%</td>
-                </tr>
-                <tr class="bg-slate-50/60">
-                  <td class="py-1 px-2 text-center border-r border-slate-300 text-slate-400">-</td>
-                  <td class="py-1 px-2 border-r border-slate-300 pl-6 text-slate-700">1) ระดับมีความเสี่ยงต่ำ (คะแนนรวม ≤ 24 ไม่มีอาการ)</td>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 text-slate-500">คน</td>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 font-medium">{{ stats.lowRisk }}</td>
-                  <td class="py-1 px-2 text-center font-medium">{{ stats.lowRiskPct }}</td>
-                </tr>
-                <tr>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 text-slate-400">-</td>
-                  <td class="py-1 px-2 border-r border-slate-300 pl-6 text-slate-700">2) ระดับมีความเสี่ยงปานกลาง (คะแนนรวม 25-30)</td>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 text-slate-500">คน</td>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 font-medium">{{ stats.medRisk }}</td>
-                  <td class="py-1 px-2 text-center font-medium">{{ stats.medRiskPct }}</td>
-                </tr>
-                <tr class="bg-slate-50/60">
-                  <td class="py-1 px-2 text-center border-r border-slate-300 text-slate-400">-</td>
-                  <td class="py-1 px-2 border-r border-slate-300 pl-6 text-slate-700">3) ระดับมีความเสี่ยงค่อนข้างสูง (มีอาการทางร่างกายระดับ 2)</td>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 text-slate-500">คน</td>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 font-medium">{{ stats.highRisk }}</td>
-                  <td class="py-1 px-2 text-center font-medium">{{ stats.highRiskPct }}</td>
-                </tr>
-                <tr>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 text-slate-400">-</td>
-                  <td class="py-1 px-2 border-r border-slate-300 pl-6 text-slate-700">4) ระดับมีความเสี่ยงสูง และ มีความเสี่ยงสูงมาก (อาการระดับ 3)</td>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 text-slate-500">คน</td>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 font-medium">{{ stats.veryHighRisk }}</td>
-                  <td class="py-1 px-2 text-center font-medium">{{ stats.veryHighRiskPct }}</td>
-                </tr>
-                <tr class="bg-amber-50 font-bold border-t-2 border-slate-800">
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300 text-amber-900 font-mono">5.2</td>
-                  <td class="py-1.5 px-2 border-r border-slate-300 pl-4 text-amber-950">
-                    รวมเกษตรกรกลุ่มเสี่ยงสูง (ข้อ 3 + ข้อ 4) ที่ต้องส่งเจาะเลือดเอนไซม์
+                  <td class="text-center font-medium">16.</td>
+                  <td>
+                    จำนวนเครือข่ายที่หน่วยบริการดำเนินการพัฒนา/ถ่ายทอดความรู้ด้านอาชีวอนามัย และการเฝ้าระวังป้องกันโรคจากการประกอบอาชีพระบุเครือข่าย.......................................................................................
                   </td>
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300 text-slate-700">คน</td>
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300 font-black text-amber-900">{{ stats.totalHighGroup }}</td>
-                  <td class="py-1.5 px-2 text-center font-black text-amber-900">{{ stats.totalHighGroupPct }}</td>
+                  <td class="text-center">เครือข่าย</td>
+                  <td class="text-center tabular-nums">{{ stats.trainingNetworksCount ?? '—' }}</td>
+                </tr>
+                <tr>
+                  <td class="text-center">&nbsp;</td>
+                  <td class="pl-6">
+                    จำนวนผู้ได้รับการพัฒนา/ถ่ายทอดความรู้ด้านอาชีวอนามัย และการเฝ้าระวังป้องกันโรคจากการประกอบอาชีพ (อสม. /อส.อช.)
+                  </td>
+                  <td class="text-center">คน</td>
+                  <td class="text-center tabular-nums">{{ stats.trainedVhvCount ?? '—' }}</td>
+                </tr>
+                <tr>
+                  <td class="text-center font-medium">17.</td>
+                  <td>
+                    จำนวนครั้งในการสื่อสารข้อมูลสุขภาวะ ข้อมูลสภาพการทำงาน ข้อมูลการเจ็บป่วยให้แก่เกษตรกร/การรณรงค์ประชาสัมพันธ์ข้อมูล สถานการณ์โรคและภัยสุขภาพให้แก่กลุ่มอาชีพเกษตรกร
+                  </td>
+                  <td class="text-center">ครั้ง</td>
+                  <td class="text-center tabular-nums">{{ stats.communicationCount ?? '—' }}</td>
                 </tr>
               </tbody>
             </table>
-          </div>
-        </div>
 
-        <!-- Footer Page 1 -->
-        <div class="pt-3 border-t border-slate-300 flex justify-between items-center text-xs text-slate-500">
-          <span>แบบรายงาน OCC-นบ 01</span>
-          <span class="font-bold text-slate-700">(หน้า 1 จาก 2 — มีต่อหน้า 2)</span>
-        </div>
-      </div>
-
-      <!-- =================================================================== -->
-      <!-- A4 SHEET 2 (หน้า 2): ข้อ 6 ตรวจเลือด, ข้อ 7-9 ส่งต่อ และกล่องลงนามรับรอง -->
-      <!-- =================================================================== -->
-      <div class="a4-sheet bg-white p-6 sm:p-8 rounded-2xl shadow-md border border-slate-300 flex flex-col justify-between relative overflow-hidden">
-        <div>
-          <!-- Header Page 2 -->
-          <div class="text-center space-y-1 border-b-2 border-slate-900 pb-2 mb-3">
-            <div class="flex justify-between items-center text-xs text-slate-700">
-              <span class="inline-block whitespace-nowrap font-bold text-slate-800">แบบ OCC-นบ 01 (ต่อ)</span>
-              <span>หน่วยบริการ: <strong>{{ healthCenter }}</strong> | ปีงบประมาณ <strong>{{ fiscalYear }}</strong></span>
+            <!-- ส่วนที่ 3 การจัดบริการอาชีวอนามัยเพื่อดูแลกลุ่มอาชีพอื่นในชุมชน -->
+            <div class="mb-3">
+              <h2 class="text-xs font-bold text-slate-900 mb-1">
+                ส่วนที่ 3 การจัดบริการอาชีวอนามัยเพื่อดูแลกลุ่มอาชีพอื่นในชุมชน
+              </h2>
+              <table class="report-table">
+                <thead>
+                  <tr>
+                    <th class="col-num">ลำดับ</th>
+                    <th class="col-desc">กิจกรรมที่ดำเนินการ</th>
+                    <th class="col-unit">หน่วยนับ</th>
+                    <th class="col-result">ผล</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="text-center font-medium">18.</td>
+                    <td>
+                      จำนวนแรงงานในชุมชน(ที่ไม่ใช่กลุ่มอาชีพเกษตรกร) ได้รับการการประเมินอาการผิดปกติของระบบโครงร่าง กระดูกและกล้ามเนื้อ
+                    </td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center tabular-nums">{{ stats.otherErgoEvaluated ?? '—' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-center">&nbsp;</td>
+                    <td class="pl-6">จำนวนผู้รับการประเมินมีอาการผิดปกติของระบบโครงร่าง กระดูกและกล้ามเนื้อ</td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center tabular-nums">{{ stats.otherErgoSymptoms ?? '—' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-center">&nbsp;</td>
+                    <td class="pl-6">จำนวนผู้รับการประเมินมีสภาพแวดล้อมการทำงานที่มีความเสี่ยงต่อการ เกิด อาการผิดปกติของระบบโครงร่างกระดูกและกล้ามเนื้อ</td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center tabular-nums">{{ stats.otherErgoRiskEnv ?? '—' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-center">&nbsp;</td>
+                    <td class="pl-6">จำนวนผู้รับการประเมินแจ้งว่ามีอาการป่วยของระบบโครงร่าง กระดูกและกล้ามเนื้อที่เกี่ยวข้องจากการทำงาน</td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center tabular-nums">{{ stats.otherErgoWorkRelated ?? '—' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-center font-medium">19.</td>
+                    <td>
+                      จำนวนแรงงานในชุมชนอาชีพอื่นๆ (ที่ไม่ใช่กลุ่มเกษตรกร) ได้รับการคำแนะนำในการดูแลสุขภาพ/การทำงานให้ปลอดภัย
+                    </td>
+                    <td class="text-center">คน</td>
+                    <td class="text-center tabular-nums">{{ stats.otherAdvised ?? '—' }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <h2 class="text-base sm:text-lg font-bold text-slate-900">
-              การตรวจคัดกรองระดับเอนไซม์และการจัดการทางการแพทย์
-            </h2>
-          </div>
 
-          <!-- Section 2 Part B: Item 6 Blood Screen -->
-          <div class="space-y-2 mb-3">
-            <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center space-x-1.5">
-              <span class="w-2 h-2 rounded-full bg-teal-800"></span>
-              <span>ข้อ 6: การตรวจคัดกรองระดับเอนไซม์โคลีนเอสเตอเรส (Reactive Paper)</span>
-            </h3>
-
-            <table class="w-full text-left text-xs sm:text-[13px] border-2 border-slate-900 border-collapse leading-tight">
-              <thead class="bg-slate-100 text-slate-900 font-bold border-b-2 border-slate-900 text-center">
-                <tr>
-                  <th class="py-1.5 px-2 border-r border-slate-400 w-12">ข้อ</th>
-                  <th class="py-1.5 px-2 border-r border-slate-400 text-left">กิจกรรมและผลตรวจทางห้องปฏิบัติการ</th>
-                  <th class="py-1.5 px-2 border-r border-slate-400 w-20">หน่วยนับ</th>
-                  <th class="py-1.5 px-2 border-r border-slate-400 w-24">ผลงานจริง</th>
-                  <th class="py-1.5 px-2 w-24">ร้อยละ (%)</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-300 text-slate-800">
-                <tr class="bg-teal-50/70 font-bold text-teal-950">
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300 font-mono">6</td>
-                  <td class="py-1.5 px-2 border-r border-slate-300" colspan="4">
-                    การเจาะเลือดตรวจคัดกรองด้วยกระดาษทดสอบ (Reactive Paper)
-                  </td>
-                </tr>
-                <tr>
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300 text-slate-500">6.1</td>
-                  <td class="py-1.5 px-2 border-r border-slate-300 pl-3 font-semibold">จำนวนเกษตรกรที่ได้รับการเจาะเลือดตรวจคัดกรองจริง (จากกลุ่มเสี่ยงสูงที่ต้องส่งเจาะเลือด {{ stats.totalHighGroup }} คน)</td>
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300">คน</td>
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300 font-bold text-teal-900">{{ stats.bloodTested }}</td>
-                  <td class="py-1.5 px-2 text-center font-bold">{{ stats.bloodTestedPct }}</td>
-                </tr>
-                <tr class="bg-slate-50/60">
-                  <td class="py-1 px-2 text-center border-r border-slate-300 text-slate-400">-</td>
-                  <td class="py-1 px-2 border-r border-slate-300 pl-6 text-slate-700">1) ผลตรวจ "ปกติ" (แถบสีส้มเหลือง)</td>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 text-slate-500">คน</td>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 font-medium">{{ stats.normal }}</td>
-                  <td class="py-1 px-2 text-center font-medium">{{ stats.normalPct }}</td>
-                </tr>
-                <tr>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 text-slate-400">-</td>
-                  <td class="py-1 px-2 border-r border-slate-300 pl-6 text-slate-700">2) ผลตรวจ "ปลอดภัย" (แถบสีเหลืองอมเขียว)</td>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 text-slate-500">คน</td>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 font-medium">{{ stats.safe }}</td>
-                  <td class="py-1 px-2 text-center font-medium">{{ stats.safePct }}</td>
-                </tr>
-                <tr class="bg-slate-50/60">
-                  <td class="py-1 px-2 text-center border-r border-slate-300 text-slate-400">-</td>
-                  <td class="py-1 px-2 border-r border-slate-300 pl-6 text-amber-900 font-semibold">3) ผลตรวจ "มีความเสี่ยง" (แถบสีเขียวอมเหลือง)</td>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 text-slate-500">คน</td>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 font-bold text-amber-800">{{ stats.atRisk }}</td>
-                  <td class="py-1 px-2 text-center font-bold text-amber-800">{{ stats.atRiskPct }}</td>
-                </tr>
-                <tr>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 text-slate-400">-</td>
-                  <td class="py-1 px-2 border-r border-slate-300 pl-6 text-rose-900 font-semibold">4) ผลตรวจ "ไม่ปลอดภัย" (แถบสีเขียวเข้ม)</td>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 text-slate-500">คน</td>
-                  <td class="py-1 px-2 text-center border-r border-slate-300 font-bold text-rose-800">{{ stats.unsafe }}</td>
-                  <td class="py-1 px-2 text-center font-bold text-rose-800">{{ stats.unsafePct }}</td>
-                </tr>
-                <tr class="bg-rose-50 font-bold border-t-2 border-slate-800">
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300 text-rose-900 font-mono">6.2</td>
-                  <td class="py-1.5 px-2 border-r border-slate-300 pl-3 text-rose-950">
-                    รวมเกษตรกรผลตรวจเลือดผิดปกติ ("มีความเสี่ยง" + "ไม่ปลอดภัย")
-                  </td>
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300 text-slate-700">คน</td>
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300 font-black text-rose-900">{{ stats.abnormalBlood }}</td>
-                  <td class="py-1.5 px-2 text-center font-black text-rose-900">{{ stats.abnormalBloodPct }}</td>
-                </tr>
-
-                <!-- Item 7-9 Interventions -->
-                <tr class="bg-slate-100 font-bold text-slate-900">
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300 font-mono">7</td>
-                  <td class="py-1.5 px-2 border-r border-slate-300" colspan="4">
-                    การส่งต่อพบแพทย์ และมาตรการด้านอาชีวอนามัย
-                  </td>
-                </tr>
-                <tr>
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300 text-slate-500">7.1</td>
-                  <td class="py-1.5 px-2 border-r border-slate-300 pl-3 text-slate-800">
-                    จำนวนเกษตรกรผลเลือด "ไม่ปลอดภัย" ที่ส่งต่อพบแพทย์ รพ. เพื่อตรวจยืนยันแล็บ
-                  </td>
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300">คน</td>
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300 font-bold text-rose-800">{{ stats.referred }}</td>
-                  <td class="py-1.5 px-2 text-center font-semibold">{{ stats.unsafe > 0 ? '100.0%' : '-' }}</td>
-                </tr>
-                <tr class="bg-slate-50/60">
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300 text-slate-500">7.2</td>
-                  <td class="py-1.5 px-2 border-r border-slate-300 pl-3 text-slate-800">
-                    จำนวนเกษตรกรผลเลือด "มีความเสี่ยง" ที่นัดเจาะเลือดซ้ำภายใน 2-4 สัปดาห์
-                  </td>
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300">คน</td>
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300 font-bold text-amber-800">{{ stats.retestNeeded }}</td>
-                  <td class="py-1.5 px-2 text-center font-semibold">{{ stats.atRisk > 0 ? '100.0%' : '-' }}</td>
-                </tr>
-                <tr>
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300 text-slate-500">7.3</td>
-                  <td class="py-1.5 px-2 border-r border-slate-300 pl-3 text-slate-800">
-                    จำนวนเกษตรกรที่ได้รับคำแนะนำปรับเปลี่ยนพฤติกรรมและการสวมอุปกรณ์ PPE
-                  </td>
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300">คน</td>
-                  <td class="py-1.5 px-2 text-center border-r border-slate-300 font-bold text-emerald-900">{{ stats.advised }}</td>
-                  <td class="py-1.5 px-2 text-center font-bold text-emerald-900">100.0%</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Section 3: Dual Signatures (compacted to guarantee perfect fit on Page 2) -->
-          <div class="pt-2 border-t-2 border-slate-900 space-y-1.5">
-            <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wide">ส่วนที่ 3: การรับรองรายงานทางการ</h2>
-            <div class="grid grid-cols-2 gap-4 text-center text-xs leading-normal">
-              <div class="p-2.5 rounded-xl border border-slate-300 bg-slate-50/80 space-y-1">
-                <p class="font-bold text-slate-900 text-xs">ผู้รวบรวมรายงาน</p>
-                <div class="pt-3 pb-0.5">
-                  <span class="inline-block border-b border-dotted border-slate-800 w-44"></span>
-                </div>
-                <p class="font-semibold text-slate-800 text-[11px]">(.........................................................)</p>
-                <p class="text-[11px] text-slate-700 font-medium">(ผู้รับผิดชอบงานอาชีวเวชกรรมและอนามัยสิ่งแวดล้อม รพ.บ้านแพ้ว)</p>
-                <p class="text-[11px] text-slate-500">วันที่ .......... เดือน .................... พ.ศ. {{ fiscalYear }}</p>
+            <!-- ข้อ 20 ปัญหา อุปสรรคในการดำเนินงาน & ข้อ 21 ข้อเสนอแนะเพื่อการพัฒนาต่อไป -->
+            <div class="text-xs text-slate-900 space-y-2 mb-3">
+              <div>
+                <p class="font-bold">20 ปัญหา อุปสรรคในการดำเนินงาน</p>
+                <div class="border-b border-dotted border-slate-500 h-4 w-full"></div>
+                <div class="border-b border-dotted border-slate-500 h-4 w-full"></div>
               </div>
+              <div>
+                <p class="font-bold">21.ข้อเสนอแนะเพื่อการพัฒนาต่อไป</p>
+                <div class="border-b border-dotted border-slate-500 h-4 w-full"></div>
+                <div class="border-b border-dotted border-slate-500 h-4 w-full"></div>
+                <div class="border-b border-dotted border-slate-500 h-4 w-full"></div>
+              </div>
+            </div>
 
-              <div class="p-2.5 rounded-xl border border-slate-300 bg-slate-50/80 space-y-1">
-                <p class="font-bold text-slate-900 text-xs">ผู้รับรอง</p>
-                <div class="pt-3 pb-0.5">
-                  <span class="inline-block border-b border-dotted border-slate-800 w-44"></span>
+            <!-- Dual Signatures (ผู้รวบรวมรายงาน & ผู้รับรอง) -->
+            <div class="pt-2 border-t border-slate-300">
+              <div class="grid grid-cols-2 gap-8 text-center text-xs leading-relaxed">
+                <div class="flex flex-col justify-between space-y-1">
+                  <div>
+                    <p class="font-bold text-slate-900">ผู้รวบรวมรายงาน</p>
+                    <div class="pt-4 pb-0.5">
+                      <span>(ลงชื่อ)....................................................................</span>
+                    </div>
+                    <p class="font-bold text-slate-900">(....................................................................)</p>
+                    <div class="min-h-[30px] flex items-center justify-center pt-0.5">
+                      <p class="text-slate-800 text-[11px] leading-tight">(ผู้รับผิดชอบงานอาชีวเวชกรรมและอนามัยสิ่งแวดล้อม รพ.บ้านแพ้ว)</p>
+                    </div>
+                  </div>
+                  <p class="text-slate-700 text-[11px] pt-1">วันที่ .......... เดือน ....................................... พ.ศ. {{ fiscalYear }}</p>
                 </div>
-                <p class="font-semibold text-slate-800 text-[11px]">(.........................................................)</p>
-                <p class="text-[11px] text-slate-700 font-medium">(หัวหน้างานป้องกันโรค รพ.บ้านแพ้ว)</p>
-                <p class="text-[11px] text-slate-500">วันที่ .......... เดือน .................... พ.ศ. {{ fiscalYear }}</p>
+
+                <div class="flex flex-col justify-between space-y-1">
+                  <div>
+                    <p class="font-bold text-slate-900">ผู้รับรอง</p>
+                    <div class="pt-4 pb-0.5">
+                      <span>(ลงชื่อ)....................................................................</span>
+                    </div>
+                    <p class="font-bold text-slate-900">(....................................................................)</p>
+                    <div class="min-h-[30px] flex items-center justify-center pt-0.5">
+                      <p class="text-slate-800 text-[11px] leading-tight">(หัวหน้างานป้องกันโรค รพ.บ้านแพ้ว)</p>
+                    </div>
+                  </div>
+                  <p class="text-slate-700 text-[11px] pt-1">วันที่ .......... เดือน ....................................... พ.ศ. {{ fiscalYear }}</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Sheet 2 Footer Note & Pagination -->
-        <div class="pt-2.5 border-t border-slate-300 flex justify-between items-center text-xs text-slate-600">
-          <span class="font-medium">แบบรายงาน OCC-นบ 01</span>
-          <span class="font-bold text-slate-800">(หน้า 2 จาก 2 — จบรายงาน)</span>
-        </div>
+          <!-- Page 2 Footer -->
+          <footer class="pt-2 border-t border-slate-300 flex justify-between items-center text-[11px] text-slate-500 mt-2">
+            <span>จัดทำเมื่อ {{ generatedDate }} • แบบรายงาน OCC-นบ01</span>
+            <span class="font-medium text-slate-700">หน้า 2 จาก 2 (จบรายงาน)</span>
+          </footer>
+        </section>
+
       </div>
-
     </div>
   </div>
 </template>
@@ -411,25 +596,45 @@ defineExpose({
 <style scoped>
 .a4-sheet {
   box-sizing: border-box;
+  width: 794px;
+  min-height: 1123px;
+  padding: 26px 36px 20px 36px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 16px 38px -22px rgba(15, 23, 42, 0.35);
+  font-family: 'Sarabun', 'Noto Sans Thai', 'Prompt', sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-/* Dedicated CSS when exporting via html2canvas/jsPDF to guarantee pixel-perfect A4 fit */
+.report-preview-viewport {
+  overflow-x: auto;
+  padding: 4px 4px 20px;
+  scrollbar-gutter: stable;
+}
+
+.report-pages {
+  width: 794px;
+  max-width: none;
+}
+
+/* Dedicated CSS when exporting via html2canvas/jsPDF */
 .pdf-export-mode {
   width: 794px !important;
   max-width: 794px !important;
-  margin: 0 auto !important;
   padding: 0 !important;
-  background: #ffffff !important;
+  margin: 0 !important;
 }
 
 .pdf-export-mode .a4-sheet {
   width: 794px !important;
   min-height: 1123px !important;
-  box-sizing: border-box !important;
+  height: 1123px !important;
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-  padding: 24px 36px 18px 36px !important;
+  padding: 26px 36px 20px 36px !important;
   margin: 0 !important;
   display: flex !important;
   flex-direction: column !important;
@@ -437,14 +642,47 @@ defineExpose({
   background: #ffffff !important;
 }
 
-.pdf-export-mode .a4-sheet:first-child {
-  page-break-after: always !important;
-  break-after: page !important;
+/* Report Table Styling */
+.report-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-left: 1px solid #475569;
+  border-top: 1px solid #475569;
+  font-size: 11px;
+  line-height: 1.35;
 }
 
-.pdf-export-mode .a4-sheet:last-child {
-  page-break-after: auto !important;
-  break-after: auto !important;
+.report-table th,
+.report-table td {
+  border-right: 1px solid #475569;
+  border-bottom: 1px solid #475569;
+  padding: 4px 6px;
+  vertical-align: middle;
+}
+
+.report-table thead th {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  font-weight: 700;
+  text-align: center;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.col-num { width: 44px; text-align: center; }
+.col-desc { text-align: left; }
+.col-unit { width: 68px; text-align: center; }
+.col-result { width: 75px; text-align: center; }
+
+.row-section-header {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+.row-section-header td {
+  font-weight: 700;
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
 /* Native Browser Print (@media print) */
@@ -455,27 +693,43 @@ defineExpose({
   }
   body {
     background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .report-preview-viewport {
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+  .report-pages {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   .a4-sheet {
     width: 210mm !important;
     min-height: 297mm !important;
-    box-sizing: border-box !important;
+    height: 297mm !important;
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;
-    padding: 12mm 16mm 10mm 16mm !important;
+    padding: 12mm 14mm 10mm 14mm !important;
     margin: 0 !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
   }
-  .a4-sheet:first-child {
+  .sheet-1 {
     page-break-after: always !important;
     break-after: page !important;
   }
-  .a4-sheet:last-child {
-    page-break-after: auto !important;
-    break-after: auto !important;
+  .sheet-2 {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
   }
 }
 </style>

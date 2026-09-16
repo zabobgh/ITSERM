@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
 import type { AssessmentRecord, ToastInfo } from './types'
 import DashboardTab from './components/dashboard/DashboardTab.vue'
 import WizardTab from './components/wizard/WizardTab.vue'
 import RegistryTab from './components/registry/RegistryTab.vue'
-import OccReportTab from './components/reports/OccReportTab.vue'
+const OccReportTab = defineAsyncComponent(() => import('./components/reports/OccReportTab.vue'))
 import DetailModal from './components/common/DetailModal.vue'
 import EditFarmerModal from './components/common/EditFarmerModal.vue'
 import AssessmentResultModal from './components/common/AssessmentResultModal.vue'
@@ -137,7 +137,7 @@ function handleAssessmentSaved(record: AssessmentRecord) {
   if (dashboardRef.value) dashboardRef.value.refresh()
   if (registryRef.value) registryRef.value.refresh()
   if (occRef.value) occRef.value.refresh()
-  
+
   // Open Assessment Result Modal for clear immediate feedback
   latestResultRecord.value = record
   isResultModalOpen.value = true
@@ -221,7 +221,7 @@ onUnmounted(() => {
     <!-- ========================================================================= -->
     <!-- DESKTOP LEFT SIDEBAR (Standard 260px-280px, sticky full height, no-print) -->
     <!-- ========================================================================= -->
-    <aside 
+    <aside
       class="hidden md:flex flex-col w-72 lg:w-80 bg-white border-r border-slate-200/90 h-screen sticky top-0 shrink-0 select-none z-30 no-print"
       aria-label="เมนูนำทางหลักด้านซ้าย"
     >
@@ -242,7 +242,7 @@ onUnmounted(() => {
             นบก. 1-56 & OCC-นบ
           </p>
           <div class="mt-1">
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
               สธ. / กรมควบคุมโรค
             </span>
           </div>
@@ -251,7 +251,7 @@ onUnmounted(() => {
 
       <!-- 2. Primary Call To Action (New Assessment) -->
       <div class="p-3.5 lg:p-4">
-        <button 
+        <button
           type="button"
           @click="switchTab('wizard')"
           class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-sm shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2.5 active:scale-[0.99] cursor-pointer"
@@ -260,86 +260,98 @@ onUnmounted(() => {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
           </svg>
           <span class="tracking-wide">เริ่มทำแบบประเมิน</span>
-          <kbd class="hidden xl:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-white/20 text-white rounded">N</kbd>
+          <kbd class="hidden xl:inline-block px-1.5 py-0.5 text-xs font-mono bg-white/20 text-white rounded">N</kbd>
         </button>
       </div>
 
       <!-- 3. Navigation Links (Primary Workspace Sections) -->
       <nav class="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar" aria-label="แถบนำทางหลัก">
-        <button 
+        <button
           type="button"
           @click="switchTab('dashboard')"
+          :aria-current="currentTab === 'dashboard' ? 'page' : undefined"
           :class="[
-            'nav-item-btn',
-            currentTab === 'dashboard' ? 'nav-item-active' : 'nav-item-inactive'
+            'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-sm font-semibold transition group cursor-pointer',
+            currentTab === 'dashboard'
+              ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs ring-1 ring-emerald-300/80'
+              : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80'
           ]"
         >
-          <div class="flex items-center space-x-3">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-            </svg>
-            <span>ภาพรวมแดชบอร์ด</span>
-          </div>
-          <kbd class="kbd-badge">1</kbd>
+          <svg 
+            :class="['w-5 h-5 transition shrink-0', currentTab === 'dashboard' ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600']" 
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+          <span>ภาพรวมแดชบอร์ด</span>
         </button>
 
-        <button 
+        <button
           type="button"
           @click="switchTab('wizard')"
+          :aria-current="currentTab === 'wizard' ? 'page' : undefined"
           :class="[
-            'nav-item-btn',
-            currentTab === 'wizard' ? 'nav-item-active' : 'nav-item-inactive'
+            'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-sm font-semibold transition group cursor-pointer',
+            currentTab === 'wizard'
+              ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs ring-1 ring-emerald-300/80'
+              : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80'
           ]"
         >
-          <div class="flex items-center space-x-3">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-            </svg>
-            <span>ทำแบบประเมินความเสี่ยง</span>
-          </div>
-          <kbd class="kbd-badge">2</kbd>
+          <svg 
+            :class="['w-5 h-5 transition shrink-0', currentTab === 'wizard' ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600']" 
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+          </svg>
+          <span>ทำแบบประเมินความเสี่ยง</span>
         </button>
 
-        <button 
+        <button
           type="button"
           @click="switchTab('registry')"
+          :aria-current="currentTab === 'registry' ? 'page' : undefined"
           :class="[
-            'nav-item-btn',
-            currentTab === 'registry' ? 'nav-item-active' : 'nav-item-inactive'
+            'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-sm font-semibold transition group cursor-pointer',
+            currentTab === 'registry'
+              ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs ring-1 ring-emerald-300/80'
+              : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80'
           ]"
         >
-          <div class="flex items-center space-x-3">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-            </svg>
-            <span>ทะเบียนประเมินและผลเลือด</span>
-          </div>
-          <kbd class="kbd-badge">3</kbd>
+          <svg 
+            :class="['w-5 h-5 transition shrink-0', currentTab === 'registry' ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600']" 
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+          <span>ทะเบียนประเมินและผลเลือด</span>
         </button>
 
-        <button 
+        <button
           type="button"
           @click="switchTab('occ')"
+          :aria-current="currentTab === 'occ' ? 'page' : undefined"
           :class="[
-            'nav-item-btn',
-            currentTab === 'occ' ? 'nav-item-active' : 'nav-item-inactive'
+            'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-sm font-semibold transition group cursor-pointer',
+            currentTab === 'occ'
+              ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs ring-1 ring-emerald-300/80'
+              : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80'
           ]"
         >
-          <div class="flex items-center space-x-3">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-            <span>รายงานราชการ OCC-นบ</span>
-          </div>
-          <kbd class="kbd-badge">4</kbd>
+          <svg 
+            :class="['w-5 h-5 transition shrink-0', currentTab === 'occ' ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600']" 
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <span>รายงานราชการ OCC-นบ</span>
         </button>
 
         <!-- Service Context Widget -->
         <div class="pt-4 pb-1">
-          <div class="px-2 pb-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+          <div class="px-2 pb-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider">
             พื้นที่ปฏิบัติงาน
           </div>
-          <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-200/80 text-[11px] text-slate-600 space-y-1">
+          <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-200/80 text-xs text-slate-600 space-y-1">
             <div class="flex items-center space-x-1.5 text-slate-800 font-semibold">
               <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
@@ -347,7 +359,7 @@ onUnmounted(() => {
               </svg>
               <span>อ.บ้านแพ้ว จ.สมุทรสาคร</span>
             </div>
-            <p class="text-[11px] text-slate-500 pl-5">
+            <p class="text-xs text-slate-500 pl-5">
               เครือข่าย 19 รพ.สต. + 1 โรงพยาบาล
             </p>
           </div>
@@ -357,16 +369,16 @@ onUnmounted(() => {
       <!-- 4. Sidebar Footer (System Status, Demo Reset, Help) -->
       <div class="p-3 lg:p-4 border-t border-slate-100 bg-slate-50/70 space-y-2 mt-auto">
         <!-- Status Indicator -->
-        <div class="flex items-center justify-between text-[11px]">
+        <div class="flex items-center justify-between text-xs">
           <span class="inline-flex items-center space-x-1.5 text-slate-600">
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
             <span class="font-medium">{{ isDemo ? 'Demo (LocalStorage)' : 'ระบบพร้อมใช้งาน' }}</span>
           </span>
-          <button 
+          <button
             v-if="isDemo"
             type="button"
             @click="handleResetDemo"
-            class="text-[11px] font-bold text-amber-800 hover:text-amber-900 underline cursor-pointer"
+            class="text-xs font-bold text-amber-800 hover:text-amber-900 underline cursor-pointer"
             title="รีเซ็ตข้อมูลตัวอย่างกลับเป็นค่าเริ่มต้น"
           >
             รีเซ็ตตัวอย่าง
@@ -374,7 +386,7 @@ onUnmounted(() => {
         </div>
 
         <!-- Shortcuts Quick Hint -->
-        <div class="text-[11px] text-slate-400 flex items-center justify-between pt-1 border-t border-slate-200/50">
+        <div class="text-xs text-slate-400 flex items-center justify-between pt-1 border-t border-slate-200/50">
           <span>คีย์ลัด: 1-4 สลับหน้า | N ใหม่</span>
           <span class="font-mono font-medium">v1.2</span>
         </div>
@@ -384,15 +396,17 @@ onUnmounted(() => {
     <!-- ========================================================================= -->
     <!-- MOBILE DRAWER SLIDE-OVER (Backdrop + Left Slide Drawer, no-print) -->
     <!-- ========================================================================= -->
-    <div 
+    <div
       v-if="isMobileMenuOpen"
       class="fixed inset-0 z-50 md:hidden flex no-print"
-      role="dialog" 
+      role="dialog"
       aria-modal="true"
+      aria-labelledby="mobile-navigation-title"
+      v-modal-focus="() => { isMobileMenuOpen = false }"
     >
       <!-- Backdrop -->
-      <div 
-        class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" 
+      <div
+        class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
         @click="isMobileMenuOpen = false"
       ></div>
 
@@ -406,12 +420,12 @@ onUnmounted(() => {
               </svg>
             </div>
             <div>
-              <h2 class="text-xs font-bold text-slate-900 leading-tight">ระบบคัดกรองเกษตรกร</h2>
-              <p class="text-[11px] text-slate-500">นบก. 1-56 & OCC-นบ</p>
+              <h2 id="mobile-navigation-title" class="text-sm font-bold text-slate-900 leading-tight">ระบบคัดกรองเกษตรกร</h2>
+              <p class="text-xs text-slate-500">นบก. 1-56 & OCC-นบ</p>
             </div>
           </div>
-          <button 
-            type="button" 
+          <button
+            type="button"
             @click="isMobileMenuOpen = false"
             class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
             aria-label="ปิดเมนู"
@@ -423,7 +437,7 @@ onUnmounted(() => {
         </div>
 
         <div class="p-3">
-          <button 
+          <button
             type="button"
             @click="startNewAssessment"
             class="w-full inline-flex items-center justify-center space-x-2 px-3.5 py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-xs"
@@ -436,9 +450,10 @@ onUnmounted(() => {
         </div>
 
         <nav class="flex-1 px-3 space-y-1 overflow-y-auto">
-          <button 
+          <button
             type="button"
             @click="switchTab('dashboard')"
+            :aria-current="currentTab === 'dashboard' ? 'page' : undefined"
             :class="[
               'w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition',
               currentTab === 'dashboard'
@@ -452,9 +467,10 @@ onUnmounted(() => {
             <span>แดชบอร์ดภาพรวม</span>
           </button>
 
-          <button 
+          <button
             type="button"
             @click="switchTab('wizard')"
+            :aria-current="currentTab === 'wizard' ? 'page' : undefined"
             :class="[
               'w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition',
               currentTab === 'wizard'
@@ -468,9 +484,10 @@ onUnmounted(() => {
             <span>แบบประเมิน นบก. 1-56</span>
           </button>
 
-          <button 
+          <button
             type="button"
             @click="switchTab('registry')"
+            :aria-current="currentTab === 'registry' ? 'page' : undefined"
             :class="[
               'w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition',
               currentTab === 'registry'
@@ -484,9 +501,10 @@ onUnmounted(() => {
             <span>ทะเบียนเกษตรกร</span>
           </button>
 
-          <button 
+          <button
             type="button"
             @click="switchTab('occ')"
+            :aria-current="currentTab === 'occ' ? 'page' : undefined"
             :class="[
               'w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition',
               currentTab === 'occ'
@@ -503,10 +521,10 @@ onUnmounted(() => {
 
         <div class="p-4 border-t border-slate-100 bg-slate-50 text-xs">
           <div v-if="isDemo" class="flex items-center justify-between mb-2">
-            <span class="text-amber-800 font-medium text-[11px]">โหมดทดสอบ Demo</span>
+            <span class="text-amber-800 font-medium text-xs">โหมดทดสอบ Demo</span>
             <button @click="handleResetDemo" class="text-xs text-amber-900 font-bold underline">รีเซ็ตข้อมูล</button>
           </div>
-          <p class="text-[10px] text-slate-400">สธ. / กรมควบคุมโรค กระทรวงสาธารณสุข</p>
+          <p class="text-xs text-slate-400">สธ. / กรมควบคุมโรค กระทรวงสาธารณสุข</p>
         </div>
       </div>
     </div>
@@ -522,7 +540,7 @@ onUnmounted(() => {
             <!-- Left: Mobile Toggle & Page Context Title -->
             <div class="flex items-center space-x-3 min-w-0">
               <!-- Mobile Hamburger Button -->
-              <button 
+              <button
                 type="button"
                 @click="isMobileMenuOpen = true"
                 class="md:hidden p-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 cursor-pointer"
@@ -559,7 +577,7 @@ onUnmounted(() => {
               </div>
 
               <!-- Demo Reset Button -->
-              <button 
+              <button
                 v-if="isDemo"
                 type="button"
                 @click="handleResetDemo"
@@ -573,10 +591,10 @@ onUnmounted(() => {
               </button>
 
               <!-- Quick action button (Only visible in header if not already on wizard) -->
-              <button 
+              <button
                 v-if="currentTab !== 'wizard'"
                 type="button"
-                @click="startNewAssessment" 
+                @click="startNewAssessment"
                 class="inline-flex items-center space-x-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-xs transition transform active:scale-95 cursor-pointer"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -592,36 +610,36 @@ onUnmounted(() => {
 
       <!-- Main Content Area -->
       <main class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-7 pb-24 md:pb-12 max-w-[1440px] w-full mx-auto">
-        <DashboardTab 
+        <DashboardTab
           ref="dashboardRef"
-          v-show="currentTab === 'dashboard'" 
-          :active="currentTab === 'dashboard'" 
+          v-show="currentTab === 'dashboard'"
+          :active="currentTab === 'dashboard'"
           @viewDetail="openDetailModal"
           @newAssessment="startNewAssessment"
           @filterRegistry="handleFilterRegistryFromDashboard"
           @recordFollowUp="handleRecordFollowUp"
         />
 
-        <WizardTab 
+        <WizardTab
           ref="wizardRef"
-          v-show="currentTab === 'wizard'" 
+          v-show="currentTab === 'wizard'"
           @saved="handleAssessmentSaved"
           @showToast="showToast"
         />
 
-        <RegistryTab 
+        <RegistryTab
           ref="registryRef"
-          v-show="currentTab === 'registry'" 
-          :active="currentTab === 'registry'" 
+          v-show="currentTab === 'registry'"
+          :active="currentTab === 'registry'"
           @viewDetail="openDetailModal"
           @recordFollowUp="handleRecordFollowUp"
           @showToast="showToast"
         />
 
-        <OccReportTab 
+        <OccReportTab
           ref="occRef"
-          v-show="currentTab === 'occ'" 
-          :active="currentTab === 'occ'" 
+          v-show="currentTab === 'occ'"
+          :active="currentTab === 'occ'"
         />
       </main>
     </div>
@@ -629,19 +647,19 @@ onUnmounted(() => {
     <!-- ========================================================================= -->
     <!-- DETAIL RECORD MODAL                                                       -->
     <!-- ========================================================================= -->
-    <DetailModal 
-      :is-open="isModalOpen" 
-      :record="selectedRecord" 
-      @close="closeDetailModal" 
+    <DetailModal
+      :is-open="isModalOpen"
+      :record="selectedRecord"
+      @close="closeDetailModal"
       @edit="handleEditFromDetail"
       @showToast="showToast"
     />
 
-    <EditFarmerModal 
-      :is-open="isEditModalOpen" 
-      :record="editingRecord" 
-      @close="isEditModalOpen = false" 
-      @saved="handleGlobalRecordUpdated" 
+    <EditFarmerModal
+      :is-open="isEditModalOpen"
+      :record="editingRecord"
+      @close="isEditModalOpen = false"
+      @saved="handleGlobalRecordUpdated"
     />
 
     <!-- ========================================================================= -->
@@ -668,23 +686,23 @@ onUnmounted(() => {
     <!-- ========================================================================= -->
     <!-- TOAST NOTIFICATION CONTAINER                                              -->
     <!-- ========================================================================= -->
-    <div 
+    <div
       class="fixed top-20 right-4 sm:right-6 z-50 flex flex-col space-y-2 pointer-events-none max-w-sm w-full no-print"
-      role="region" 
-      aria-live="polite" 
+      role="region"
+      aria-live="polite"
       aria-label="การแจ้งเตือนของระบบ"
     >
-      <div 
-        v-for="toast in toasts" 
+      <div
+        v-for="toast in toasts"
         :key="toast.id"
         :class="[
           'bg-white rounded-xl shadow-lg ring-1 p-3.5 flex items-start space-x-3 transition-all duration-300 transform translate-y-0 opacity-100 pointer-events-auto',
-          toast.type === 'success' 
-            ? 'ring-emerald-200/80 bg-gradient-to-r from-emerald-50/40 to-white' 
+          toast.type === 'success'
+            ? 'ring-emerald-200/80 bg-gradient-to-r from-emerald-50/40 to-white'
             : 'ring-rose-200/80 bg-gradient-to-r from-rose-50/40 to-white'
         ]"
       >
-        <div 
+        <div
           :class="[
             'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5',
             toast.type === 'success' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
@@ -699,7 +717,7 @@ onUnmounted(() => {
         </div>
         <div class="flex-1 min-w-0">
           <h4 class="font-bold text-xs text-slate-900 leading-snug">{{ toast.title }}</h4>
-          <p class="text-[11px] text-slate-600 mt-0.5 leading-relaxed">{{ toast.message }}</p>
+          <p class="text-xs text-slate-600 mt-0.5 leading-relaxed">{{ toast.message }}</p>
         </div>
       </div>
     </div>
@@ -707,15 +725,17 @@ onUnmounted(() => {
     <!-- ========================================================================= -->
     <!-- MOBILE BOTTOM NAVIGATION (Thumb-friendly quick bar for small screens)     -->
     <!-- ========================================================================= -->
-    <nav 
+    <nav
+      v-if="currentTab !== 'wizard'"
       class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200/90 py-1.5 px-3 z-40 flex items-center justify-around no-print shadow-md"
       aria-label="การนำทางบนมือถือ"
     >
-      <button 
+      <button
         type="button"
         @click="switchTab('dashboard')"
+        :aria-current="currentTab === 'dashboard' ? 'page' : undefined"
         :class="[
-          'flex flex-col items-center py-1 px-3 rounded-xl text-xs font-semibold transition', 
+          'flex flex-col items-center py-1 px-3 rounded-xl text-xs font-semibold transition',
           currentTab === 'dashboard' ? 'text-emerald-800 font-bold' : 'text-slate-500 hover:text-slate-800'
         ]"
       >
@@ -725,13 +745,10 @@ onUnmounted(() => {
         <span class="mt-0.5">แดชบอร์ด</span>
       </button>
 
-      <button 
+      <button
         type="button"
         @click="switchTab('wizard')"
-        :class="[
-          'flex flex-col items-center py-1 px-3 rounded-xl text-xs font-semibold transition', 
-          currentTab === 'wizard' ? 'text-emerald-800 font-bold' : 'text-slate-500 hover:text-slate-800'
-        ]"
+        class="flex flex-col items-center py-1 px-3 rounded-xl text-xs font-semibold transition text-slate-500 hover:text-slate-800"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
@@ -739,11 +756,12 @@ onUnmounted(() => {
         <span class="mt-0.5">ประเมิน</span>
       </button>
 
-      <button 
+      <button
         type="button"
         @click="switchTab('registry')"
+        :aria-current="currentTab === 'registry' ? 'page' : undefined"
         :class="[
-          'flex flex-col items-center py-1 px-3 rounded-xl text-xs font-semibold transition', 
+          'flex flex-col items-center py-1 px-3 rounded-xl text-xs font-semibold transition',
           currentTab === 'registry' ? 'text-emerald-800 font-bold' : 'text-slate-500 hover:text-slate-800'
         ]"
       >
@@ -753,11 +771,12 @@ onUnmounted(() => {
         <span class="mt-0.5">ทะเบียน</span>
       </button>
 
-      <button 
+      <button
         type="button"
         @click="switchTab('occ')"
+        :aria-current="currentTab === 'occ' ? 'page' : undefined"
         :class="[
-          'flex flex-col items-center py-1 px-3 rounded-xl text-xs font-semibold transition', 
+          'flex flex-col items-center py-1 px-3 rounded-xl text-xs font-semibold transition',
           currentTab === 'occ' ? 'text-emerald-800 font-bold' : 'text-slate-500 hover:text-slate-800'
         ]"
       >

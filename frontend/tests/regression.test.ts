@@ -101,6 +101,19 @@ describe('Risk matrix: repository contract, not medical certification', () => {
 })
 
 describe('Draft, preset and conditional regressions', () => {
+  it('requires explicit behavior, symptom and blood-test decisions before saving', async () => {
+    const w = render(Wizard), v = state(w)
+    expect(v.validateStep2()).toBe(false)
+    expect(v.fieldErrors.answers).toContain('ตอบคำถาม')
+    expect(v.validateStep3()).toBe(false)
+    v.hasSymptomsChoice = 'yes'
+    expect(v.validateStep3()).toBe(false)
+    v.form.symptoms = ['ไอ']
+    expect(v.validateStep3()).toBe(true)
+    expect(v.validateStep5()).toBe(false)
+    expect(w.findAll('input[name="cholinesterase-result"]').length).toBeGreaterThanOrEqual(5)
+    expect(w.text()).not.toContain('แนวทางปฏิบัติสำหรับผล "ปกติ / ปลอดภัย"')
+  })
   it('reload recovers all fields, UI state and cached chemical answers', async () => {
     vi.useFakeTimers()
     const w = render(Wizard), v = state(w)
@@ -132,9 +145,9 @@ describe('Draft, preset and conditional regressions', () => {
     Object.assign(v.form, submission(cases[23]))
     v.discardDraft()
     await vi.advanceTimersByTimeAsync(700)
-    expect(localStorage.getItem('nbk_wizard_draft_v1')).toBeNull()
-    expect(Object.values(v.form.answers_a)).toEqual(Array(9).fill(1))
-    expect(Object.values(v.form.answers_b)).toEqual(Array(6).fill(1))
+    expect(localStorage.getItem('nbk_wizard_draft_v2')).toBeNull()
+    expect(Object.values(v.form.answers_a)).toEqual(Array(9).fill(0))
+    expect(Object.values(v.form.answers_b)).toEqual(Array(6).fill(0))
     const recovered = state(render(Wizard))
     expect(recovered.form.citizen_id).toBe('')
     expect(recovered.form.symptoms).toEqual([])
@@ -151,7 +164,7 @@ describe('Draft, preset and conditional regressions', () => {
     expect(v.form.citizen_id).toBe('0000000000002')
     expect(v.form.fullname).toBe('')
     expect(v.form.symptoms).toEqual([])
-    expect(v.form.answers_b.q23).toBe(1)
+    expect(v.form.answers_b.q23).toBe(0)
   })
   it('conditional cache restores Yes; No submits only normalized values', async () => {
     const w=render(Wizard), v=state(w)
@@ -164,11 +177,13 @@ describe('Draft, preset and conditional regressions', () => {
     expect(v.form.answers_a.q14).toBe(3)
     v.form.answers_a.q9=1
     v.currentStep=5
+    v.hasSymptomsChoice='no'
+    v.form.cholinesterase_result='ไม่เข้าเกณฑ์ตรวจเลือด'
     await v.submitForm()
     const payload=vi.mocked(api.createAssessment).mock.calls[0][0]
     for(const q of ['q11','q12','q13','q14']) expect(payload.answers_a[q]).toBe(1)
-    expect(payload.cholinesterase_result).toBe('')
-    expect(localStorage.getItem('nbk_wizard_draft_v1')).toBeNull()
+    expect(payload.cholinesterase_result).toBe('ไม่เข้าเกณฑ์ตรวจเลือด')
+    expect(localStorage.getItem('nbk_wizard_draft_v2')).toBeNull()
   })
   it('preset confirmation fills defaults only; remains editable and unconfirmed after reload', async () => {
     const w=render(Wizard),v=state(w)
