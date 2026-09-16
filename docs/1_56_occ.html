@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบบริหารจัดการแบบประเมินความเสี่ยงเกษตรกร นบก.1-56 และรายงาน OCC</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Prompt & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js CDN for Data Visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Tailwind Configuration for Thai Font & Colors -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Prompt', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Prompt', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    /* Radio Pill Active Transitions */
+    .radio-card input:checked + label {
+      border-color: #059669;
+      background-color: #ecfdf5;
+      color: #065f46;
+      font-weight: 600;
+      box-shadow: 0 1px 3px 0 rgba(16, 185, 129, 0.2);
+    }
+    /* Print Layout Styling */
+    @media print {
+      body {
+        background-color: white !important;
+        color: black !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-only {
+        display: block !important;
+      }
+      .page-break {
+        page-break-after: always;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-emerald-100 selection:text-emerald-900 pb-20 md:pb-6">
+
+  <!-- Top Navigation Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo & Title -->
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-base sm:text-lg font-bold text-slate-800 leading-tight">ระบบคัดกรองสุขภาพเกษตรกร</h1>
+            <p class="text-[11px] text-slate-500 font-medium">แบบประเมิน นบก. 1-56 & รายงาน OCC-นบ01/02</p>
+          </div>
+        </div>
+
+        <!-- Desktop Navigation Tabs -->
+        <nav class="hidden md:flex items-center space-x-1">
+          <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn px-3 py-2 rounded-lg text-xs font-semibold transition text-emerald-700 bg-emerald-50 flex items-center space-x-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span>แดชบอร์ด</span>
+          </button>
+          <button onclick="switchTab('wizard')" id="nav-wizard" class="nav-btn px-3 py-2 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center space-x-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+            <span>ประเมิน นบก. 1-56 (Wizard)</span>
+          </button>
+          <button onclick="switchTab('registry')" id="nav-registry" class="nav-btn px-3 py-2 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center space-x-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <span>ทะเบียนเกษตรกร</span>
+          </button>
+          <button onclick="switchTab('occ')" id="nav-occ" class="nav-btn px-3 py-2 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center space-x-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span>รายงาน OCC-นบ</span>
+          </button>
+        </nav>
+
+        <!-- Right Quick Actions -->
+        <div class="flex items-center space-x-2">
+          <button onclick="exportCSV()" class="hidden sm:inline-flex items-center space-x-1 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium transition">
+            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>ส่งออก CSV</span>
+          </button>
+          <button onclick="resetToNewAssessment()" class="inline-flex items-center space-x-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-xs transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>ประเมินรายใหม่</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed top-20 right-4 sm:right-6 z-50 transform transition-all duration-300 translate-y-[-150%] opacity-0 bg-white border-l-4 border-emerald-500 shadow-xl rounded-r-xl p-4 max-w-sm pointer-events-none flex items-start space-x-3">
+    <div id="toastIcon" class="text-emerald-500 flex-shrink-0 mt-0.5">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+    </div>
+    <div>
+      <h4 id="toastTitle" class="font-bold text-slate-800 text-xs">แจ้งเตือน</h4>
+      <p id="toastMessage" class="text-[11px] text-slate-600 mt-0.5">ข้อความแจ้งเตือนระบบ</p>
+    </div>
+  </div>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 flex-1 w-full">
+
+    <!-- ========================================================================= -->
+    <!-- TAB 1: EXECUTIVE & OCCUPATIONAL HEALTH DASHBOARD                          -->
+    <!-- ========================================================================= -->
+    <section id="tab-dashboard" class="tab-content space-y-6">
+      <!-- KPI Metric Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-xs font-medium text-slate-500">ประเมิน นบก. ทั้งหมด</span>
+            <div class="p-1.5 bg-slate-100 rounded-lg text-slate-600">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            </div>
+          </div>
+          <div class="flex items-baseline space-x-2 mt-3">
+            <span id="kpi-total" class="text-2xl sm:text-3xl font-black text-slate-800">0</span>
+            <span class="text-xs text-slate-400">คน</span>
+          </div>
+          <span class="text-[11px] text-emerald-600 mt-2 font-medium">ครอบคลุมกลุ่มเป้าหมายในพื้นที่</span>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
+          <div class="flex items-center justify-between text-rose-500">
+            <span class="text-xs font-medium text-slate-500">กลุ่มเสี่ยงค่อนข้างสูง - สูงมาก</span>
+            <div class="p-1.5 bg-rose-50 rounded-lg">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+          </div>
+          <div class="flex items-baseline space-x-2 mt-3">
+            <span id="kpi-high-risk" class="text-2xl sm:text-3xl font-black text-rose-600">0</span>
+            <span class="text-xs text-slate-400">คน</span>
+          </div>
+          <span class="text-[11px] text-rose-600 mt-2 font-medium font-semibold">เป้าหมายที่ต้องเจาะเลือดคัดกรอง</span>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
+          <div class="flex items-center justify-between text-teal-600">
+            <span class="text-xs font-medium text-slate-500">ตรวจเลือดคัดกรองแล้ว</span>
+            <div class="p-1.5 bg-teal-50 rounded-lg">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+            </div>
+          </div>
+          <div class="flex items-baseline space-x-2 mt-3">
+            <span id="kpi-tested" class="text-2xl sm:text-3xl font-black text-teal-700">0</span>
+            <span class="text-xs text-slate-400">คน</span>
+          </div>
+          <span class="text-[11px] text-teal-600 mt-2 font-medium">Reactive Paper Strip</span>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
+          <div class="flex items-center justify-between text-amber-500">
+            <span class="text-xs font-medium text-slate-500">ผลเลือดเสี่ยง / ไม่ปลอดภัย</span>
+            <div class="p-1.5 bg-amber-50 rounded-lg">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+          </div>
+          <div class="flex items-baseline space-x-2 mt-3">
+            <span id="kpi-unsafe-blood" class="text-2xl sm:text-3xl font-black text-amber-600">0</span>
+            <span class="text-xs text-slate-400">คน</span>
+          </div>
+          <span class="text-[11px] text-amber-600 mt-2 font-medium">ต้องเฝ้าระวังและส่งต่อพบแพทย์</span>
+        </div>
+      </div>
+
+      <!-- Visual Charts Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <!-- Doughnut Chart: Risk Level Matrix -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-slate-800 text-sm">การกระจายตัวตามระดับความเสี่ยง (Risk Matrix)</h3>
+              <p class="text-xs text-slate-400">จำแนกตามเกณฑ์ นบก. 1-56 (5 ระดับ)</p>
+            </div>
+            <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-md text-[10px] font-semibold border border-emerald-200">เกณฑ์มาตรฐาน</span>
+          </div>
+          <div class="h-60 relative flex items-center justify-center">
+            <canvas id="riskChart"></canvas>
+          </div>
+          <div class="grid grid-cols-5 gap-1 pt-2 text-[10px] text-center font-medium">
+            <span class="p-1 rounded bg-emerald-50 text-emerald-700">ต่ำ</span>
+            <span class="p-1 rounded bg-amber-50 text-amber-700">ปานกลาง</span>
+            <span class="p-1 rounded bg-orange-50 text-orange-700">ค่อนข้างสูง</span>
+            <span class="p-1 rounded bg-rose-50 text-rose-700">สูง</span>
+            <span class="p-1 rounded bg-red-100 text-red-900">สูงมาก</span>
+          </div>
+        </div>
+
+        <!-- Bar Chart: Cholinesterase Results -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-slate-800 text-sm">ผลตรวจเอนไซม์โคลีนเอสเตอเรส (Cholinesterase)</h3>
+              <p class="text-xs text-slate-400">ตรวจคัดกรองด้วยกระดาษทดสอบ Reactive Paper</p>
+            </div>
+            <span class="px-2 py-0.5 bg-teal-50 text-teal-700 rounded-md text-[10px] font-semibold border border-teal-200">โลหิตวิทยา</span>
+          </div>
+          <div class="h-60 relative flex items-center justify-center">
+            <canvas id="bloodChart"></canvas>
+          </div>
+          <div class="grid grid-cols-4 gap-1 pt-2 text-[10px] text-center font-medium">
+            <span class="p-1 rounded bg-emerald-50 text-emerald-700">ปกติ</span>
+            <span class="p-1 rounded bg-teal-50 text-teal-700">ปลอดภัย</span>
+            <span class="p-1 rounded bg-amber-50 text-amber-700">เสี่ยง</span>
+            <span class="p-1 rounded bg-rose-50 text-rose-700">ไม่ปลอดภัย</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- High Risk Watchlist Table -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-bold text-slate-800 text-sm">ผู้รับการประเมินที่มีความเสี่ยงสูง (Priority Watchlist)</h3>
+            <p class="text-xs text-slate-400">กลุ่มเป้าหมายที่ต้องเจาะเลือดตรวจคัดกรอง หรือส่งพบแพทย์</p>
+          </div>
+          <button onclick="switchTab('wizard')" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg font-semibold transition flex items-center space-x-1">
+            <span>+ ประเมินรายใหม่</span>
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3">ชื่อ - สกุล</th>
+                <th class="px-4 py-3">เลขบัตร ปชช.</th>
+                <th class="px-4 py-3">ระดับความเสี่ยง</th>
+                <th class="px-4 py-3 text-center">คะแนนรวม</th>
+                <th class="px-4 py-3">อาการผิดปกติ</th>
+                <th class="px-4 py-3">ผลตรวจเลือด</th>
+                <th class="px-4 py-3 text-center">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="dashboardRecentTable" class="divide-y divide-slate-100">
+              <!-- Dynamically populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 2: MOBILE-FIRST WIZARD FOR นบก. 1-56                                  -->
+    <!-- ========================================================================= -->
+    <section id="tab-wizard" class="tab-content space-y-5 hidden max-w-3xl mx-auto">
+      
+      <!-- Stepper Header with Progress Bar -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-emerald-700 uppercase tracking-wide" id="wizardStepLabel">ขั้นตอนที่ 1 จาก 5</span>
+          <span class="text-xs font-bold text-slate-700" id="wizardStepPercent">20%</span>
+        </div>
+        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+          <div id="wizardProgressBar" class="bg-emerald-500 h-full rounded-full transition-all duration-300 w-1/5"></div>
+        </div>
+        <!-- Step Indicators -->
+        <div class="grid grid-cols-5 gap-1 mt-3 text-[10px] sm:text-xs text-center font-medium text-slate-500">
+          <span id="step-nav-1" class="text-emerald-700 font-bold">1. ข้อมูลทั่วไป</span>
+          <span id="step-nav-2">2. พฤติกรรม</span>
+          <span id="step-nav-3">3. อาการ</span>
+          <span id="step-nav-4">4. Matrix</span>
+          <span id="step-nav-5">5. ตรวจเลือด</span>
+        </div>
+      </div>
+
+      <!-- The Wizard Form -->
+      <form id="assessmentForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+
+        <!-- ========================================================== -->
+        <!-- STEP 1: General Info & Citizen ID Lookup                   -->
+        <!-- ========================================================== -->
+        <div id="step-1" class="wizard-step bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+          <div class="border-b border-slate-100 pb-3">
+            <h3 class="font-bold text-slate-800 text-sm sm:text-base flex items-center space-x-2">
+              <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs">1</span>
+              <span>ส่วนที่ 1 : ข้อมูลทั่วไปของผู้รับการประเมิน</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">กรอกข้อมูลเบื้องต้นหรือค้นหาประวัติเดิมด้วยเลขบัตร 13 หลัก</p>
+          </div>
+
+          <!-- Citizen ID with Quick Lookup -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">เลขประจำตัวประชาชน (13 หลัก) *</label>
+            <div class="flex space-x-2">
+              <input type="text" id="citizenId" maxlength="13" required placeholder="x-xxxx-xxxxx-xx-x" oninput="handleIdInput(this.value)" class="flex-1 px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+              <button type="button" onclick="lookupCitizenId()" class="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition flex items-center space-x-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <span class="hidden sm:inline">ดึงประวัติ</span>
+              </button>
+            </div>
+            <p id="citizenIdFeedback" class="text-[11px] text-slate-400 mt-1">พิมพ์ครบ 13 หลักเพื่อค้นหาประวัติเดิมอัตโนมัติ</p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold text-slate-700 mb-1">ชื่อ - สกุล (นาย/นาง/นางสาว) *</label>
+              <input type="text" id="fullname" required placeholder="นายสมชาย ใจดี" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">เพศ *</label>
+              <select id="gender" required class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white">
+                <option value="ชาย">ชาย</option>
+                <option value="หญิง">หญิง</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">อายุ (ปี) *</label>
+              <input type="number" id="age" required min="10" max="100" placeholder="45" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold text-slate-700 mb-1">ที่อยู่ปัจจุบัน</label>
+              <input type="text" id="address" placeholder="123 ม.4 ต.ท่าฉลอม" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            </div>
+          </div>
+
+          <!-- Occupation & Plants -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">งานอาชีพหลัก (ข้อ 6) *</label>
+              <select id="occupation" required onchange="handleOccupationChange(this.value)" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white">
+                <option value="1. เพาะปลูก (ทำเอง)">1. เพาะปลูก (ทำเอง)</option>
+                <option value="2. เพาะปลูก (รับจ้าง)">2. เพาะปลูก (รับจ้าง)</option>
+                <option value="3. รับจ้างฉีดพ่น">3. รับจ้างฉีดพ่น</option>
+                <option value="4. รับจ้างอื่นๆ ทางการเกษตร">4. รับจ้างอื่นๆ ทางการเกษตร</option>
+              </select>
+            </div>
+
+            <div id="plantTypeContainer">
+              <label class="block text-xs font-semibold text-slate-700 mb-1">เพาะปลูกอะไรเป็นหลัก (ข้อ 7)</label>
+              <select id="plantType" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white">
+                <option value="ทำนา (ข้าว)">ทำนา (ข้าว)</option>
+                <option value="ทำไร่ (อ้อย/ข้าวโพด/มันสำปะหลัง)">ทำไร่ (อ้อย/ข้าวโพด/มันฯ)</option>
+                <option value="ทำสวน (ผลไม้/ทุเรียน/ส้ม)">ทำสวน (ผลไม้/ทุเรียน/ส้ม)</option>
+                <option value="ทำสวน (พืชผัก/พริก/มะเขือ)">ทำสวน (พืชผัก/พริก/มะเขือ)</option>
+                <option value="อื่นๆ">อื่นๆ</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Health Facility Details -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-100">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">วันที่ประเมิน</label>
+              <input type="date" id="evalDate" required class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">ชื่อผู้สัมภาษณ์ / จนท. / อสม.</label>
+              <input type="text" id="interviewerName" placeholder="นสม. รพ.สต." class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">ชื่อหน่วยบริการสุขภาพ</label>
+              <input type="text" id="healthCenter" value="รพ.สต. บ้านคลองสวน" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- STEP 2: Behavior & Safety Scoring (A & B)                  -->
+        <!-- ========================================================== -->
+        <div id="step-2" class="wizard-step bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-5 hidden">
+          <div class="border-b border-slate-100 pb-3">
+            <h3 class="font-bold text-slate-800 text-sm sm:text-base flex items-center space-x-2">
+              <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs">2</span>
+              <span>ส่วนที่ 2 : การใช้สารเคมีและการปฏิบัติตัวขณะทำงาน</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">แตะเลือกคำตอบเพื่อคำนวณคะแนนพฤติกรรมเสี่ยง (A) และความปลอดภัย (B)</p>
+          </div>
+
+          <!-- Section 8: Role in Chemical Usage -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-2">ข้อ 8. ท่านเกี่ยวข้องกับการใช้สารเคมีกำจัดศัตรูพืชอย่างไร (เลือกได้มากกว่า 1 ข้อ)</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                <input type="checkbox" name="roleChem" value="ผู้ผสมสารเคมี" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500">
+                <span class="ml-2.5 text-slate-700 font-medium">เป็นผู้ผสมสารเคมี</span>
+              </label>
+              <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                <input type="checkbox" name="roleChem" value="ผู้ฉีดพ่นเอง" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500">
+                <span class="ml-2.5 text-slate-700 font-medium">เป็นผู้ฉีดพ่นเอง</span>
+              </label>
+              <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                <input type="checkbox" name="roleChem" value="อยู่ในบริเวณฉีดพ่น/สัมผัสผลิตผล" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500">
+                <span class="ml-2.5 text-slate-700 font-medium">อยู่ในบริเวณฉีดพ่น หรือสัมผัสผักผลไม้</span>
+              </label>
+              <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                <input type="checkbox" name="roleChem" value="รับจ้างฉีดพ่น" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500">
+                <span class="ml-2.5 text-slate-700 font-medium">รับจ้างฉีดพ่น อื่นๆ</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Section A: Risk Behaviors (Questions 9 - 17) -->
+          <div class="space-y-3 pt-2">
+            <div class="flex items-center justify-between bg-amber-50 px-3.5 py-2.5 rounded-xl border border-amber-200">
+              <span class="text-xs font-bold text-amber-900">พฤติกรรมเสี่ยง ข้อ 9 - 17 (ส่วน A)</span>
+              <span class="text-xs font-mono font-bold text-amber-800">คะแนน A: <span id="displayScoreA" class="text-sm">9</span>/27</span>
+            </div>
+
+            <!-- Dynamic Question Cards for A -->
+            <div id="questionsContainerA" class="space-y-3">
+              <!-- Rendered via JS for touch-friendly pills -->
+            </div>
+          </div>
+
+          <!-- Section B: Protective Behaviors (Questions 18 - 23) -->
+          <div class="space-y-3 pt-2">
+            <div class="flex items-center justify-between bg-blue-50 px-3.5 py-2.5 rounded-xl border border-blue-200">
+              <span class="text-xs font-bold text-blue-900">พฤติกรรมป้องกัน ข้อ 18 - 23 (ส่วน B: คะแนนกลับด้าน)</span>
+              <span class="text-xs font-mono font-bold text-blue-800">คะแนน B: <span id="displayScoreB" class="text-sm">6</span>/18</span>
+            </div>
+
+            <!-- Dynamic Question Cards for B -->
+            <div id="questionsContainerB" class="space-y-3">
+              <!-- Rendered via JS for touch-friendly pills -->
+            </div>
+          </div>
+
+          <!-- Total Score Summary Banner -->
+          <div class="p-4 bg-slate-900 text-white rounded-2xl flex items-center justify-between shadow-md">
+            <div>
+              <p class="text-xs text-slate-300">คะแนนรวมพฤติกรรม (ส่วน A + ส่วน B)</p>
+              <p class="text-[11px] text-slate-400">ช่วงคะแนน: 15 - 45 คะแนน</p>
+            </div>
+            <div class="text-right">
+              <span id="displayTotalBehaviorScore" class="text-2xl sm:text-3xl font-black text-emerald-400">15</span>
+              <span class="text-xs text-slate-400 ml-1">คะแนน</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- STEP 3: Symptoms Checklist (Section 3)                     -->
+        <!-- ========================================================== -->
+        <div id="step-3" class="wizard-step bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4 hidden">
+          <div class="border-b border-slate-100 pb-3">
+            <h3 class="font-bold text-slate-800 text-sm sm:text-base flex items-center space-x-2">
+              <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs">3</span>
+              <span>ส่วนที่ 3 : อาการผิดปกติหลังการใช้หรือสัมผัสสารเคมี</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">ข้อ 24 ในรอบ 1 เดือนที่ผ่านมา มีอาการผิดปกติเกิดขึ้นหรือไม่</p>
+          </div>
+
+          <!-- Symptom Toggle -->
+          <div class="grid grid-cols-2 gap-3">
+            <button type="button" id="btnNoSymptom" onclick="setHasSymptom(false)" class="p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800 font-bold text-xs text-center transition shadow-xs">
+              ✓ ไม่มีอาการผิดปกติ
+            </button>
+            <button type="button" id="btnHasSymptom" onclick="setHasSymptom(true)" class="p-3.5 rounded-xl border-2 border-slate-200 bg-white text-slate-700 font-semibold text-xs text-center hover:bg-slate-50 transition">
+              มีอาการผิดปกติ (ระบุด้านล่าง)
+            </button>
+          </div>
+
+          <!-- Symptom Groups (Hidden if no symptom) -->
+          <div id="symptomsListWrapper" class="space-y-4 hidden pt-2">
+            <!-- Group 1 -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-800">กลุ่มที่ 1 : อาการระบบทางเดินหายใจและผิวหนังทั่วไป</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 font-semibold text-slate-700">กลุ่ม 1</span>
+              </div>
+              <div class="flex flex-wrap gap-2" id="group1Chips">
+                <!-- Group 1 chips rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- Group 2 -->
+            <div class="p-4 rounded-xl border border-amber-200 bg-amber-50/50 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-amber-900">กลุ่มที่ 2 : อาการระบบประสาทส่วนปลายและทางเดินอาหาร</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-200 font-semibold text-amber-800">กลุ่ม 2</span>
+              </div>
+              <div class="flex flex-wrap gap-2" id="group2Chips">
+                <!-- Group 2 chips rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- Group 3 -->
+            <div class="p-4 rounded-xl border border-rose-200 bg-rose-50/50 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-rose-900">กลุ่มที่ 3 : อาการระบบประสาทส่วนกลางและรุนแรง</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-200 font-semibold text-rose-800">กลุ่ม 3 (เสี่ยงสูงสุด)</span>
+              </div>
+              <div class="flex flex-wrap gap-2" id="group3Chips">
+                <!-- Group 3 chips rendered dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- STEP 4: Risk Matrix Calculation Result                     -->
+        <!-- ========================================================== -->
+        <div id="step-4" class="wizard-step bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-5 hidden">
+          <div class="border-b border-slate-100 pb-3">
+            <h3 class="font-bold text-slate-800 text-sm sm:text-base flex items-center space-x-2">
+              <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs">4</span>
+              <span>ส่วนที่ 4 : สรุปผลการประเมินระดับความเสี่ยง (Risk Matrix)</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">ประมวลผลอัตโนมัติตามตารางตัดเกณฑ์ของกระทรวงสาธารณสุข</p>
+          </div>
+
+          <!-- Result Hero Card -->
+          <div id="matrixResultCard" class="p-5 rounded-2xl border-2 border-emerald-300 bg-emerald-50/70 text-center space-y-2 transition">
+            <span class="text-xs font-semibold text-slate-600 uppercase tracking-wide">ระดับความเสี่ยงต่อสุขภาพในการทำงาน</span>
+            <div id="matrixRiskTitle" class="text-2xl sm:text-3xl font-black text-emerald-800">มีความเสี่ยงต่ำ</div>
+            <p id="matrixRiskDescription" class="text-xs text-slate-600 max-w-md mx-auto mt-1">
+              ผู้รับการประเมินมีคะแนนพฤติกรรมอยู่ในเกณฑ์ปลอดภัยและไม่มีอาการผิดปกติ
+            </p>
+          </div>
+
+          <!-- Score Breakdown Grid -->
+          <div class="grid grid-cols-3 gap-2.5 text-center">
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <span class="text-[10px] text-slate-500 font-medium">คะแนนเสี่ยง (A)</span>
+              <p id="matrixScoreA" class="text-base sm:text-lg font-bold text-slate-800 mt-0.5">9 / 27</p>
+            </div>
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <span class="text-[10px] text-slate-500 font-medium">คะแนนป้องกัน (B)</span>
+              <p id="matrixScoreB" class="text-base sm:text-lg font-bold text-slate-800 mt-0.5">6 / 18</p>
+            </div>
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <span class="text-[10px] text-slate-500 font-medium">คะแนนรวม (A+B)</span>
+              <p id="matrixScoreTotal" class="text-base sm:text-lg font-black text-emerald-700 mt-0.5">15 / 45</p>
+            </div>
+          </div>
+
+          <!-- Medical Action Recommendation Alert -->
+          <div id="bloodTestAlert" class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-start space-x-3">
+            <div id="bloodTestAlertIcon" class="text-slate-500 mt-0.5">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div class="text-xs">
+              <h4 id="bloodTestAlertTitle" class="font-bold text-slate-800">คำแนะนำการคัดกรอง</h4>
+              <p id="bloodTestAlertMsg" class="text-slate-600 mt-0.5 leading-relaxed">
+                เกษตรกรรายนี้มีความเสี่ยงต่ำ ยังไม่จำเป็นต้องเจาะเลือดคัดกรอง ให้คำแนะนำในการปฏิบัติตัวให้ปลอดภัยต่อไป
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- STEP 5: Blood Screening (Reactive Paper Strip)             -->
+        <!-- ========================================================== -->
+        <div id="step-5" class="wizard-step bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4 hidden">
+          <div class="border-b border-slate-100 pb-3">
+            <h3 class="font-bold text-slate-800 text-sm sm:text-base flex items-center space-x-2">
+              <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs">5</span>
+              <span>ส่วนที่ 5 : การตรวจคัดกรองระดับเอ็นไซม์โคลีนเอสเตอเรส</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">เฉพาะกลุ่มเสี่ยงค่อนข้างสูง - สูงมาก หรือผู้ที่มีประวัติใช้สารเคมีกำจัดศัตรูพืช</p>
+          </div>
+
+          <!-- Medical Pre-screening Questions -->
+          <div class="space-y-3 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1.5">1. ท่านมีโรคประจำตัวต่อไปนี้หรือไม่ (เลือกได้มากกว่า 1 ข้อ)</label>
+              <div class="flex flex-wrap gap-2">
+                <label class="flex items-center px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 cursor-pointer">
+                  <input type="checkbox" name="disease" value="เบาหวาน" class="rounded text-emerald-600 mr-1.5"> เบาหวาน
+                </label>
+                <label class="flex items-center px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 cursor-pointer">
+                  <input type="checkbox" name="disease" value="โรคไต" class="rounded text-emerald-600 mr-1.5"> โรคไต
+                </label>
+                <label class="flex items-center px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 cursor-pointer">
+                  <input type="checkbox" name="disease" value="โรคตับ" class="rounded text-emerald-600 mr-1.5"> โรคตับ
+                </label>
+                <label class="flex items-center px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 cursor-pointer">
+                  <input type="checkbox" name="disease" value="ขาดสารอาหาร" class="rounded text-emerald-600 mr-1.5"> ขาดสารอาหาร
+                </label>
+                <label class="flex items-center px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 cursor-pointer">
+                  <input type="checkbox" name="disease" value="โรคพิษสุราเรื้อรัง" class="rounded text-emerald-600 mr-1.5"> พิษสุราเรื้อรัง
+                </label>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">2. รับประทานยาคลายกล้ามเนื้อ Pyridostigmine หรือไม่</label>
+                <select id="takeMuscleRelaxant" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 bg-white">
+                  <option value="ไม่ได้รับประทาน">ไม่ได้รับประทาน</option>
+                  <option value="รับประทาน">รับประทาน (Mestinon/Distinon/Pyrimine)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">3. สัมผัสสารเคมีครั้งหลังสุดเมื่อไหร่</label>
+                <select id="lastContactDays" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 bg-white">
+                  <option value="1-2 วันที่ผ่านมา">1-2 วันที่ผ่านมา</option>
+                  <option value="3-7 วันที่ผ่านมา">3-7 วันที่ผ่านมา</option>
+                  <option value="มากกว่า 7 - 14 วัน">มากกว่า 7 - 14 วัน</option>
+                  <option value="มากกว่า 14 วันขึ้นไป">มากกว่า 14 วันขึ้นไป</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Quick chemical chips -->
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">ชื่อสารเคมีกำจัดศัตรูพืชที่ใช้บ่อย (แตะเลือกเพื่อระบุ)</label>
+              <div class="flex flex-wrap gap-1.5 mb-2">
+                <button type="button" onclick="addChemicalTag('ไกลโฟเสต (Glyphosate)')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-medium">+ ไกลโฟเสต</button>
+                <button type="button" onclick="addChemicalTag('คลอร์ไพริฟอส (Chlorpyrifos)')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-medium">+ คลอร์ไพริฟอส</button>
+                <button type="button" onclick="addChemicalTag('อะบาเมกติน (Abamectin)')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-medium">+ อะบาเมกติน</button>
+                <button type="button" onclick="addChemicalTag('ไซเพอร์เมทริน (Cypermethrin)')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-medium">+ ไซเพอร์เมทริน</button>
+                <button type="button" onclick="addChemicalTag('คาร์โบซัลแฟน (Carbosulfan)')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-medium">+ คาร์โบซัลแฟน</button>
+              </div>
+              <input type="text" id="chemicalUsedNames" placeholder="เช่น ไกลโฟเสต, คลอร์ไพริฟอส" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500">
+            </div>
+
+            <!-- Blood Test Strip Result Selection -->
+            <div class="pt-3 border-t border-slate-100">
+              <label class="block font-bold text-slate-800 mb-2">ผลการตรวจคัดกรองด้วยกระดาษ Reactive Paper (4 ระดับ) *</label>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <label class="radio-card cursor-pointer">
+                  <input type="radio" name="bloodResult" value="ปกติ" class="hidden">
+                  <div class="p-3 rounded-xl border border-slate-200 bg-white text-center hover:bg-slate-50 transition">
+                    <span class="block w-3 h-3 mx-auto rounded-full bg-emerald-500 mb-1.5"></span>
+                    <span class="block text-xs font-bold text-emerald-800">ปกติ</span>
+                    <span class="block text-[10px] text-slate-400">ปลอดภัยสมบูรณ์</span>
+                  </div>
+                </label>
+
+                <label class="radio-card cursor-pointer">
+                  <input type="radio" name="bloodResult" value="ปลอดภัย" class="hidden" checked>
+                  <div class="p-3 rounded-xl border border-slate-200 bg-white text-center hover:bg-slate-50 transition">
+                    <span class="block w-3 h-3 mx-auto rounded-full bg-teal-500 mb-1.5"></span>
+                    <span class="block text-xs font-bold text-teal-800">ปลอดภัย</span>
+                    <span class="block text-[10px] text-slate-400">ระดับเอนไซม์ดี</span>
+                  </div>
+                </label>
+
+                <label class="radio-card cursor-pointer">
+                  <input type="radio" name="bloodResult" value="มีความเสี่ยง" class="hidden">
+                  <div class="p-3 rounded-xl border border-slate-200 bg-white text-center hover:bg-slate-50 transition">
+                    <span class="block w-3 h-3 mx-auto rounded-full bg-amber-500 mb-1.5"></span>
+                    <span class="block text-xs font-bold text-amber-800">มีความเสี่ยง</span>
+                    <span class="block text-[10px] text-slate-400">เฝ้าระวัง / นัดซ้ำ</span>
+                  </div>
+                </label>
+
+                <label class="radio-card cursor-pointer">
+                  <input type="radio" name="bloodResult" value="ไม่ปลอดภัย" class="hidden">
+                  <div class="p-3 rounded-xl border border-slate-200 bg-white text-center hover:bg-slate-50 transition">
+                    <span class="block w-3 h-3 mx-auto rounded-full bg-rose-600 mb-1.5"></span>
+                    <span class="block text-xs font-bold text-rose-800">ไม่ปลอดภัย</span>
+                    <span class="block text-[10px] text-slate-400">ส่งต่อพบแพทย์</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sticky Bottom Wizard Controls for Thumb Friendly Use -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 sm:p-4 z-30 shadow-lg md:relative md:border-0 md:bg-transparent md:p-0 md:shadow-none">
+          <div class="max-w-3xl mx-auto flex items-center justify-between space-x-3">
+            <button type="button" id="btnPrevStep" onclick="prevWizardStep()" class="px-4 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition hidden flex items-center space-x-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+              <span>ย้อนกลับ</span>
+            </button>
+
+            <div class="flex-1 text-center md:hidden">
+              <span id="wizardStepThumbText" class="text-xs font-semibold text-slate-500">ขั้นตอนที่ 1 / 5</span>
+            </div>
+
+            <button type="button" id="btnNextStep" onclick="nextWizardStep()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-md shadow-emerald-600/20 flex items-center space-x-1.5 ml-auto">
+              <span>ถัดไป</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+
+            <button type="submit" id="btnSubmitForm" class="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition shadow-md shadow-emerald-700/20 hidden flex items-center space-x-1.5 ml-auto">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              <span>บันทึกแบบประเมิน</span>
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 3: FARMER REGISTRY & RECORDS                                          -->
+    <!-- ========================================================================= -->
+    <section id="tab-registry" class="tab-content space-y-4 hidden">
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+        <!-- Search & Filter Toolbar -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div class="relative flex-1 max-w-md">
+            <input type="text" id="registrySearchInput" oninput="filterRegistryTable()" placeholder="ค้นหาชื่อ, เลขบัตร ปชช., หรือหมู่บ้าน..." class="w-full pl-9 pr-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <select id="registryRiskFilter" onchange="filterRegistryTable()" class="px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-emerald-500">
+              <option value="ALL">ความเสี่ยงทั้งหมด</option>
+              <option value="มีความเสี่ยงต่ำ">มีความเสี่ยงต่ำ</option>
+              <option value="มีความเสี่ยงปานกลาง">มีความเสี่ยงปานกลาง</option>
+              <option value="มีความเสี่ยงค่อนข้างสูง">มีความเสี่ยงค่อนข้างสูง</option>
+              <option value="มีความเสี่ยงสูง">มีความเสี่ยงสูง</option>
+              <option value="มีความเสี่ยงสูงมาก">มีความเสี่ยงสูงมาก</option>
+            </select>
+
+            <button onclick="exportCSV()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition flex items-center space-x-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <span>Excel (CSV)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Registry Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3">วันที่</th>
+                <th class="px-4 py-3">ชื่อ - สกุล (อายุ)</th>
+                <th class="px-4 py-3">เลขประจำตัวประชาชน</th>
+                <th class="px-4 py-3">อาชีพหลัก</th>
+                <th class="px-4 py-3 text-center">คะแนนรวม</th>
+                <th class="px-4 py-3">ระดับความเสี่ยง</th>
+                <th class="px-4 py-3">ผลตรวจเลือด</th>
+                <th class="px-4 py-3 text-center">การจัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="registryTableBody" class="divide-y divide-slate-100">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 4: OFFICIAL OCC REPORTS (OCC-นบ01 / OCC-นบ02)                          -->
+    <!-- ========================================================================= -->
+    <section id="tab-occ" class="tab-content space-y-5 hidden">
+      <!-- Report Header and Print Button -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 class="text-base font-bold text-slate-800">แบบรายงานผลการจัดบริการอาชีวอนามัยในหน่วยบริการปฐมภูมิ</h2>
+          <p class="text-xs text-slate-500 mt-0.5">สรุปผลการดำเนินงานประมวลผลอัตโนมัติจากฐานข้อมูลแบบประเมิน นบก. 1-56</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <div class="inline-flex rounded-xl border border-slate-200 p-1 bg-slate-50">
+            <button onclick="switchReportTab('01')" id="btnReport01" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-white text-emerald-700 shadow-xs transition">OCC-นบ01 (รพ.สต.)</button>
+            <button onclick="switchReportTab('02')" id="btnReport02" class="px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition">OCC-นบ02 (สสจ.)</button>
+          </div>
+          <button onclick="window.print()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-xs">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            <span>พิมพ์รายงาน</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Report View: OCC-นบ01 -->
+      <div id="reportView01" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-6">
+        <div class="text-center border-b pb-4">
+          <span class="text-xs font-bold text-slate-400 tracking-wider">แบบรายงานราชการ OCC-นบ01</span>
+          <h3 class="text-base font-bold text-slate-900 mt-1">แบบรายงานการดำเนินงานจัดบริการอาชีวอนามัยในหน่วยบริการปฐมภูมิ</h3>
+          <p class="text-xs text-slate-500 mt-1">หน่วยบริการ: <span class="font-semibold text-slate-800">รพ.สต. บ้านคลองสวน</span> | ประจำปีงบประมาณ <span class="font-semibold text-slate-800">2569</span></p>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold text-slate-700 uppercase mb-2">ส่วนที่ 2: การจัดบริการอาชีวอนามัยเพื่อการดูแลสุขภาพเกษตรกร (เฝ้าระวังสารเคมี)</h4>
+          <table class="w-full text-left text-xs border border-slate-200">
+            <thead class="bg-slate-100 text-slate-700 font-semibold border-b">
+              <tr>
+                <th class="p-2.5 border-r w-12 text-center">ลำดับ</th>
+                <th class="p-2.5 border-r">กิจกรรมที่ดำเนินการ</th>
+                <th class="p-2.5 border-r w-24 text-center">หน่วยนับ</th>
+                <th class="p-2.5 w-24 text-center">ผลงานจริง</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 text-slate-700">
+              <tr>
+                <td class="p-2.5 text-center font-medium border-r">5</td>
+                <td class="p-2.5 border-r font-medium">จำนวนเกษตรกรที่ได้รับการประเมินความเสี่ยงด้วยแบบ นบก. 1-56</td>
+                <td class="p-2.5 text-center border-r text-slate-500">คน</td>
+                <td class="p-2.5 text-center font-bold text-emerald-700" id="occ-val-evaluated">0</td>
+              </tr>
+              <tr class="bg-slate-50/50">
+                <td class="p-2.5 text-center border-r text-slate-400">-</td>
+                <td class="p-2.5 border-r pl-6">↳ ผลการประเมินมีความเสี่ยงค่อนข้างสูง ถึงสูงมาก รวม</td>
+                <td class="p-2.5 text-center border-r text-slate-500">คน</td>
+                <td class="p-2.5 text-center font-bold text-rose-600" id="occ-val-high-risk">0</td>
+              </tr>
+              <tr>
+                <td class="p-2.5 text-center font-medium border-r">6</td>
+                <td class="p-2.5 border-r font-medium">จำนวนเกษตรกรที่ได้รับการเจาะเลือดตรวจคัดกรอง (Reactive paper)</td>
+                <td class="p-2.5 text-center border-r text-slate-500">คน</td>
+                <td class="p-2.5 text-center font-bold text-teal-700" id="occ-val-tested">0</td>
+              </tr>
+              <tr class="bg-slate-50/50">
+                <td class="p-2.5 text-center border-r text-slate-400">-</td>
+                <td class="p-2.5 border-r pl-6">↳ ผลการตรวจพบว่า "มีความเสี่ยง" และ "ไม่ปลอดภัย" รวม</td>
+                <td class="p-2.5 text-center border-r text-slate-500">คน</td>
+                <td class="p-2.5 text-center font-bold text-amber-600" id="occ-val-unsafe">0</td>
+              </tr>
+              <tr>
+                <td class="p-2.5 text-center font-medium border-r">11</td>
+                <td class="p-2.5 border-r font-medium">จำนวนเกษตรกรที่ได้รับคำแนะนำการป้องกันอันตราย / ทำงานปลอดภัย</td>
+                <td class="p-2.5 text-center border-r text-slate-500">คน</td>
+                <td class="p-2.5 text-center font-bold text-slate-800" id="occ-val-advised">0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Report View: OCC-นบ02 -->
+      <div id="reportView02" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-6 hidden">
+        <div class="text-center border-b pb-4">
+          <span class="text-xs font-bold text-slate-400 tracking-wider">แบบรายงานราชการ OCC-นบ02</span>
+          <h3 class="text-base font-bold text-slate-900 mt-1">แบบรายงานผลการดำเนินงานจัดบริการอาชีวอนามัยของสำนักงานสาธารณสุขจังหวัด</h3>
+          <p class="text-xs text-slate-500 mt-1">ภาพรวมระดับจังหวัด ประจำปีงบประมาณ 2569</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+            <span class="text-xs text-emerald-800 font-medium">เกษตรกรกลุ่มเสี่ยงสูงที่ได้รับการเฝ้าระวังสะสม</span>
+            <p class="text-2xl font-black text-emerald-900 mt-1" id="occ02-total-high">0 คน</p>
+          </div>
+          <div class="p-4 bg-teal-50 rounded-xl border border-teal-200">
+            <span class="text-xs text-teal-800 font-medium">อัตราการครอบคลุมการเจาะเลือดคัดกรองในกลุ่มเสี่ยง</span>
+            <p class="text-2xl font-black text-teal-900 mt-1" id="occ02-coverage">100%</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Farmer Detail Record Modal -->
+  <div id="detailModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 hidden backdrop-blur-xs">
+    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h3 class="text-sm sm:text-base font-bold text-slate-800" id="modalTitle">รายละเอียดแบบประเมิน นบก. 1-56</h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div id="modalBody" class="text-xs space-y-4">
+        <!-- Dynamically injected -->
+      </div>
+
+      <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
+        <button onclick="closeModal()" class="px-4 py-2 text-xs border border-slate-300 rounded-xl hover:bg-slate-50 font-semibold text-slate-700">ปิด</button>
+        <button onclick="window.print()" class="px-4 py-2 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-xs">พิมพ์ใบคัดกรอง</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- In-App Safe Deletion Confirmation Dialog (No window.confirm) -->
+  <div id="deleteConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 hidden backdrop-blur-xs">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center space-x-3 text-rose-600">
+        <div class="p-2.5 rounded-xl bg-rose-100">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-800 text-sm">ยืนยันการลบข้อมูล</h3>
+          <p class="text-[11px] text-slate-400">การกระทำนี้ไม่สามารถย้อนกลับได้</p>
+        </div>
+      </div>
+      <p id="deleteConfirmMessage" class="text-xs text-slate-600 leading-relaxed"></p>
+      <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100">
+        <button type="button" onclick="closeDeleteModal()" class="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">ยกเลิก</button>
+        <button type="button" id="btnConfirmDeleteAction" class="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs transition">ยืนยันลบ</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Questions definitions for Part A & Part B
+    const questionsA = [
+      { id: 'q9', text: '9. ใช้สารเคมีกำจัดแมลงในการปฏิบัติงานหรือไม่' },
+      { id: 'q10', text: '10. ใช้สารเคมีกำจัดวัชพืชในการฉีดพ่นหรือไม่' },
+      { id: 'q11', text: '11. ใช้ถังบรรจุสารเคมีที่รั่วซึมหรือปิดไม่สนิท' },
+      { id: 'q12', text: '12. ได้รับสัมผัสสารเคมีกำจัดศัตรูพืชในขณะทำงาน' },
+      { id: 'q13', text: '13. เสื้อผ้าเปียกชุ่มสารเคมีกำจัดศัตรูพืชขณะทำงาน' },
+      { id: 'q14', text: '14. มีอาการผิดปกติหลังจากการใช้สารเคมี' },
+      { id: 'q15', text: '15. ขณะทำงานท่านสูบบุหรี่ / ยาเส้น' },
+      { id: 'q16', text: '16. รับประทานอาหารหรือดื่มน้ำในบริเวณที่ทำงาน' },
+      { id: 'q17', text: '17. ดื่มเหล้า/เบียร์/แอลกอฮอล์ ในบริเวณที่ทำงาน' }
+    ];
+
+    const questionsB = [
+      { id: 'q18', text: '18. ก่อนใช้สารเคมี อ่านฉลากที่ภาชนะบรรจุหรือไม่' },
+      { id: 'q19', text: '19. ขณะทำงาน สวมถุงมือยางป้องกันสารเคมีหรือไม่' },
+      { id: 'q20', text: '20. สวมรองเท้าบู๊ทหรือรองเท้าปิดมิดชิดกันสารเคมี' },
+      { id: 'q21', text: '21. ล้างมือทุกครั้งก่อนพักทานอาหารหรือดื่มน้ำ' },
+      { id: 'q22', text: '22. หลังฉีดพ่น เปลี่ยนเสื้อผ้าเปื้อนสารเคมีทันที' },
+      { id: 'q23', text: '23. อาบน้ำทำความสะอาดร่างกายทันทีหลังเลิกงาน' }
+    ];
+
+    const symptomsCatalog = {
+      g1: ['ไอ', 'แสบจมูก', 'เจ็บคอ คอแห้ง', 'หายใจติดขัด', 'ตาแดง/แสบตา/คันตา', 'น้ำมูกไหล', 'น้ำตาไหล', 'คันผิวหนัง/ผิวแห้ง/ผิวแตก', 'ผื่นคัน/ตุ่มพุพอง', 'ปวดแสบร้อนผิวหนัง'],
+      g2: ['อ่อนเพลีย', 'อาการชา', 'ใจสั่น', 'เวียนศีรษะ', 'ปวดศีรษะ', 'นอนหลับไม่สนิท', 'คลื่นไส้ อาเจียน', 'ปวดท้อง', 'ท้องเสีย', 'เหงื่อออก', 'เจ็บหน้าอก/แน่นหน้าอก', 'อ่อนล้า'],
+      g3: ['ตาพร่ามัว', 'หนังตากระตุก', 'กล้ามเนื้อเกร็ง', 'เป็นตะคริว', 'มือสั่น', 'เดินโซเซ', 'น้ำลายไหลฟูมปาก', 'ลมชัก', 'หมดสติ/ไม่รู้สึกตัว']
+    };
+
+    // State Variables
+    let currentStep = 1;
+    let pendingDeleteId = null;
+    let riskChartInstance = null;
+    let bloodChartInstance = null;
+
+    // Initial Mock Data (Real-world Thai agricultural cases)
+    let farmersData = [
+      {
+        id: '1729900234123',
+        fullname: 'นายสมศักดิ์ ขยันงาน',
+        gender: 'ชาย',
+        age: 52,
+        address: '12 หมู่ 3 ต.บ้านแพ้ว',
+        occupation: '1. เพาะปลูก (ทำเอง)',
+        plant_type: 'ทำสวน (ผลไม้/ทุเรียน/ส้ม)',
+        eval_date: '2026-09-02',
+        interviewer_name: 'นสม. สุภาพร',
+        health_center: 'รพ.สต. บ้านคลองสวน',
+        scoreA: 24,
+        scoreB: 15,
+        totalScore: 39,
+        highestSymptomGroup: 2,
+        symptoms: ['เวียนศีรษะ', 'คลื่นไส้ อาเจียน', 'คันผิวหนัง/ผิวแห้ง/ผิวแตก'],
+        riskLevel: 'มีความเสี่ยงสูง',
+        cholinesteraseResult: 'มีความเสี่ยง',
+        chemNames: ['คลอร์ไพริฟอส', 'ไกลโฟเสต']
+      },
+      {
+        id: '3720100456789',
+        fullname: 'นางบัวลอย สวนผล',
+        gender: 'หญิง',
+        age: 48,
+        address: '45/1 หมู่ 5 ต.หลักสอง',
+        occupation: '2. เพาะปลูก (รับจ้าง)',
+        plant_type: 'ทำสวน (พืชผัก/พริก/มะเขือ)',
+        eval_date: '2026-09-08',
+        interviewer_name: 'นสม. สมร',
+        health_center: 'รพ.สต. บ้านคลองสวน',
+        scoreA: 12,
+        scoreB: 7,
+        totalScore: 19,
+        highestSymptomGroup: 0,
+        symptoms: [],
+        riskLevel: 'มีความเสี่ยงต่ำ',
+        cholinesteraseResult: 'ปลอดภัย',
+        chemNames: ['อะบาเมกติน']
+      },
+      {
+        id: '1739900123999',
+        fullname: 'นายประสิทธิ์ พ่นยาไว',
+        gender: 'ชาย',
+        age: 39,
+        address: '88 หมู่ 1 ต.เกษตรพัฒนา',
+        occupation: '3. รับจ้างฉีดพ่น',
+        plant_type: 'ทำนา (ข้าว)',
+        eval_date: '2026-09-12',
+        interviewer_name: 'นสม. สุภาพร',
+        health_center: 'รพ.สต. บ้านคลองสวน',
+        scoreA: 26,
+        scoreB: 17,
+        totalScore: 43,
+        highestSymptomGroup: 3,
+        symptoms: ['มือสั่น', 'ตาพร่ามัว', 'แน่นหน้าอก'],
+        riskLevel: 'มีความเสี่ยงสูงมาก',
+        cholinesteraseResult: 'ไม่ปลอดภัย',
+        chemNames: ['พาราควอต', 'คลอร์ไพริฟอส']
+      }
+    ];
+
+    // Initialize questions HTML in Step 2
+    function renderQuestionCards() {
+      const containerA = document.getElementById('questionsContainerA');
+      const containerB = document.getElementById('questionsContainerB');
+      if (!containerA || !containerB) return;
+
+      containerA.innerHTML = '';
+      containerB.innerHTML = '';
+
+      // Render Questions A (Values: 1, 2, 3)
+      questionsA.forEach((q, idx) => {
+        const card = document.createElement('div');
+        card.className = 'p-3 rounded-xl border border-slate-200 bg-white space-y-2';
+        card.innerHTML = `
+          <p class="text-xs font-medium text-slate-800">${q.text}</p>
+          <div class="grid grid-cols-3 gap-1.5 text-xs">
+            <label class="radio-card cursor-pointer">
+              <input type="radio" name="${q.id}" value="1" onchange="calculateScores()" checked class="hidden">
+              <div class="py-2 px-1 text-center rounded-lg border border-slate-200 bg-slate-50 text-[11px] font-medium text-slate-600 transition">
+                ไม่ใช่ (1)
+              </div>
+            </label>
+            <label class="radio-card cursor-pointer">
+              <input type="radio" name="${q.id}" value="2" onchange="calculateScores()" class="hidden">
+              <div class="py-2 px-1 text-center rounded-lg border border-slate-200 bg-slate-50 text-[11px] font-medium text-slate-600 transition">
+                บางครั้ง (2)
+              </div>
+            </label>
+            <label class="radio-card cursor-pointer">
+              <input type="radio" name="${q.id}" value="3" onchange="calculateScores()" class="hidden">
+              <div class="py-2 px-1 text-center rounded-lg border border-slate-200 bg-slate-50 text-[11px] font-medium text-slate-600 transition">
+                ทุกครั้ง (3)
+              </div>
+            </label>
+          </div>
+        `;
+        containerA.appendChild(card);
+      });
+
+      // Render Questions B (Reversed Scores: ไม่ใช่ = 3, บางครั้ง = 2, ทุกครั้ง = 1)
+      questionsB.forEach((q, idx) => {
+        const card = document.createElement('div');
+        card.className = 'p-3 rounded-xl border border-slate-200 bg-white space-y-2';
+        card.innerHTML = `
+          <p class="text-xs font-medium text-slate-800">${q.text}</p>
+          <div class="grid grid-cols-3 gap-1.5 text-xs">
+            <label class="radio-card cursor-pointer">
+              <input type="radio" name="${q.id}" value="3" onchange="calculateScores()" class="hidden">
+              <div class="py-2 px-1 text-center rounded-lg border border-slate-200 bg-slate-50 text-[11px] font-medium text-slate-600 transition">
+                ไม่ใช่ (3)
+              </div>
+            </label>
+            <label class="radio-card cursor-pointer">
+              <input type="radio" name="${q.id}" value="2" onchange="calculateScores()" class="hidden">
+              <div class="py-2 px-1 text-center rounded-lg border border-slate-200 bg-slate-50 text-[11px] font-medium text-slate-600 transition">
+                บางครั้ง (2)
+              </div>
+            </label>
+            <label class="radio-card cursor-pointer">
+              <input type="radio" name="${q.id}" value="1" onchange="calculateScores()" checked class="hidden">
+              <div class="py-2 px-1 text-center rounded-lg border border-slate-200 bg-slate-50 text-[11px] font-medium text-slate-600 transition">
+                ทุกครั้ง (1)
+              </div>
+            </label>
+          </div>
+        `;
+        containerB.appendChild(card);
+      });
+
+      // Render Symptoms Chips in Step 3
+      renderSymptomChips('group1Chips', symptomsCatalog.g1, 1);
+      renderSymptomChips('group2Chips', symptomsCatalog.g2, 2);
+      renderSymptomChips('group3Chips', symptomsCatalog.g3, 3);
+    }
+
+    function renderSymptomChips(containerId, symptoms, groupNum) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+
+      symptoms.forEach(sym => {
+        const chip = document.createElement('label');
+        chip.className = 'cursor-pointer inline-flex items-center px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-700 hover:bg-slate-50 transition has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 has-[:checked]:text-emerald-800 has-[:checked]:font-semibold';
+        chip.innerHTML = `
+          <input type="checkbox" name="symptoms" value="${sym}" data-group="${groupNum}" onchange="updateRiskMatrixEvaluation()" class="hidden">
+          <span>${sym}</span>
+        `;
+        container.appendChild(chip);
+      });
+    }
+
+    function calculateScores() {
+      let scoreA = 0;
+      questionsA.forEach(q => {
+        const checked = document.querySelector(`input[name="${q.id}"]:checked`);
+        if (checked) scoreA += parseInt(checked.value, 10);
+      });
+
+      let scoreB = 0;
+      questionsB.forEach(q => {
+        const checked = document.querySelector(`input[name="${q.id}"]:checked`);
+        if (checked) scoreB += parseInt(checked.value, 10);
+      });
+
+      const totalBehavior = scoreA + scoreB;
+
+      document.getElementById('displayScoreA').textContent = scoreA;
+      document.getElementById('displayScoreB').textContent = scoreB;
+      document.getElementById('displayTotalBehaviorScore').textContent = totalBehavior;
+
+      updateRiskMatrixEvaluation();
+      return { scoreA, scoreB, totalBehavior };
+    }
+
+    // Risk Matrix Evaluation based on official criteria
+    function updateRiskMatrixEvaluation() {
+      const { scoreA, scoreB, totalBehavior } = calculateScoresValues();
+
+      // Identify Highest Symptom Group
+      const checkedSymptoms = Array.from(document.querySelectorAll('input[name="symptoms"]:checked'));
+      let highestGroup = 0; // 0 = no symptom
+      
+      checkedSymptoms.forEach(cb => {
+        const g = parseInt(cb.getAttribute('data-group') || '0', 10);
+        if (g > highestGroup) highestGroup = g;
+      });
+
+      // Matrix Lookup Logic
+      let riskLevel = 'มีความเสี่ยงต่ำ';
+      let riskClass = 'border-emerald-300 bg-emerald-50 text-emerald-800';
+      let requireBloodTest = false;
+
+      if (totalBehavior <= 24) { // 15 - 24 points
+        if (highestGroup === 0) riskLevel = 'มีความเสี่ยงต่ำ';
+        else if (highestGroup === 1) riskLevel = 'มีความเสี่ยงปานกลาง';
+        else if (highestGroup === 2) riskLevel = 'มีความเสี่ยงค่อนข้างสูง';
+        else if (highestGroup === 3) riskLevel = 'มีความเสี่ยงสูง';
+      } else if (totalBehavior <= 30) { // 25 - 30 points
+        if (highestGroup === 0) riskLevel = 'มีความเสี่ยงปานกลาง';
+        else if (highestGroup === 1) riskLevel = 'มีความเสี่ยงค่อนข้างสูง';
+        else if (highestGroup === 2) riskLevel = 'มีความเสี่ยงสูง';
+        else if (highestGroup === 3) riskLevel = 'มีความเสี่ยงสูง';
+      } else { // 31 - 45 points
+        if (highestGroup === 0) riskLevel = 'มีความเสี่ยงค่อนข้างสูง';
+        else if (highestGroup === 1) riskLevel = 'มีความเสี่ยงสูง';
+        else if (highestGroup === 2) riskLevel = 'มีความเสี่ยงสูง';
+        else if (highestGroup === 3) riskLevel = 'มีความเสี่ยงสูงมาก';
+      }
+
+      // Check if blood test is mandatory
+      if (riskLevel === 'มีความเสี่ยงค่อนข้างสูง' || riskLevel === 'มีความเสี่ยงสูง' || riskLevel === 'มีความเสี่ยงสูงมาก') {
+        requireBloodTest = true;
+      }
+
+      // Update Step 4 DOM displays
+      const titleEl = document.getElementById('matrixRiskTitle');
+      const descEl = document.getElementById('matrixRiskDescription');
+      const cardEl = document.getElementById('matrixResultCard');
+
+      if (titleEl) titleEl.textContent = riskLevel;
+
+      if (cardEl) {
+        if (riskLevel === 'มีความเสี่ยงต่ำ') {
+          cardEl.className = 'p-5 rounded-2xl border-2 border-emerald-300 bg-emerald-50/70 text-center space-y-2';
+          if (titleEl) titleEl.className = 'text-2xl sm:text-3xl font-black text-emerald-800';
+        } else if (riskLevel === 'มีความเสี่ยงปานกลาง') {
+          cardEl.className = 'p-5 rounded-2xl border-2 border-amber-300 bg-amber-50/70 text-center space-y-2';
+          if (titleEl) titleEl.className = 'text-2xl sm:text-3xl font-black text-amber-800';
+        } else if (riskLevel === 'มีความเสี่ยงค่อนข้างสูง') {
+          cardEl.className = 'p-5 rounded-2xl border-2 border-orange-300 bg-orange-50/70 text-center space-y-2';
+          if (titleEl) titleEl.className = 'text-2xl sm:text-3xl font-black text-orange-800';
+        } else {
+          cardEl.className = 'p-5 rounded-2xl border-2 border-rose-300 bg-rose-50/70 text-center space-y-2';
+          if (titleEl) titleEl.className = 'text-2xl sm:text-3xl font-black text-rose-800';
+        }
+      }
+
+      const alertCard = document.getElementById('bloodTestAlert');
+      const alertTitle = document.getElementById('bloodTestAlertTitle');
+      const alertMsg = document.getElementById('bloodTestAlertMsg');
+      const alertIcon = document.getElementById('bloodTestAlertIcon');
+
+      if (requireBloodTest) {
+        if (alertCard) alertCard.className = 'p-4 rounded-xl border border-rose-300 bg-rose-50 flex items-start space-x-3';
+        if (alertTitle) alertTitle.textContent = '★ เป้าหมายที่ต้องเจาะเลือดคัดกรอง (Reactive Paper)';
+        if (alertMsg) alertMsg.textContent = 'ผู้รับการประเมินมีระดับความเสี่ยงค่อนข้างสูงขึ้นไป จำเป็นต้องเจาะเลือดปลายนิ้วตรวจระดับเอนไซม์โคลีนเอสเตอเรสในขั้นตอนที่ 5';
+        if (alertIcon) alertIcon.className = 'text-rose-600 mt-0.5';
+      } else {
+        if (alertCard) alertCard.className = 'p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-start space-x-3';
+        if (alertTitle) alertTitle.textContent = 'คำแนะนำด้านสุขภาพ';
+        if (alertMsg) alertMsg.textContent = 'ระดับความเสี่ยงยังไม่ถึงเกณฑ์ที่ต้องเจาะเลือดตรวจ แนะนำให้สวมใส่อุปกรณ์ป้องกัน PPE อย่างถูกต้องต่อเนื่อง';
+        if (alertIcon) alertIcon.className = 'text-slate-500 mt-0.5';
+      }
+
+      document.getElementById('matrixScoreA').textContent = `${scoreA} / 27`;
+      document.getElementById('matrixScoreB').textContent = `${scoreB} / 18`;
+      document.getElementById('matrixScoreTotal').textContent = `${totalBehavior} / 45`;
+
+      return { riskLevel, requireBloodTest, highestGroup, scoreA, scoreB, totalBehavior };
+    }
+
+    function calculateScoresValues() {
+      let scoreA = 0;
+      questionsA.forEach(q => {
+        const el = document.querySelector(`input[name="${q.id}"]:checked`);
+        if (el) scoreA += parseInt(el.value, 10);
+      });
+      let scoreB = 0;
+      questionsB.forEach(q => {
+        const el = document.querySelector(`input[name="${q.id}"]:checked`);
+        if (el) scoreB += parseInt(el.value, 10);
+      });
+      return { scoreA, scoreB, totalBehavior: scoreA + scoreB };
+    }
+
+    function updateWizardStep(step) {
+      currentStep = step;
+      // Toggle steps visibility
+      for (let i = 1; i <= 5; i++) {
+        const stepEl = document.getElementById(`step-${i}`);
+        const navEl = document.getElementById(`step-nav-${i}`);
+        if (stepEl) {
+          if (i === step) stepEl.classList.remove('hidden');
+          else stepEl.classList.add('hidden');
+        }
+        if (navEl) {
+          if (i === step) {
+            navEl.className = 'text-emerald-700 font-bold';
+          } else if (i < step) {
+            navEl.className = 'text-slate-700 font-semibold';
+          } else {
+            navEl.className = 'text-slate-400';
+          }
+        }
+      }
+
+      // Progress bar & label
+      const pct = (step / 5) * 100;
+      document.getElementById('wizardProgressBar').style.width = `${pct}%`;
+      document.getElementById('wizardStepPercent').textContent = `${pct}%`;
+      document.getElementById('wizardStepLabel').textContent = `ขั้นตอนที่ ${step} จาก 5`;
+      document.getElementById('wizardStepThumbText').textContent = `ขั้นตอนที่ ${step} / 5`;
+
+      // Buttons visibility
+      const btnPrev = document.getElementById('btnPrevStep');
+      const btnNext = document.getElementById('btnNextStep');
+      const btnSubmit = document.getElementById('btnSubmitForm');
+
+      if (step === 1) {
+        btnPrev.classList.add('hidden');
+      } else {
+        btnPrev.classList.remove('hidden');
+      }
+
+      if (step === 5) {
+        btnNext.classList.add('hidden');
+        btnSubmit.classList.remove('hidden');
+      } else {
+        btnNext.classList.remove('hidden');
+        btnSubmit.classList.add('hidden');
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function nextWizardStep() {
+      if (currentStep === 1) {
+        const cid = document.getElementById('citizenId').value.trim();
+        const fname = document.getElementById('fullname').value.trim();
+        const age = document.getElementById('age').value.trim();
+        if (!cid || cid.length < 13) {
+          showToast('แจ้งเตือน', 'กรุณากรอกเลขประจำตัวประชาชนให้ครบ 13 หลัก', false);
+          return;
+        }
+        if (!fname) {
+          showToast('แจ้งเตือน', 'กรุณาระบุชื่อ - สกุล ผู้รับการประเมิน', false);
+          return;
+        }
+        if (!age) {
+          showToast('แจ้งเตือน', 'กรุณาระบุอายุ', false);
+          return;
+        }
+      }
+
+      if (currentStep < 5) {
+        updateWizardStep(currentStep + 1);
+      }
+    }
+
+    function prevWizardStep() {
+      if (currentStep > 1) {
+        updateWizardStep(currentStep - 1);
+      }
+    }
+
+    function handleIdInput(val) {
+      if (val && val.length === 13) {
+        lookupCitizenId();
+      }
+    }
+
+    function lookupCitizenId() {
+      const cid = document.getElementById('citizenId').value.trim();
+      const feedback = document.getElementById('citizenIdFeedback');
+      if (!cid || cid.length < 13) {
+        showToast('กรุณากรอกให้ครบ', 'เลขประจำตัวประชาชนต้องครบ 13 หลัก', false);
+        return;
+      }
+
+      const existing = farmersData.find(item => item.id === cid);
+      if (existing) {
+        document.getElementById('fullname').value = existing.fullname;
+        document.getElementById('gender').value = existing.gender;
+        document.getElementById('age').value = existing.age;
+        document.getElementById('address').value = existing.address || '';
+        document.getElementById('occupation').value = existing.occupation || '1. เพาะปลูก (ทำเอง)';
+        document.getElementById('plantType').value = existing.plant_type || 'ทำนา (ข้าว)';
+        feedback.textContent = `✓ พบประวัติเดิมของ: ${existing.fullname} (ดึงข้อมูลอัตโนมัติแล้ว)`;
+        feedback.className = 'text-[11px] text-emerald-600 font-semibold mt-1';
+        showToast('พบข้อมูลเดิม', `ดึงข้อมูลของ ${existing.fullname} เรียบร้อยแล้ว`);
+      } else {
+        feedback.textContent = '✓ เป็นเกษตรกรรายใหม่ (ยังไม่มีประวัติในระบบ)';
+        feedback.className = 'text-[11px] text-slate-500 mt-1';
+      }
+    }
+
+    function setHasSymptom(hasSymptom) {
+      const btnNo = document.getElementById('btnNoSymptom');
+      const btnYes = document.getElementById('btnHasSymptom');
+      const listWrapper = document.getElementById('symptomsListWrapper');
+
+      if (hasSymptom) {
+        btnNo.className = 'p-3.5 rounded-xl border-2 border-slate-200 bg-white text-slate-700 font-semibold text-xs text-center hover:bg-slate-50 transition';
+        btnYes.className = 'p-3.5 rounded-xl border-2 border-rose-500 bg-rose-50 text-rose-800 font-bold text-xs text-center transition shadow-xs';
+        listWrapper.classList.remove('hidden');
+      } else {
+        btnNo.className = 'p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800 font-bold text-xs text-center transition shadow-xs';
+        btnYes.className = 'p-3.5 rounded-xl border-2 border-slate-200 bg-white text-slate-700 font-semibold text-xs text-center hover:bg-slate-50 transition';
+        listWrapper.classList.add('hidden');
+        // Uncheck all symptoms
+        document.querySelectorAll('input[name="symptoms"]').forEach(cb => cb.checked = false);
+        updateRiskMatrixEvaluation();
+      }
+    }
+
+    function addChemicalTag(name) {
+      const input = document.getElementById('chemicalUsedNames');
+      if (!input) return;
+      let current = input.value.trim();
+      if (current) {
+        if (!current.includes(name)) input.value = current + ', ' + name;
+      } else {
+        input.value = name;
+      }
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const evalMatrix = updateRiskMatrixEvaluation();
+
+      const cid = document.getElementById('citizenId').value.trim();
+      const fullname = document.getElementById('fullname').value.trim();
+      const gender = document.getElementById('gender').value;
+      const age = parseInt(document.getElementById('age').value, 10);
+      const address = document.getElementById('address').value.trim();
+      const occupation = document.getElementById('occupation').value;
+      const plantType = document.getElementById('plantType').value;
+      const evalDate = document.getElementById('evalDate').value || new Date().toISOString().slice(0, 10);
+      const interviewerName = document.getElementById('interviewerName').value || 'เจ้าหน้าที่';
+      const healthCenter = document.getElementById('healthCenter').value || 'รพ.สต.';
+
+      const bloodChecked = document.querySelector('input[name="bloodResult"]:checked');
+      const bloodResult = bloodChecked ? bloodChecked.value : 'ปลอดภัย';
+
+      const selectedSymptoms = Array.from(document.querySelectorAll('input[name="symptoms"]:checked')).map(cb => cb.value);
+      const chemInput = document.getElementById('chemicalUsedNames').value.trim();
+      const chemNames = chemInput ? chemInput.split(',').map(s => s.trim()) : [];
+
+      const newRecord = {
+        id: cid,
+        fullname,
+        gender,
+        age,
+        address,
+        occupation,
+        plant_type: plantType,
+        eval_date: evalDate,
+        interviewer_name: interviewerName,
+        health_center: healthCenter,
+        scoreA: evalMatrix.scoreA,
+        scoreB: evalMatrix.scoreB,
+        totalScore: evalMatrix.totalBehavior,
+        highestSymptomGroup: evalMatrix.highestGroup,
+        symptoms: selectedSymptoms,
+        riskLevel: evalMatrix.riskLevel,
+        cholinesteraseResult: bloodResult,
+        chemNames
+      };
+
+      // Upsert into farmersData
+      const idx = farmersData.findIndex(item => item.id === cid);
+      if (idx >= 0) {
+        farmersData[idx] = newRecord;
+      } else {
+        farmersData.unshift(newRecord);
+      }
+
+      updateDashboard();
+      filterRegistryTable();
+      updateOccReport();
+
+      showToast('บันทึกสำเร็จ', `บันทึกแบบประเมินของ ${fullname} เรียบร้อยแล้ว`);
+      switchTab('registry');
+    }
+
+    function resetToNewAssessment() {
+      document.getElementById('assessmentForm').reset();
+      document.getElementById('evalDate').value = new Date().toISOString().slice(0, 10);
+      setHasSymptom(false);
+      calculateScores();
+      updateWizardStep(1);
+      switchTab('wizard');
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(el => {
+        el.className = 'nav-btn px-3 py-2 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center space-x-1.5';
+      });
+
+      const activeTab = document.getElementById(`tab-${tabName}`);
+      const activeNav = document.getElementById(`nav-${tabName}`);
+
+      if (activeTab) activeTab.classList.remove('hidden');
+      if (activeNav) {
+        activeNav.className = 'nav-btn px-3 py-2 rounded-lg text-xs font-semibold transition text-emerald-700 bg-emerald-50 flex items-center space-x-1.5';
+      }
+
+      if (tabName === 'dashboard') {
+        updateDashboard();
+      } else if (tabName === 'registry') {
+        filterRegistryTable();
+      } else if (tabName === 'occ') {
+        updateOccReport();
+      }
+    }
+
+    function updateDashboard() {
+      const total = farmersData.length;
+      const highRisk = farmersData.filter(d => 
+        d.riskLevel === 'มีความเสี่ยงค่อนข้างสูง' || 
+        d.riskLevel === 'มีความเสี่ยงสูง' || 
+        d.riskLevel === 'มีความเสี่ยงสูงมาก'
+      ).length;
+
+      const tested = farmersData.filter(d => d.cholinesteraseResult && d.cholinesteraseResult !== '').length;
+      const unsafeBlood = farmersData.filter(d => 
+        d.cholinesteraseResult === 'มีความเสี่ยง' || 
+        d.cholinesteraseResult === 'ไม่ปลอดภัย'
+      ).length;
+
+      document.getElementById('kpi-total').textContent = total;
+      document.getElementById('kpi-high-risk').textContent = highRisk;
+      document.getElementById('kpi-tested').textContent = tested;
+      document.getElementById('kpi-unsafe-blood').textContent = unsafeBlood;
+
+      // Risk Matrix Chart
+      const riskCounts = {
+        'มีความเสี่ยงต่ำ': 0,
+        'มีความเสี่ยงปานกลาง': 0,
+        'มีความเสี่ยงค่อนข้างสูง': 0,
+        'มีความเสี่ยงสูง': 0,
+        'มีความเสี่ยงสูงมาก': 0
+      };
+      farmersData.forEach(d => {
+        if (riskCounts[d.riskLevel] !== undefined) riskCounts[d.riskLevel]++;
+      });
+      renderRiskChart(Object.values(riskCounts));
+
+      // Blood Chart
+      const bloodCounts = { 'ปกติ': 0, 'ปลอดภัย': 0, 'มีความเสี่ยง': 0, 'ไม่ปลอดภัย': 0 };
+      farmersData.forEach(d => {
+        if (bloodCounts[d.cholinesteraseResult] !== undefined) bloodCounts[d.cholinesteraseResult]++;
+      });
+      renderBloodChart(Object.values(bloodCounts));
+
+      // High Risk Priority Table
+      const recentTbody = document.getElementById('dashboardRecentTable');
+      if (!recentTbody) return;
+      recentTbody.innerHTML = '';
+
+      const priorityCases = [...farmersData].sort((a, b) => b.totalScore - a.totalScore).slice(0, 5);
+      if (priorityCases.length === 0) {
+        recentTbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">ยังไม่มีข้อมูลการประเมิน</td></tr>`;
+        return;
+      }
+
+      priorityCases.forEach(item => {
+        const badgeColor = getRiskBadgeClass(item.riskLevel);
+        const bloodColor = getBloodBadgeClass(item.cholinesteraseResult);
+        const symptomsSnippet = item.symptoms && item.symptoms.length > 0 ? item.symptoms.slice(0, 2).join(', ') : 'ไม่มี';
+
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-slate-50 transition';
+        row.innerHTML = `
+          <td class="px-4 py-3 font-semibold text-slate-800">${escapeHtml(item.fullname)}</td>
+          <td class="px-4 py-3 font-mono text-slate-500">${formatId(item.id)}</td>
+          <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full font-semibold text-[10px] ${badgeColor}">${escapeHtml(item.riskLevel)}</span></td>
+          <td class="px-4 py-3 text-center font-bold text-slate-700">${item.totalScore}</td>
+          <td class="px-4 py-3 text-slate-500">${escapeHtml(symptomsSnippet)}</td>
+          <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full font-semibold text-[10px] ${bloodColor}">${escapeHtml(item.cholinesteraseResult || '-')}</span></td>
+          <td class="px-4 py-3 text-center">
+            <button onclick="viewRecordDetail('${item.id}')" class="text-emerald-600 hover:text-emerald-800 font-semibold text-xs">ดูข้อมูล</button>
+          </td>
+        `;
+        recentTbody.appendChild(row);
+      });
+    }
+
+    function renderRiskChart(dataValues) {
+      const canvas = document.getElementById('riskChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (riskChartInstance) riskChartInstance.destroy();
+
+      riskChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['ต่ำ', 'ปานกลาง', 'ค่อนข้างสูง', 'สูง', 'สูงมาก'],
+          datasets: [{
+            data: dataValues,
+            backgroundColor: ['#10b981', '#f59e0b', '#f97316', '#ef4444', '#991b1b'],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          cutout: '70%'
+        }
+      });
+    }
+
+    function renderBloodChart(dataValues) {
+      const canvas = document.getElementById('bloodChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (bloodChartInstance) bloodChartInstance.destroy();
+
+      bloodChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['ปกติ', 'ปลอดภัย', 'เสี่ยง', 'ไม่ปลอดภัย'],
+          datasets: [{
+            data: dataValues,
+            backgroundColor: ['#059669', '#0d9488', '#d97706', '#dc2626'],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1 }
+            }
+          }
+        }
+      });
+    }
+
+    function filterRegistryTable() {
+      const tbody = document.getElementById('registryTableBody');
+      if (!tbody) return;
+      const search = (document.getElementById('registrySearchInput')?.value || '').toLowerCase().trim();
+      const riskFilter = document.getElementById('registryRiskFilter')?.value || 'ALL';
+
+      tbody.innerHTML = '';
+
+      const filtered = farmersData.filter(item => {
+        const matchesSearch = item.fullname.toLowerCase().includes(search) || item.id.includes(search) || (item.address && item.address.toLowerCase().includes(search));
+        const matchesRisk = riskFilter === 'ALL' || item.riskLevel === riskFilter;
+        return matchesSearch && matchesRisk;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">ไม่พบข้อมูลตามเงื่อนไขการค้นหา</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const riskColor = getRiskBadgeClass(item.riskLevel);
+        const bloodColor = getBloodBadgeClass(item.cholinesteraseResult);
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition';
+        tr.innerHTML = `
+          <td class="px-4 py-3 text-slate-500 whitespace-nowrap">${escapeHtml(item.eval_date || '-')}</td>
+          <td class="px-4 py-3 font-semibold text-slate-800">${escapeHtml(item.fullname)} (${item.age} ปี)</td>
+          <td class="px-4 py-3 font-mono text-slate-500">${formatId(item.id)}</td>
+          <td class="px-4 py-3 text-slate-600">${escapeHtml(item.occupation || '-')}</td>
+          <td class="px-4 py-3 text-center font-bold text-slate-700">${item.totalScore}</td>
+          <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full font-semibold text-[10px] ${riskColor}">${escapeHtml(item.riskLevel)}</span></td>
+          <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full font-semibold text-[10px] ${bloodColor}">${escapeHtml(item.cholinesteraseResult || '-')}</span></td>
+          <td class="px-4 py-3 text-center whitespace-nowrap space-x-2">
+            <button onclick="viewRecordDetail('${item.id}')" class="text-emerald-600 hover:text-emerald-800 font-semibold">ดูข้อมูล</button>
+            <button onclick="openDeleteModal('${item.id}')" class="text-rose-600 hover:text-rose-800 font-semibold">ลบ</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateOccReport() {
+      const totalEval = farmersData.length;
+      const highRisk = farmersData.filter(d => 
+        d.riskLevel === 'มีความเสี่ยงค่อนข้างสูง' || 
+        d.riskLevel === 'มีความเสี่ยงสูง' || 
+        d.riskLevel === 'มีความเสี่ยงสูงมาก'
+      ).length;
+
+      const bloodTested = farmersData.filter(d => d.cholinesteraseResult && d.cholinesteraseResult !== '').length;
+      const bloodUnsafe = farmersData.filter(d => 
+        d.cholinesteraseResult === 'มีความเสี่ยง' || 
+        d.cholinesteraseResult === 'ไม่ปลอดภัย'
+      ).length;
+
+      document.getElementById('occ-val-evaluated').textContent = totalEval;
+      document.getElementById('occ-val-high-risk').textContent = highRisk;
+      document.getElementById('occ-val-tested').textContent = bloodTested;
+      document.getElementById('occ-val-unsafe').textContent = bloodUnsafe;
+      document.getElementById('occ-val-advised').textContent = totalEval;
+
+      document.getElementById('occ02-total-high').textContent = `${highRisk} คน`;
+      const cov = highRisk > 0 ? Math.round((bloodTested / highRisk) * 100) : 100;
+      document.getElementById('occ02-coverage').textContent = `${cov}%`;
+    }
+
+    function switchReportTab(type) {
+      const r1 = document.getElementById('reportView01');
+      const r2 = document.getElementById('reportView02');
+      const b1 = document.getElementById('btnReport01');
+      const b2 = document.getElementById('btnReport02');
+
+      if (type === '01') {
+        r1.classList.remove('hidden');
+        r2.classList.add('hidden');
+        b1.className = 'px-3 py-1.5 text-xs font-bold rounded-lg bg-white text-emerald-700 shadow-xs transition';
+        b2.className = 'px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition';
+      } else {
+        r1.classList.add('hidden');
+        r2.classList.remove('hidden');
+        b1.className = 'px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition';
+        b2.className = 'px-3 py-1.5 text-xs font-bold rounded-lg bg-white text-emerald-700 shadow-xs transition';
+      }
+    }
+
+    function viewRecordDetail(id) {
+      const record = farmersData.find(item => item.id === id);
+      if (!record) return;
+
+      document.getElementById('modalTitle').textContent = `แบบประเมิน นบก. 1-56 : ${record.fullname}`;
+      const body = document.getElementById('modalBody');
+
+      body.innerHTML = `
+        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div><span class="text-slate-400">เลขบัตร ปชช.:</span> <p class="font-mono font-bold text-slate-800">${formatId(record.id)}</p></div>
+          <div><span class="text-slate-400">เพศ / อายุ:</span> <p class="font-bold text-slate-800">${record.gender} / ${record.age} ปี</p></div>
+          <div><span class="text-slate-400">วันที่ประเมิน:</span> <p class="font-bold text-slate-800">${record.eval_date}</p></div>
+          <div><span class="text-slate-400">งานอาชีพ:</span> <p class="text-slate-700">${escapeHtml(record.occupation)}</p></div>
+          <div><span class="text-slate-400">พืชหลัก:</span> <p class="text-slate-700">${escapeHtml(record.plant_type)}</p></div>
+          <div><span class="text-slate-400">ผู้สัมภาษณ์:</span> <p class="text-slate-700">${escapeHtml(record.interviewer_name)}</p></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 bg-amber-50 rounded-xl border border-amber-200">
+            <span class="font-bold text-amber-900">คะแนนพฤติกรรมเสี่ยง (A):</span>
+            <p class="text-xl font-black text-amber-700 mt-0.5">${record.scoreA} / 27</p>
+          </div>
+          <div class="p-3 bg-blue-50 rounded-xl border border-blue-200">
+            <span class="font-bold text-blue-900">คะแนนพฤติกรรมป้องกัน (B):</span>
+            <p class="text-xl font-black text-blue-700 mt-0.5">${record.scoreB} / 18</p>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl border border-slate-200 bg-white space-y-1.5">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-slate-700">ผลระดับความเสี่ยง (Risk Matrix):</span>
+            <span class="px-2.5 py-0.5 rounded-full font-bold text-[11px] ${getRiskBadgeClass(record.riskLevel)}">${escapeHtml(record.riskLevel)}</span>
+          </div>
+          <p class="text-slate-600">คะแนนรวมทั้งหมด: <strong class="text-slate-900">${record.totalScore} คะแนน</strong></p>
+          <p class="text-slate-600">อาการผิดปกติ: <span class="text-slate-800">${record.symptoms && record.symptoms.length > 0 ? record.symptoms.join(', ') : 'ไม่มีอาการผิดปกติ'}</span></p>
+        </div>
+
+        <div class="p-3.5 rounded-xl border border-teal-200 bg-teal-50/50 space-y-1.5">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-teal-900">ผลเจาะเลือดเอนไซม์ (Reactive Paper):</span>
+            <span class="px-2.5 py-0.5 rounded-full font-bold text-[11px] ${getBloodBadgeClass(record.cholinesteraseResult)}">${escapeHtml(record.cholinesteraseResult || '-')}</span>
+          </div>
+          <p class="text-teal-800">สารเคมีที่ใช้: ${record.chemNames && record.chemNames.length > 0 ? record.chemNames.join(', ') : 'ไม่ได้ระบุ'}</p>
+        </div>
+      `;
+
+      document.getElementById('detailModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('detailModal').classList.add('hidden');
+    }
+
+    function openDeleteModal(id) {
+      pendingDeleteId = id;
+      const rec = farmersData.find(d => d.id === id);
+      const name = rec ? rec.fullname : id;
+      document.getElementById('deleteConfirmMessage').textContent = `คุณต้องการลบข้อมูลแบบประเมินของ "${name}" ออกจากระบบใช่หรือไม่?`;
+      
+      const btn = document.getElementById('btnConfirmDeleteAction');
+      if (btn) {
+        btn.onclick = () => {
+          confirmDelete();
+        };
+      }
+      document.getElementById('deleteConfirmModal').classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+      pendingDeleteId = null;
+      document.getElementById('deleteConfirmModal').classList.add('hidden');
+    }
+
+    function confirmDelete() {
+      if (!pendingDeleteId) return;
+      farmersData = farmersData.filter(d => d.id !== pendingDeleteId);
+      updateDashboard();
+      filterRegistryTable();
+      updateOccReport();
+      closeDeleteModal();
+      showToast('ลบข้อมูลสำเร็จ', 'ลบรายการแบบประเมินเรียบร้อยแล้ว');
+    }
+
+    function showToast(title, message, isSuccess = true) {
+      const toast = document.getElementById('toast');
+      const tTitle = document.getElementById('toastTitle');
+      const tMsg = document.getElementById('toastMessage');
+      const tIcon = document.getElementById('toastIcon');
+
+      tTitle.textContent = title;
+      tMsg.textContent = message;
+
+      if (isSuccess) {
+        toast.className = toast.className.replace(/border-[a-z]+-500/, 'border-emerald-500');
+        tIcon.className = 'text-emerald-500 flex-shrink-0 mt-0.5';
+      } else {
+        toast.className = toast.className.replace(/border-[a-z]+-500/, 'border-rose-500');
+        tIcon.className = 'text-rose-500 flex-shrink-0 mt-0.5';
+      }
+
+      toast.classList.remove('translate-y-[-150%]', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-[-150%]', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3500);
+    }
+
+    function exportCSV() {
+      if (farmersData.length === 0) {
+        showToast('ไม่มีข้อมูล', 'ไม่มีรายการเกษตรกรสำหรับส่งออก CSV', false);
+        return;
+      }
+
+      const headers = ['เลขประจำตัวประชาชน', 'ชื่อ-สกุล', 'เพศ', 'อายุ', 'ที่อยู่', 'อาชีพ', 'พืชหลัก', 'คะแนน_A', 'คะแนน_B', 'คะแนนรวม', 'ระดับความเสี่ยง', 'ผลเจาะเลือดเอนไซม์', 'อาการผิดปกติ', 'วันที่ประเมิน'];
+      const rows = farmersData.map(d => [
+        `"${d.id}"`,
+        `"${d.fullname}"`,
+        `"${d.gender}"`,
+        d.age,
+        `"${d.address || ''}"`,
+        `"${d.occupation || ''}"`,
+        `"${d.plant_type || ''}"`,
+        d.scoreA,
+        d.scoreB,
+        d.totalScore,
+        `"${d.riskLevel}"`,
+        `"${d.cholinesteraseResult || ''}"`,
+        `"${(d.symptoms || []).join('; ')}"`,
+        `"${d.eval_date || ''}"`
+      ]);
+
+      let csvContent = "\uFEFF"; // UTF-8 BOM for Thai Excel
+      csvContent += headers.join(",") + "\r\n";
+      rows.forEach(r => csvContent += r.join(",") + "\r\n");
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `ทะเบียนเกษตรกร_นบก1_56_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('ส่งออกสำเร็จ', 'ดาวน์โหลดไฟล์ CSV เรียบร้อยแล้ว');
+    }
+
+    function getRiskBadgeClass(level) {
+      switch (level) {
+        case 'มีความเสี่ยงต่ำ': return 'bg-emerald-100 text-emerald-800 border border-emerald-300';
+        case 'มีความเสี่ยงปานกลาง': return 'bg-amber-100 text-amber-800 border border-amber-300';
+        case 'มีความเสี่ยงค่อนข้างสูง': return 'bg-orange-100 text-orange-800 border border-orange-300';
+        case 'มีความเสี่ยงสูง': return 'bg-rose-100 text-rose-800 border border-rose-300';
+        case 'มีความเสี่ยงสูงมาก': return 'bg-red-200 text-red-900 border border-red-400';
+        default: return 'bg-slate-100 text-slate-700';
+      }
+    }
+
+    function getBloodBadgeClass(res) {
+      switch (res) {
+        case 'ปกติ': return 'bg-emerald-100 text-emerald-800 border border-emerald-300';
+        case 'ปลอดภัย': return 'bg-teal-100 text-teal-800 border border-teal-300';
+        case 'มีความเสี่ยง': return 'bg-amber-100 text-amber-800 border border-amber-300';
+        case 'ไม่ปลอดภัย': return 'bg-rose-100 text-rose-800 border border-rose-300';
+        default: return 'bg-slate-100 text-slate-600';
+      }
+    }
+
+    function formatId(id) {
+      if (!id || id.length !== 13) return id || '';
+      return `${id.substr(0,1)}-${id.substr(1,4)}-${id.substr(5,5)}-${id.substr(10,2)}-${id.substr(12,1)}`;
+    }
+
+    function escapeHtml(string) {
+      if (!string) return '';
+      return String(string)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    window.onload = function() {
+      document.getElementById('evalDate').value = new Date().toISOString().slice(0, 10);
+      renderQuestionCards();
+      calculateScores();
+      updateDashboard();
+      filterRegistryTable();
+      updateOccReport();
+    };
+  </script>
+</body>
+</html>

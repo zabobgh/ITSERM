@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+frontend/dist/
+dist/
+dist-ssr/
+*.local
+
+# Binaries & Executables
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+backend/nbk-server.exe
+backend/nbk-server.exe~
+backend/nbk_system.exe
+backend/server.exe
+
+# Database runtime files
+*.db
+*.db-shm
+*.db-wal
+backend/nbk_records.db*
+
+# Logs & temp
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
