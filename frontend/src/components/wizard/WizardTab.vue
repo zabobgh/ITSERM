@@ -563,38 +563,38 @@ defineExpose({
 </script>
 
 <template>
-  <div class="max-w-3xl mx-auto space-y-5 pb-24 md:pb-8">
+  <div class="max-w-5xl lg:max-w-6xl mx-auto space-y-6 pb-24 md:pb-10">
     <!-- Progress Indicator Bar with Interactive Step Buttons -->
-    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs space-y-3">
-      <div class="flex items-center justify-between text-xs">
-        <div class="flex items-center space-x-2">
-          <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-emerald-700 text-white font-bold text-[10px]">
+    <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
+      <div class="flex items-center justify-between text-xs sm:text-sm">
+        <div class="flex items-center space-x-2.5">
+          <span class="inline-flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-700 text-white font-bold text-xs sm:text-sm">
             {{ currentStep }}
           </span>
-          <span class="text-slate-900 font-bold">ขั้นตอนที่ {{ currentStep }} จาก 5</span>
+          <span class="text-slate-900 font-bold text-sm sm:text-base">ขั้นตอนที่ {{ currentStep }} จาก 5</span>
         </div>
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center space-x-3">
           <!-- Autosave Draft Status Badge -->
-          <span v-if="saveStatus === 'saving'" class="text-[11px] text-amber-900 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200 flex items-center space-x-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+          <span v-if="saveStatus === 'saving'" class="text-xs text-amber-900 bg-amber-50 px-3 py-1 rounded-full border border-amber-200 flex items-center space-x-1.5">
+            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
             <span>กำลังบันทึกร่างในเครื่อง...</span>
           </span>
-          <span v-else-if="saveStatus === 'recovered'" class="text-[11px] text-blue-900 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200 flex items-center space-x-1.5">
+          <span v-else-if="saveStatus === 'recovered'" class="text-xs text-blue-900 bg-blue-50 px-3 py-1 rounded-full border border-blue-200 flex items-center space-x-1.5">
             <span>📋 กู้คืนแบบร่างจากเครื่องแล้ว</span>
             <button type="button" @click="discardDraft" class="text-blue-700 hover:text-blue-950 font-bold underline ml-1 cursor-pointer">เริ่มใหม่</button>
           </span>
-          <span v-else-if="saveStatus === 'saved' && lastSavedTime" class="text-[11px] text-emerald-900 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center space-x-1.5">
+          <span v-else-if="saveStatus === 'saved' && lastSavedTime" class="text-xs text-emerald-900 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 flex items-center space-x-1.5">
             <span>✓ บันทึกร่างในเครื่องแล้ว ({{ lastSavedTime }} น.)</span>
           </span>
-          <span v-else-if="saveStatus === 'error'" class="text-[11px] text-rose-900 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200 flex items-center space-x-1.5">
+          <span v-else-if="saveStatus === 'error'" class="text-xs text-rose-900 bg-rose-50 px-3 py-1 rounded-full border border-rose-200 flex items-center space-x-1.5">
             <span>⚠️ บันทึกร่างในเครื่องไม่สำเร็จ</span>
           </span>
-          <span class="text-slate-500 font-mono font-medium">{{ Math.round((currentStep / 5) * 100) }}% เสร็จสิ้น</span>
+          <span class="text-slate-600 font-mono font-semibold text-xs sm:text-sm">{{ Math.round((currentStep / 5) * 100) }}% เสร็จสิ้น</span>
         </div>
       </div>
 
       <!-- Stepper Track -->
-      <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+      <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
         <div 
           class="bg-gradient-to-r from-emerald-600 to-teal-500 h-full rounded-full transition-all duration-300 ease-out"
           :style="{ width: `${(currentStep / 5) * 100}%` }"
@@ -602,7 +602,7 @@ defineExpose({
       </div>
 
       <!-- Step Titles on Desktop (Clickable for previous steps) -->
-      <div class="hidden sm:grid grid-cols-5 text-[11px] text-center pt-1 gap-1">
+      <div class="hidden sm:grid grid-cols-5 text-xs sm:text-sm text-center pt-1 gap-2">
         <button 
           v-for="(stepName, idx) in ['1. ข้อมูลทั่วไป', '2. พฤติกรรม', '3. กลุ่มอาการ', '4. ประเมินความเสี่ยง', '5. ตรวจเลือด']"
           :key="idx"
@@ -610,9 +610,9 @@ defineExpose({
           @click="goToStep(idx + 1)"
           :disabled="idx + 1 > currentStep"
           :class="[
-            'py-1 rounded-lg transition font-medium text-center truncate px-1',
-            currentStep === idx + 1 ? 'text-emerald-900 font-bold bg-emerald-50' :
-            currentStep > idx + 1 ? 'text-slate-700 hover:text-emerald-700 hover:bg-slate-50 cursor-pointer' :
+            'py-2 px-2 rounded-xl transition font-semibold text-center truncate',
+            currentStep === idx + 1 ? 'text-emerald-950 font-bold bg-emerald-50 ring-1 ring-emerald-300/80 shadow-xs' :
+            currentStep > idx + 1 ? 'text-slate-700 hover:text-emerald-800 hover:bg-slate-100 cursor-pointer' :
             'text-slate-400 cursor-not-allowed'
           ]"
         >
@@ -630,29 +630,29 @@ defineExpose({
       <!-- ================================================================= -->
       <!-- STEP 1: GENERAL INFORMATION                                       -->
       <!-- ================================================================= -->
-      <div v-show="currentStep === 1" class="bg-white p-5 sm:p-7 rounded-2xl border border-slate-200/90 shadow-xs space-y-5">
-        <div class="border-b border-slate-100 pb-3 flex items-start justify-between">
+      <div v-show="currentStep === 1" class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/90 shadow-xs space-y-6">
+        <div class="border-b border-slate-100 pb-4 flex items-start justify-between">
           <div>
-            <h3 class="text-base font-bold text-slate-900">ขั้นตอนที่ 1: ข้อมูลทั่วไปเกษตรกร</h3>
-            <p class="text-xs text-slate-500 mt-0.5">ระบุเลขประจำตัวประชาชน 13 หลัก เพื่อค้นหาประวัติเดิมอัตโนมัติ</p>
+            <h3 class="text-lg sm:text-xl font-bold text-slate-900">ขั้นตอนที่ 1: ข้อมูลทั่วไปเกษตรกร</h3>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">ระบุเลขประจำตัวประชาชน 13 หลัก เพื่อค้นหาประวัติเดิมอัตโนมัติ</p>
           </div>
-          <span class="text-[11px] font-mono text-slate-400 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
+          <span class="text-xs font-mono font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200/80">
             Step 1/5
           </span>
         </div>
 
-        <div class="space-y-4">
+        <div class="space-y-5">
           <!-- Citizen ID & Lookup Button -->
-          <div>
-            <div class="flex items-center justify-between mb-1">
-              <label for="WizardTab-formattedCitizenId" class="block text-xs font-semibold text-slate-800">
+          <div class="bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-200/80 space-y-2">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+              <label for="WizardTab-formattedCitizenId" class="block text-sm font-semibold text-slate-800">
                 เลขประจำตัวประชาชน (13 หลัก) <span class="text-rose-500">*</span>
               </label>
               <!-- Checksum badge -->
               <span 
                 v-if="form.citizen_id.length === 13" 
                 :class="[
-                  'text-[10px] font-medium px-2 py-0.5 rounded-full border',
+                  'text-xs font-semibold px-2.5 py-1 rounded-full border',
                   isCitizenIdValid 
                     ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
                     : 'bg-amber-50 text-amber-800 border-amber-200'
@@ -660,12 +660,12 @@ defineExpose({
               >
                 {{ isCitizenIdValid ? '✓ เลขบัตรถูกต้องตามโครงสร้าง' : '⚠️ ตรวจสอบเลขบัตร (ผลรวมตรวจสอบไม่ตรง)' }}
               </span>
-              <span v-else-if="form.citizen_id.length > 0" class="text-[10px] text-slate-400">
+              <span v-else-if="form.citizen_id.length > 0" class="text-xs text-slate-400">
                 ({{ form.citizen_id.length }}/13 หลัก)
               </span>
             </div>
 
-            <div class="flex gap-2">
+            <div class="flex gap-3">
               <div class="relative flex-1">
                 <input id="WizardTab-formattedCitizenId" :aria-invalid="!!fieldErrors.citizen_id" aria-describedby="error-citizen_id" 
                   type="text" 
@@ -673,7 +673,7 @@ defineExpose({
                   maxlength="17"
                   placeholder="X-XXXX-XXXXX-XX-X" 
                   :class="[
-                    'w-full px-3.5 py-2.5 border rounded-xl text-xs font-mono tracking-wider focus:ring-2 focus:outline-none bg-slate-50/50',
+                    'w-full px-4 py-3 border rounded-xl text-sm sm:text-base font-mono tracking-wider focus:ring-2 focus:outline-none bg-white',
                     fieldErrors.citizen_id ? 'border-rose-400 focus:ring-rose-500 focus:border-rose-500 bg-rose-50/30' : 'border-slate-300 focus:ring-emerald-500 focus:border-emerald-500'
                   ]"
                 >
@@ -681,23 +681,26 @@ defineExpose({
               <button 
                 type="button" 
                 @click="lookupCitizen" 
-                class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-slate-300"
+                class="px-5 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-slate-400 shadow-xs cursor-pointer flex items-center space-x-1.5 shrink-0"
               >
-                ค้นหาประวัติ
+                <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <span>ค้นหาประวัติ</span>
               </button>
             </div>
-            <p id="error-citizen_id" v-if="fieldErrors.citizen_id" class="text-xs text-rose-600 font-medium mt-1">
+            <p id="error-citizen_id" v-if="fieldErrors.citizen_id" class="text-xs sm:text-sm text-rose-600 font-medium mt-1">
               ⚠️ {{ fieldErrors.citizen_id }}
             </p>
-            <p v-else-if="citizenFeedback" :class="['text-[11px] mt-1.5', citizenFeedbackClass]">
+            <p v-else-if="citizenFeedback" :class="['text-xs sm:text-sm mt-1.5 font-medium', citizenFeedbackClass]">
               {{ citizenFeedback }}
             </p>
           </div>
 
-          <!-- Name & Gender -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div class="sm:col-span-2">
-              <label for="WizardTab-form-fullname" class="block text-xs font-semibold text-slate-800 mb-1">
+          <!-- Name, Gender, Age in balanced multi-column grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
+            <div class="sm:col-span-6">
+              <label for="WizardTab-form-fullname" class="block text-sm font-semibold text-slate-800 mb-1.5">
                 ชื่อ - นามสกุล <span class="text-rose-500">*</span>
               </label>
               <input id="WizardTab-form-fullname" :aria-invalid="!!fieldErrors.fullname" aria-describedby="error-fullname" 
@@ -705,27 +708,23 @@ defineExpose({
                 v-model="form.fullname" 
                 placeholder="เช่น นายสมศักดิ์ ขยันงาน" 
                 :class="[
-                  'w-full px-3.5 py-2.5 border rounded-xl text-xs focus:ring-2 focus:outline-none',
+                  'w-full px-4 py-3 border rounded-xl text-sm sm:text-base focus:ring-2 focus:outline-none',
                   fieldErrors.fullname ? 'border-rose-400 focus:ring-rose-500 focus:border-rose-500 bg-rose-50/30' : 'border-slate-300 focus:ring-emerald-500 focus:border-emerald-500'
                 ]"
               >
-              <p id="error-fullname" v-if="fieldErrors.fullname" class="text-xs text-rose-600 font-medium mt-1">
+              <p id="error-fullname" v-if="fieldErrors.fullname" class="text-xs sm:text-sm text-rose-600 font-medium mt-1">
                 ⚠️ {{ fieldErrors.fullname }}
               </p>
             </div>
-            <div>
-              <label for="WizardTab-form-gender" class="block text-xs font-semibold text-slate-800 mb-1">เพศ</label>
-              <select id="WizardTab-form-gender" v-model="form.gender" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-emerald-500">
+            <div class="sm:col-span-3">
+              <label for="WizardTab-form-gender" class="block text-sm font-semibold text-slate-800 mb-1.5">เพศ</label>
+              <select id="WizardTab-form-gender" v-model="form.gender" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-base bg-white focus:ring-2 focus:ring-emerald-500">
                 <option value="ชาย">ชาย</option>
                 <option value="หญิง">หญิง</option>
               </select>
             </div>
-          </div>
-
-          <!-- Age & Address -->
-          <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-            <div>
-              <label for="WizardTab-form-age" class="block text-xs font-semibold text-slate-800 mb-1">
+            <div class="sm:col-span-3">
+              <label for="WizardTab-form-age" class="block text-sm font-semibold text-slate-800 mb-1.5">
                 อายุ (ปี) <span class="text-rose-500">*</span>
               </label>
               <input id="WizardTab-form-age" :aria-invalid="!!fieldErrors.age" aria-describedby="error-age" 
@@ -734,30 +733,32 @@ defineExpose({
                 min="1" 
                 max="120" 
                 :class="[
-                  'w-full px-3.5 py-2.5 border rounded-xl text-xs focus:ring-2',
+                  'w-full px-4 py-3 border rounded-xl text-sm sm:text-base focus:ring-2',
                   fieldErrors.age ? 'border-rose-400 focus:ring-rose-500 bg-rose-50/30' : 'border-slate-300 focus:ring-emerald-500'
                 ]"
               >
-              <p id="error-age" v-if="fieldErrors.age" class="text-xs text-rose-600 font-medium mt-1">
+              <p id="error-age" v-if="fieldErrors.age" class="text-xs sm:text-sm text-rose-600 font-medium mt-1">
                 ⚠️ {{ fieldErrors.age }}
               </p>
             </div>
-            <div class="sm:col-span-3">
-              <label for="WizardTab-form-address" class="block text-xs font-semibold text-slate-800 mb-1">ที่อยู่ / หมู่บ้าน / ตำบล</label>
-              <input id="WizardTab-form-address" 
-                type="text" 
-                v-model="form.address" 
-                placeholder="เช่น 12 หมู่ 3 ต.บ้านแพ้ว อ.บ้านแพ้ว" 
-                class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500"
-              >
-            </div>
           </div>
 
-          <!-- Occupation & Crops -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Address -->
+          <div>
+            <label for="WizardTab-form-address" class="block text-sm font-semibold text-slate-800 mb-1.5">ที่อยู่ / หมู่บ้าน / ตำบล</label>
+            <input id="WizardTab-form-address" 
+              type="text" 
+              v-model="form.address" 
+              placeholder="เช่น 12 หมู่ 3 ต.บ้านแพ้ว อ.บ้านแพ้ว จ.สมุทรสาคร" 
+              class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-base focus:ring-2 focus:ring-emerald-500"
+            >
+          </div>
+
+          <!-- Occupation & Crops (2 columns) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="WizardTab-form-occupation" class="block text-xs font-semibold text-slate-800 mb-1">ลักษณะงานเกษตรกรรม</label>
-              <select id="WizardTab-form-occupation" v-model="form.occupation" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-emerald-500">
+              <label for="WizardTab-form-occupation" class="block text-sm font-semibold text-slate-800 mb-1.5">ลักษณะงานเกษตรกรรม</label>
+              <select id="WizardTab-form-occupation" v-model="form.occupation" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-base bg-white focus:ring-2 focus:ring-emerald-500">
                 <option value="1. เพาะปลูก (ทำเอง)">1. เพาะปลูก (ทำเอง)</option>
                 <option value="2. เพาะปลูก (รับจ้าง)">2. เพาะปลูก (รับจ้าง)</option>
                 <option value="3. รับจ้างฉีดพ่น">3. รับจ้างฉีดพ่นสารเคมี</option>
@@ -766,8 +767,8 @@ defineExpose({
               </select>
             </div>
             <div>
-              <label for="WizardTab-form-plant_type" class="block text-xs font-semibold text-slate-800 mb-1">ชนิดพืชหลักที่ปลูก</label>
-              <select id="WizardTab-form-plant_type" v-model="form.plant_type" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-emerald-500">
+              <label for="WizardTab-form-plant_type" class="block text-sm font-semibold text-slate-800 mb-1.5">ชนิดพืชหลักที่ปลูก</label>
+              <select id="WizardTab-form-plant_type" v-model="form.plant_type" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-base bg-white focus:ring-2 focus:ring-emerald-500">
                 <option value="ทำนา (ข้าว)">ทำนา (ข้าว)</option>
                 <option value="ทำสวน (ผลไม้/ทุเรียน/ส้ม/มะนาว)">ทำสวน (ผลไม้/ทุเรียน/ส้ม/มะนาว)</option>
                 <option value="ทำสวน (พืชผัก/พริก/มะเขือ/ผักกาด)">ทำสวน (พืชผัก/พริก/มะเขือ/ผักกาด)</option>
@@ -779,43 +780,45 @@ defineExpose({
           </div>
 
           <!-- Clinical Protocol & Interviewer Info (รพ.สต. / รพ.) -->
-          <div class="p-3.5 bg-emerald-50/70 border border-emerald-200/80 rounded-xl text-xs text-emerald-950 space-y-1.5">
-            <div class="flex items-center space-x-2 font-bold text-emerald-900">
-              <svg class="w-4 h-4 text-emerald-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="p-4 sm:p-5 bg-emerald-50/80 border border-emerald-200/90 rounded-2xl text-xs sm:text-sm text-emerald-950 space-y-2">
+            <div class="flex items-center space-x-2 font-bold text-emerald-900 text-sm sm:text-base">
+              <svg class="w-5 h-5 text-emerald-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
               </svg>
               <span>แนวทางปฏิบัติงาน: รพ.สต. และ รพ. คัดกรองสารเคมีในเลือด</span>
             </div>
-            <p class="text-[11px] text-emerald-800 leading-relaxed font-normal">
+            <p class="text-xs sm:text-sm text-emerald-800 leading-relaxed font-normal pl-7">
               1. ตรวจคัดกรองสารเคมีตกค้างในเลือดด้วยกระดาษทดสอบ (Reactive Paper)<br>
               2. หากผลตรวจเป็น <strong>"เสี่ยง"</strong> หรือ <strong>"ไม่ปลอดภัย"</strong> ➔ เจ้าหน้าที่ รพ.สต./รพ. เป็นผู้ซักประวัติแบบประเมิน นบก. 1-56 และนัดเจาะเลือดซ้ำ
             </p>
           </div>
 
-          <!-- Evaluation Context & Interviewer -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-100">
+          <!-- Evaluation Context & Interviewer (3 columns) -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-slate-100">
             <div>
-              <label for="WizardTab-form-eval_date" class="block text-xs font-semibold text-slate-800 mb-1">วันที่ประเมิน</label>
-              <input id="WizardTab-form-eval_date" type="date" v-model="form.eval_date" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs bg-white">
+              <label for="WizardTab-form-eval_date" class="block text-sm font-semibold text-slate-800 mb-1.5">วันที่ประเมิน</label>
+              <input id="WizardTab-form-eval_date" type="date" v-model="form.eval_date" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-base bg-white">
             </div>
             <div>
-              <label for="WizardTab-form-interviewer_name" class="block text-xs font-semibold text-slate-800 mb-1">เจ้าหน้าที่ผู้ซักประวัติ (รพ.สต./รพ.) <span class="text-rose-500">*</span></label>
+              <label for="WizardTab-form-interviewer_name" class="block text-sm font-semibold text-slate-800 mb-1.5">
+                เจ้าหน้าที่ผู้ซักประวัติ <span class="text-rose-500">*</span>
+              </label>
               <input id="WizardTab-form-interviewer_name" :aria-invalid="!!fieldErrors.interviewer_name" aria-describedby="error-interviewer_name" 
                 type="text" 
                 v-model="form.interviewer_name" 
                 placeholder="ชื่อ-สกุล เจ้าหน้าที่" 
                 :class="[
-                  'w-full px-3.5 py-2 border rounded-xl text-xs',
+                  'w-full px-4 py-3 border rounded-xl text-sm sm:text-base',
                   fieldErrors.interviewer_name ? 'border-rose-400 focus:ring-rose-500 bg-rose-50/30' : 'border-slate-300'
                 ]"
               >
-              <p id="error-interviewer_name" v-if="fieldErrors.interviewer_name" class="text-xs text-rose-600 font-medium mt-1">
+              <p id="error-interviewer_name" v-if="fieldErrors.interviewer_name" class="text-xs sm:text-sm text-rose-600 font-medium mt-1">
                 ⚠️ {{ fieldErrors.interviewer_name }}
               </p>
             </div>
             <!-- Searchable Dropdown Combobox for Health Center -->
             <div class="relative" ref="healthCenterContainerRef">
-              <label class="block text-xs font-semibold text-slate-800 mb-1">
+              <label class="block text-sm font-semibold text-slate-800 mb-1.5">
                 หน่วยบริการ (รพ.สต. / โรงพยาบาล) <span class="text-rose-500">*</span>
               </label>
               
@@ -833,7 +836,7 @@ defineExpose({
                   @input="handleHealthCenterInput(($event.target as HTMLInputElement).value)"
                   placeholder="พิมพ์ค้นหาหรือคลิกเลือก..." 
                   :class="[
-                    'w-full pl-3 pr-7 py-2 border rounded-xl text-xs bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500',
+                    'w-full pl-4 pr-10 py-3 border rounded-xl text-sm sm:text-base bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500',
                     fieldErrors.health_center ? 'border-rose-400 bg-rose-50/30' : 'border-slate-300'
                   ]"
                 >
@@ -841,24 +844,24 @@ defineExpose({
                 <button 
                   type="button" 
                   @click="isHealthCenterOpen = !isHealthCenterOpen"
-                  class="absolute right-2 top-2.5 text-slate-400 hover:text-slate-600 focus:outline-none"
+                  class="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 focus:outline-none"
                   aria-label="เปิดรายชื่อหน่วยบริการ"
                 >
-                  <svg class="w-4 h-4 transition-transform" :class="isHealthCenterOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 transition-transform" :class="isHealthCenterOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                   </svg>
                 </button>
               </div>
-              <p id="error-health_center" v-if="fieldErrors.health_center" class="text-xs text-rose-600 font-medium mt-1">
+              <p id="error-health_center" v-if="fieldErrors.health_center" class="text-xs sm:text-sm text-rose-600 font-medium mt-1">
                 ⚠️ {{ fieldErrors.health_center }}
               </p>
 
               <!-- Floating Dropdown Menu -->
               <div 
                 v-if="isHealthCenterOpen"
-                class="absolute left-0 right-0 top-full mt-1 z-50 bg-white rounded-xl border border-slate-200 shadow-xl max-h-56 overflow-y-auto divide-y divide-slate-100 text-xs py-1"
+                class="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white rounded-xl border border-slate-200 shadow-xl max-h-64 overflow-y-auto divide-y divide-slate-100 text-sm py-1.5"
               >
-                <div v-if="filteredHealthCenters.length === 0" class="p-3 text-center text-slate-400 text-[11px]">
+                <div v-if="filteredHealthCenters.length === 0" class="p-3.5 text-center text-slate-400 text-xs sm:text-sm">
                   ไม่พบหน่วยบริการที่ค้นหา (สามารถพิมพ์ระบุเองได้)
                 </div>
                 <button
@@ -867,7 +870,7 @@ defineExpose({
                   type="button"
                   @click="selectHealthCenter(item)"
                   :class="[
-                    'w-full text-left px-3.5 py-2 hover:bg-emerald-100 hover:text-emerald-950 transition flex items-center justify-between',
+                    'w-full text-left px-4 py-2.5 hover:bg-emerald-100 hover:text-emerald-950 transition flex items-center justify-between',
                     form.health_center === item ? 'bg-emerald-200 text-emerald-950 font-bold' : 'text-emerald-900'
                   ]"
                 >
@@ -885,9 +888,9 @@ defineExpose({
       <!-- ================================================================= -->
       <div v-show="currentStep === 2" class="space-y-4">
         <!-- Sticky Real-time Score Banner & Speed Preset -->
-        <div class="bg-slate-900 text-white p-3.5 rounded-2xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div class="bg-slate-900 text-white p-4 sm:p-5 rounded-2xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-sm">
           <div class="flex items-center space-x-3 flex-wrap gap-y-1">
-            <span class="font-bold text-slate-200">คะแนนพฤติกรรมเรียลไทม์:</span>
+            <span class="font-bold text-slate-200 text-sm sm:text-base">คะแนนพฤติกรรมเรียลไทม์:</span>
             <span>เสี่ยง (A): <strong class="text-amber-300 text-sm">{{ scoreA }}</strong>/27</span>
             <span>ป้องกัน (B): <strong class="text-teal-300 text-sm">{{ scoreB }}</strong>/18</span>
             <span class="px-2 py-0.5 bg-white/15 rounded-md font-bold text-white">รวม: {{ totalBehaviorScore }}/45</span>
@@ -906,7 +909,7 @@ defineExpose({
           <div class="border-b border-slate-100 pb-2">
             <div class="flex items-center justify-between">
               <div>
-                <h3 class="text-sm font-bold text-slate-900">ตอนที่ 2 ส่วนที่ 1: พฤติกรรมเสี่ยง (ข้อ 9 - 17)</h3>
+                <h3 class="text-base sm:text-lg font-bold text-slate-900">ตอนที่ 2 ส่วนที่ 1: พฤติกรรมเสี่ยง (ข้อ 9 - 17)</h3>
                 <p class="text-[11px] text-slate-500 mt-0.5">คะแนนยิ่งมาก = ยิ่งมีความเสี่ยงสูง (ไม่ใช่=1, บางครั้ง=2, ทุกครั้ง=3)</p>
               </div>
               <span class="text-xs text-amber-800 font-bold bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
@@ -945,10 +948,10 @@ defineExpose({
             <div 
               v-for="q in visibleQuestionsA" 
               :key="q.id" 
-              class="p-3 rounded-xl border border-slate-200/80 bg-white space-y-2 hover:border-slate-300 transition"
+              class="p-4 sm:p-5 rounded-2xl border border-slate-200/80 bg-white space-y-3 hover:border-slate-300 transition"
             >
               <div class="flex items-start justify-between">
-                <p class="text-xs font-medium text-slate-800 leading-snug">{{ q.text }}</p>
+                <p class="text-sm sm:text-base font-semibold text-slate-800 leading-relaxed">{{ q.text }}</p>
                 <span 
                   v-if="form.answers_a[q.id] === 3" 
                   class="ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 flex-shrink-0"
@@ -987,7 +990,7 @@ defineExpose({
           <div class="border-b border-slate-100 pb-2">
             <div class="flex items-center justify-between">
               <div>
-                <h3 class="text-sm font-bold text-slate-900">ตอนที่ 2 ส่วนที่ 2: พฤติกรรมป้องกันความปลอดภัย (ข้อ 18 - 23)</h3>
+                <h3 class="text-base sm:text-lg font-bold text-slate-900">ตอนที่ 2 ส่วนที่ 2: พฤติกรรมป้องกันความปลอดภัย (ข้อ 18 - 23)</h3>
                 <p class="text-[11px] text-slate-500 mt-0.5">★ สเกลกลับด้าน: ปฏิบัติครบถ้วนทุกครั้ง = 1 คะแนน (ปลอดภัย) | ไม่ปฏิบัติ = 3 คะแนน</p>
               </div>
               <span class="text-xs text-teal-800 font-bold bg-teal-50 px-2.5 py-1 rounded-lg border border-teal-200">
@@ -1003,7 +1006,7 @@ defineExpose({
               class="p-3 rounded-xl border border-slate-200/80 bg-white space-y-2 hover:border-slate-300 transition"
             >
               <div class="flex items-start justify-between">
-                <p class="text-xs font-medium text-slate-800 leading-snug">{{ q.text }}</p>
+                <p class="text-sm sm:text-base font-semibold text-slate-800 leading-relaxed">{{ q.text }}</p>
                 <span 
                   v-if="form.answers_b[q.id] === 1" 
                   class="ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold bg-teal-50 text-teal-700 flex-shrink-0"
@@ -1045,7 +1048,7 @@ defineExpose({
       <div v-show="currentStep === 3" class="bg-white p-5 sm:p-7 rounded-2xl border border-slate-200/90 shadow-xs space-y-5">
         <div class="border-b border-slate-100 pb-3 flex items-start justify-between">
           <div>
-            <h3 class="text-base font-bold text-slate-900">ขั้นตอนที่ 3: แบบคัดกรองอาการผิดปกติจากการสัมผัสสารเคมี</h3>
+            <h3 class="text-lg sm:text-xl font-bold text-slate-900">ขั้นตอนที่ 3: แบบคัดกรองอาการผิดปกติจากการสัมผัสสารเคมี</h3>
             <p class="text-xs text-slate-500 mt-0.5">ในรอบ 1 เดือนที่ผ่านมา เกษตรกรมีอาการผิดปกติเกิดขึ้นหรือไม่</p>
           </div>
           <span 
@@ -1095,73 +1098,75 @@ defineExpose({
           </button>
         </div>
 
-        <!-- Symptoms Selection Groups -->
-        <div v-show="hasSymptomsChoice === 'yes'" class="space-y-5 pt-2">
-          <!-- Group 1 -->
-          <div class="space-y-2">
-            <h4 class="text-xs font-bold text-slate-800 flex items-center space-x-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-              <span>กลุ่มที่ 1: ระบบทางเดินหายใจ และผิวหนัง</span>
-            </h4>
-            <div class="flex flex-wrap gap-1.5">
-              <button 
-                v-for="sym in symptomsCatalog.g1" 
-                :key="sym"
-                type="button"
-                @click="toggleSymptom(sym)"
-                :class="[
-                  'px-3 py-1.5 rounded-lg border text-xs transition font-medium',
-                  form.symptoms.includes(sym)
-                    ? 'border-emerald-600 bg-emerald-50 text-emerald-900 font-semibold shadow-xs'
-                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                ]"
-              >
-                {{ sym }}
-              </button>
+        <!-- Symptoms Selection Groups (Multi-column on desktop) -->
+        <div v-show="hasSymptomsChoice === 'yes'" class="space-y-6 pt-3">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <!-- Group 1 -->
+            <div class="p-5 rounded-2xl border border-slate-200/80 bg-slate-50/50 space-y-3">
+              <h4 class="text-sm sm:text-base font-bold text-slate-800 flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                <span>กลุ่มที่ 1: ระบบทางเดินหายใจ และผิวหนัง</span>
+              </h4>
+              <div class="flex flex-wrap gap-2">
+                <button 
+                  v-for="sym in symptomsCatalog.g1" 
+                  :key="sym"
+                  type="button"
+                  @click="toggleSymptom(sym)"
+                  :class="[
+                    'px-3.5 py-2 rounded-xl border text-xs sm:text-sm transition font-medium',
+                    form.symptoms.includes(sym)
+                      ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-bold shadow-xs ring-1 ring-emerald-400'
+                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+                  ]"
+                >
+                  {{ sym }}
+                </button>
+              </div>
             </div>
-          </div>
 
-          <!-- Group 2 -->
-          <div class="space-y-2">
-            <h4 class="text-xs font-bold text-slate-800 flex items-center space-x-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
-              <span>กลุ่มที่ 2: ระบบประสาทส่วนปลาย และระบบทางเดินอาหาร</span>
-            </h4>
-            <div class="flex flex-wrap gap-1.5">
-              <button 
-                v-for="sym in symptomsCatalog.g2" 
-                :key="sym"
-                type="button"
-                @click="toggleSymptom(sym)"
-                :class="[
-                  'px-3 py-1.5 rounded-lg border text-xs transition font-medium',
-                  form.symptoms.includes(sym)
-                    ? 'border-emerald-600 bg-emerald-50 text-emerald-900 font-semibold shadow-xs'
-                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                ]"
-              >
-                {{ sym }}
-              </button>
+            <!-- Group 2 -->
+            <div class="p-5 rounded-2xl border border-slate-200/80 bg-slate-50/50 space-y-3">
+              <h4 class="text-sm sm:text-base font-bold text-slate-800 flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-orange-500"></span>
+                <span>กลุ่มที่ 2: ประสาทส่วนปลาย และทางเดินอาหาร</span>
+              </h4>
+              <div class="flex flex-wrap gap-2">
+                <button 
+                  v-for="sym in symptomsCatalog.g2" 
+                  :key="sym"
+                  type="button"
+                  @click="toggleSymptom(sym)"
+                  :class="[
+                    'px-3.5 py-2 rounded-xl border text-xs sm:text-sm transition font-medium',
+                    form.symptoms.includes(sym)
+                      ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-bold shadow-xs ring-1 ring-emerald-400'
+                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+                  ]"
+                >
+                  {{ sym }}
+                </button>
+              </div>
             </div>
           </div>
 
           <!-- Group 3 (High Alert / Severe) -->
-          <div class="p-3.5 rounded-xl border border-rose-200 bg-rose-50/40 space-y-2">
-            <h4 class="text-xs font-bold text-rose-900 flex items-center space-x-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-rose-600 animate-pulse"></span>
+          <div class="p-5 sm:p-6 rounded-2xl border border-rose-300 bg-rose-50/50 space-y-3">
+            <h4 class="text-sm sm:text-base font-bold text-rose-900 flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-rose-600 animate-pulse"></span>
               <span>กลุ่มที่ 3: ระบบประสาทส่วนกลาง / อาการรุนแรง (ส่งพบแพทย์ทันทีหากมีอาการ)</span>
             </h4>
-            <div class="flex flex-wrap gap-1.5">
+            <div class="flex flex-wrap gap-2">
               <button 
                 v-for="sym in symptomsCatalog.g3" 
                 :key="sym"
                 type="button"
                 @click="toggleSymptom(sym)"
                 :class="[
-                  'px-3 py-1.5 rounded-lg border text-xs transition font-medium',
+                  'px-3.5 py-2 rounded-xl border text-xs sm:text-sm transition font-medium',
                   form.symptoms.includes(sym)
-                    ? 'border-rose-600 bg-rose-100 text-rose-900 font-bold shadow-xs'
-                    : 'border-rose-200 bg-white text-rose-800 hover:bg-rose-50'
+                    ? 'border-rose-600 bg-rose-100 text-rose-950 font-bold shadow-xs ring-1 ring-rose-500'
+                    : 'border-rose-200 bg-white text-rose-900 hover:bg-rose-50'
                 ]"
               >
                 {{ sym }}
@@ -1177,7 +1182,7 @@ defineExpose({
       <div v-show="currentStep === 4" class="bg-white p-5 sm:p-7 rounded-2xl border border-slate-200/90 shadow-xs space-y-6">
         <div class="border-b border-slate-100 pb-3 text-center">
           <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">เกณฑ์มาตรฐานกรมควบคุมโรค (DDC Standards)</span>
-          <h3 class="text-base sm:text-lg font-bold text-slate-900 mt-1">ผลการประเมินระดับความเสี่ยง (Risk Matrix)</h3>
+          <h3 class="text-lg sm:text-xl font-bold text-slate-900 mt-1">ผลการประเมินระดับความเสี่ยง (Risk Matrix)</h3>
         </div>
 
         <!-- Big Risk Grade Card -->
@@ -1208,7 +1213,7 @@ defineExpose({
           </div>
 
           <div class="overflow-x-auto border border-slate-200 rounded-xl">
-            <table class="w-full text-center text-xs border-collapse">
+            <table class="w-full text-center text-xs sm:text-sm border-collapse">
               <thead>
                 <tr class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
                   <th class="p-2.5 text-left border-r border-slate-200">กลุ่มอาการ \ คะแนนพฤติกรรม</th>
@@ -1223,7 +1228,7 @@ defineExpose({
                   </th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-200 text-[11px]">
+              <tbody class="divide-y divide-slate-200 text-xs sm:text-sm">
                 <!-- Row 0: No Symptoms -->
                 <tr :class="riskEvaluation.symptomRow === 0 ? 'bg-slate-50' : ''">
                   <td class="p-2.5 text-left font-medium text-slate-800 border-r border-slate-200">
@@ -1327,13 +1332,13 @@ defineExpose({
       <!-- ================================================================= -->
       <div v-show="currentStep === 5" class="bg-white p-5 sm:p-7 rounded-2xl border border-slate-200/90 shadow-xs space-y-6">
         <div class="border-b border-slate-100 pb-3">
-          <h3 class="text-base font-bold text-slate-900">ขั้นตอนที่ 5: บันทึกผลตรวจเอนไซม์โคลีนเอสเตอเรสในเลือด</h3>
+          <h3 class="text-lg sm:text-xl font-bold text-slate-900">ขั้นตอนที่ 5: บันทึกผลตรวจเอนไซม์โคลีนเอสเตอเรสในเลือด</h3>
           <p class="text-xs text-slate-500 mt-0.5">การตรวจคัดกรองด้วยกระดาษทดสอบ Reactive Paper และสารเคมีที่ใช้</p>
         </div>
 
         <!-- Chemicals Used Section -->
         <div class="space-y-2">
-          <label class="block text-xs font-semibold text-slate-800">
+          <label class="block text-sm font-semibold text-slate-800">
             สารเคมีกำจัดศัตรูพืชที่ใช้บ่อย (คลิกเลือก หรือพิมพ์แล้วกด Enter)
           </label>
           <div class="flex flex-wrap gap-1.5">
@@ -1367,7 +1372,7 @@ defineExpose({
             v-model="chemicalInputText" 
             @keydown="handleChemicalKeydown"
             placeholder="พิมพ์ชื่อสารเคมีเพิ่มเติม เช่น คลอร์ไพริฟอส แล้วกด Enter..." 
-            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-base focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
           >
         </div>
 
@@ -1427,7 +1432,7 @@ defineExpose({
                 class="w-6 h-6 rounded-full border-2 border-white shadow-xs" 
                 :style="{ backgroundColor: item.colorHex }"
               ></span>
-              <span class="block text-xs font-bold">{{ item.val }}</span>
+              <span class="block text-sm sm:text-base font-bold">{{ item.val }}</span>
               <span class="block text-[10px] opacity-80">{{ item.sub }}</span>
             </div>
           </div>
@@ -1481,7 +1486,7 @@ defineExpose({
           type="button" 
           v-if="currentStep > 1"
           @click="prevStep" 
-          class="px-4 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition flex items-center space-x-1.5 focus:outline-none focus:ring-2 focus:ring-slate-300"
+          class="px-6 py-3 border border-slate-300 rounded-xl text-sm sm:text-base font-bold text-slate-700 hover:bg-slate-100 transition flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-slate-300 shadow-xs cursor-pointer"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -1498,7 +1503,7 @@ defineExpose({
           type="button" 
           v-if="currentStep < 5"
           @click="nextStep" 
-          class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-sm ring-1 ring-emerald-700/30 flex items-center space-x-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          class="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm sm:text-base font-bold transition shadow-sm ring-1 ring-emerald-700/30 flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
         >
           <span>ถัดไป</span>
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1510,7 +1515,7 @@ defineExpose({
           type="submit" 
           v-else
           :disabled="isSubmitting"
-          class="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition shadow-sm ring-1 ring-emerald-800/30 flex items-center space-x-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+          class="px-8 py-3 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-xl text-sm sm:text-base font-bold transition shadow-sm ring-1 ring-emerald-800/30 flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-emerald-600 cursor-pointer"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
