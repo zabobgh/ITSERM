@@ -106,7 +106,7 @@ describe('OCC-นบ 01 Report Component Tests', () => {
     const text = wrapper.text()
     expect(text).toContain('OCC-นบ01')
     expect(text).toContain('แบบรายงานการดำเนินงานจัดบริการอาชีวอนามัยในหน่วยบริการปฐมภูมิ')
-    expect(text).toContain('1.สถานะของหน่วยบริการในการจัดบริการอาชีวอนามัยแก่แรงงานในชุมชน')
+    expect(text).not.toContain('1.สถานะของหน่วยบริการในการจัดบริการอาชีวอนามัยแก่แรงงานในชุมชน')
     expect(text).toContain('ส่วนที่ 1 ข้อมูลพื้นฐานเกี่ยวกับประชากรวัยทำงานในพื้นที่ของหน่วยบริการ')
     expect(text).toContain('ส่วนที่ 2.การจัดบริการอาชีวอนามัยเพื่อการดูแลสุขภาพเกษตรกร')
     expect(text).toContain('งานจัดบริการเชิงรุก')

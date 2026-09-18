@@ -151,44 +151,6 @@ defineExpose({
               </div>
             </div>
 
-            <!-- ข้อ 1 สถานะของหน่วยบริการฯ -->
-            <div class="mb-3 text-xs leading-relaxed text-slate-900 space-y-1 border-b border-slate-300 pb-2.5">
-              <p class="font-bold">1.สถานะของหน่วยบริการในการจัดบริการอาชีวอนามัยแก่แรงงานในชุมชน</p>
-              <div class="pl-4 space-y-1">
-                <div class="flex items-center gap-4">
-                  <span>1.1 จัดบริการอาชีวอนามัยให้แก่แรงงานในชุมชนกลุ่มอื่นๆ</span>
-                  <label class="inline-flex items-center gap-1 cursor-pointer">
-                    <span class="inline-block w-3.5 h-3.5 rounded-full border border-slate-600"></span> เป็นครั้งแรก
-                  </label>
-                  <label class="inline-flex items-center gap-1 cursor-pointer">
-                    <span class="inline-block w-3.5 h-3.5 rounded-full border border-slate-600"></span> ดำเนินต่อเนื่อง เป็นเวลา ...ปี
-                  </label>
-                </div>
-
-                <div class="flex items-center gap-4">
-                  <span>1.2 จัดบริการอาชีวอนามัยให้แก่เกษตรกร (เฝ้าระวังการสัมผัสสารกำจัดศัตรูพืช)</span>
-                  <label class="inline-flex items-center gap-1 cursor-pointer">
-                    <span class="inline-block w-3.5 h-3.5 rounded-full border border-slate-600"></span> เป็นครั้งแรก
-                  </label>
-                  <label class="inline-flex items-center gap-1 cursor-pointer">
-                    <span class="inline-block w-3.5 h-3.5 rounded-full border border-slate-600"></span> ดำเนินต่อเนื่อง เป็นเวลา .........ปี
-                  </label>
-                </div>
-
-                <div class="flex items-center gap-4">
-                  <span>1.3 จัดบริการคลินิกสุขภาพเกษตรกร</span>
-                  <label class="inline-flex items-center gap-1 cursor-pointer">
-                    <span class="inline-block w-3.5 h-3.5 rounded-full border border-slate-600"></span> ไม่
-                  </label>
-                  <label class="inline-flex items-center gap-1 cursor-pointer">
-                    <span class="inline-block w-3.5 h-3.5 rounded-full border border-slate-600"></span> เป็นครั้งแรก
-                  </label>
-                  <label class="inline-flex items-center gap-1 cursor-pointer">
-                    <span class="inline-block w-3.5 h-3.5 rounded-full border border-slate-600"></span> ดำเนินต่อเนื่อง เป็นเวลา .........ปี
-                  </label>
-                </div>
-              </div>
-            </div>
 
             <!-- ส่วนที่ 1 ข้อมูลพื้นฐานเกี่ยวกับประชากรวัยทำงานฯ -->
             <div class="mb-3">

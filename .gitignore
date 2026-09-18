@@ -44,3 +44,4 @@ Thumbs.db
 *.sln
 *.sw?
 .impeccable/
+compact-docker-vhd.txt
